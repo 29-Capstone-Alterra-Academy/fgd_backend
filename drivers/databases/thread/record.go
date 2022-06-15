@@ -9,21 +9,24 @@ import (
 
 type Thread struct {
 	gorm.Model
-	TopicID  uint `json:"topic_id"`
+	TopicID  uint
 	Topic    topic.Topic
-	AuthorID uint         `json:"user_id"`
+	AuthorID uint
 	Author   user.User    `gorm:"ForeignKey:AuthorID"`
-	Title    string       `json:"title"`
-	Content  string       `json:"content"`
-	Image    *ThreadImage `json:"image" gorm:"contraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Title    string
+	Content  string
+	Image    *ThreadImage `gorm:"contraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+
+  LikedBy []*user.User `gorm:"many2many:liked_thread"`
+  UnlikedBy []*user.User `gorm:"many2many:unliked_thread"`
 }
 
 type ThreadImage struct {
 	gorm.Model
-	ThreadID  uint   `json:"thread_id"`
-	ImageURL1 string `json:"image1"`
-	ImageURL2 string `json:"image2"`
-	ImageURL3 string `json:"image3"`
-	ImageURL4 string `json:"image4"`
-	ImageURL5 string `json:"image5"`
+	ThreadID  uint
+	ImageURL1 string
+	ImageURL2 string
+	ImageURL3 string
+	ImageURL4 string
+	ImageURL5 string
 }

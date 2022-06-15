@@ -1,6 +1,10 @@
 package topic
 
-import "gorm.io/gorm"
+import (
+	"os/user"
+
+	"gorm.io/gorm"
+)
 
 type Topic struct {
 	gorm.Model
@@ -8,4 +12,7 @@ type Topic struct {
 	ProfileImage *string
 	Description  string
 	Rules        *string
+
+	Moderators   []*user.User `gorm:"many2many:topic_moderator"`
+	SubscribedBy []*user.User `gorm:"many2many:subscribed_topic"`
 }
