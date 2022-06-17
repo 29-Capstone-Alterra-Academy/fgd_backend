@@ -15,12 +15,9 @@ type Reply struct {
 	Parent   *Reply
 	UserID   uint
 	User     user.User
-	Image    *ReplyImage `gorm:"contraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Image    *string
 	Content  string
-}
 
-type ReplyImage struct {
-	gorm.Model
-	ReplyID  uint
-	ImageURL string
+	LikedBy   []*user.User `gorm:"many2many:liked_reply"`
+	UnlikedBy []*user.User `gorm:"many2many:unliked_reply"`
 }
