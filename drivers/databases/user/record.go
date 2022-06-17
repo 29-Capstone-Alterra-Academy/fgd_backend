@@ -2,6 +2,8 @@ package user
 
 import (
 	"fgd/drivers/databases/notification"
+	"fgd/drivers/databases/thread"
+	"fgd/drivers/databases/topic"
 	"time"
 
 	"gorm.io/gorm"
