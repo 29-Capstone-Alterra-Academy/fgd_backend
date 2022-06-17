@@ -2,7 +2,7 @@ package thread
 
 import (
 	"fgd/drivers/databases/topic"
-	"os/user"
+	"fgd/drivers/databases/user"
 
 	"gorm.io/gorm"
 )
@@ -23,4 +23,5 @@ type Thread struct {
 
 	LikedBy   []*user.User `gorm:"many2many:liked_thread"`
 	UnlikedBy []*user.User `gorm:"many2many:unliked_thread"`
+	SavedBy   []*Thread    `gorm:"many2many:saved_thread"`
 }

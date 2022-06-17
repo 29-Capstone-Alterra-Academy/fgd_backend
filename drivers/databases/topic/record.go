@@ -1,7 +1,7 @@
 package topic
 
 import (
-	"os/user"
+	"fgd/drivers/databases/user"
 
 	"gorm.io/gorm"
 )
@@ -13,6 +13,6 @@ type Topic struct {
 	Description  string
 	Rules        *string
 
-	Moderators   []*user.User `gorm:"many2many:topic_moderator"`
+	ModeratedBy  []*user.User `gorm:"many2many:topic_moderator"`
 	SubscribedBy []*user.User `gorm:"many2many:subscribed_topic"`
 }
