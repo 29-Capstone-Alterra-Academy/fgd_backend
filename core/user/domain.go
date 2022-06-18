@@ -6,8 +6,10 @@ import (
 
 type Domain struct {
 	ID             int
+	Role           string
 	Username       string
 	Email          string
+	Password       string
 	ThreadCount    int
 	FollowingCount int
 	FollowersCount int
@@ -22,14 +24,14 @@ type Domain struct {
 type Usecase interface {
 	GetUsers(limit, offset int) ([]Domain, error)
 	CreateUser(data *Domain) (Domain, error)
-	GetPersonalProfile() (Domain, error)
+	GetPersonalProfile(userId int) (Domain, error)
 	GetProfileByID(userId int) (Domain, error)
-	UpdatePersonalProfile(data *Domain) (Domain, error)
-	UpdatePassword(newPassword string) error
+	UpdatePersonalProfile(data *Domain, userId int) (Domain, error)
+	UpdatePassword(newPassword string, userId int) error
 	UpdateProfileImage(data *Domain) (Domain, error)
-	CheckUserAvailibility(username string) error
-	FollowUser(userId int) error
-	UnfollowUser(userId int) error
+	CheckUserAvailibility(username string) (bool, error)
+	FollowUser(userId, targetId int) error
+	UnfollowUser(userId, targetId int) error
 }
 
 type Repository interface {
@@ -38,8 +40,8 @@ type Repository interface {
 	GetPersonalProfile(userId int) (Domain, error)
 	GetProfileByID(userId int) (Domain, error)
 	UpdatePersonalProfile(data *Domain, userId int) (Domain, error)
-	UpdatePassword(hashedPassword string) error
-	UpdateProfileImage(data *Domain, userId int)
+	UpdatePassword(hashedPassword string, userId int) error
+	UpdateProfileImage(data *Domain, userId int) error
 	CheckAvailibility(username string) (bool, error)
 	FollowUser(userId, targetId int) error
 	UnfollowUser(userId, targetId int) error
