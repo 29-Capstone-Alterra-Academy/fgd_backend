@@ -34,7 +34,7 @@ func (rp *persistenceTopicRepository) GetModerators(topicId int) {
 func (rp *persistenceTopicRepository) GetTopics(limit, offset int, sort_by string) ([]topic.Domain, error) {
 	topics := []Topic{}
 
-  // TODO Handle sort_by
+	// TODO Handle sort_by
 	res := rp.Conn.Limit(limit).Offset(offset).Omit("ModeratedBy", "SubscribedBy", "Rules").Find(&topics)
 
 	if res.Error != nil {
