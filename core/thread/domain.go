@@ -36,7 +36,7 @@ type Usecase interface {
 	GetThreadByAuthorID(userId int) ([]Domain, error)
 	GetThreadByTopicID(topicId int) ([]Domain, error)
 	CreateThread(data *Domain, userId, topicId int) (Domain, error)
-	UpdateThread(data *Domain, userId int) (Domain, error)
+	UpdateThread(data *Domain, userId, threadId int) (Domain, error)
 	DeleteThread(userId, threadId int) error
 	Like(userId, threadId int) error
 	UndoLike(userId, threadId int) error
@@ -48,10 +48,10 @@ type Repository interface {
 	GetThreadByAuthorID(userId int) ([]Domain, error)
 	GetThreadByTopicID(topicId int) ([]Domain, error)
 	CreateThread(data *Domain, userId, topicId int) (Domain, error)
-	UpdateThread(data *Domain, userId int) (Domain, error)
+	UpdateThread(data *Domain, userId, threadId int) (Domain, error)
 	DeleteThread(userId, threadId int) error
 	Like(userId, threadId int) error
 	UndoLike(userId, threadId int) error
 	Unlike(userId, threadId int) error
-	UndoUnlike(userId, thread int) error
+	UndoUnlike(userId, threadId int) error
 }
