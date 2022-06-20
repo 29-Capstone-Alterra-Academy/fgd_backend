@@ -16,6 +16,7 @@ type User struct {
 	ProfileImage *string
 	Gender       string
 	BirthDate    time.Time
+	Bio          string
 
 	Following []*User `gorm:"many2many:user_follow"`
 
