@@ -16,6 +16,7 @@ type Domain struct {
 	FollowersCount int
 	ProfileImage   string
 	Gender         string
+  ModeratedTopic []int
 	BirthDate      time.Time
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
@@ -26,7 +27,7 @@ type Usecase interface {
 	CreateToken(userId int, isAdmin bool, moderatedTopic []int) (middleware.CustomToken, error)
 	CreateUser(data *Domain) (Domain, error)
 	CheckUserAvailibility(username string) (bool, error)
-	GetModeratedTopic(userId int) ([]int, error)
+	GetModeratedTopic(userId int) (Domain, error)
 	GetPersonalProfile(userId int) (Domain, error)
 	GetProfileByID(userId int) (Domain, error)
 	GetUsers(limit, offset int) ([]Domain, error)
@@ -44,7 +45,7 @@ type Repository interface {
 	GetPersonalProfile(userId int) (Domain, error)
 	GetProfileByID(userId int) (Domain, error)
 	GetUsers(limit, offset int) ([]Domain, error)
-	GetModeratedTopic(userId int) ([]int, error)
+	GetModeratedTopic(userId int) (Domain, error)
 	UpdatePersonalProfile(data *Domain, userId int) (Domain, error)
 	UpdatePassword(hashedPassword string, userId int) error
 	UpdateProfileImage(data *Domain, userId int) error
