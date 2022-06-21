@@ -28,3 +28,8 @@ type UserRole struct {
 	UserID uint
 	Type   string
 }
+
+type UserModeratedTopic struct {
+	ID []int
+}
+
