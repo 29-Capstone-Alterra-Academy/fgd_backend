@@ -16,7 +16,7 @@ type Domain struct {
 	FollowersCount int
 	ProfileImage   string
 	Gender         string
-  ModeratedTopic []int
+	ModeratedTopic []int
 	BirthDate      time.Time
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
@@ -24,17 +24,17 @@ type Domain struct {
 }
 
 type Usecase interface {
-	CreateToken(userId int, isAdmin bool, moderatedTopic []int) (middleware.CustomToken, error)
+	CreateToken(username, email, password string) (middleware.CustomToken, error)
 	CreateUser(data *Domain) (Domain, error)
 	CheckUserAvailibility(username string) (bool, error)
-	GetModeratedTopic(userId int) (Domain, error)
 	GetPersonalProfile(userId int) (Domain, error)
 	GetProfileByID(userId int) (Domain, error)
 	GetUsers(limit, offset int) ([]Domain, error)
+	GetFollowers(userId int) ([]Domain, error)
+	GetFollowing(userId int) ([]Domain, error)
 	UpdatePersonalProfile(data *Domain, userId int) (Domain, error)
 	UpdatePassword(newPassword string, userId int) error
-	UpdateProfileImage(data *Domain) (Domain, error)
-	IsAdmin(userId int) (bool, error)
+	UpdateProfileImage(data *Domain, userId int) error
 	FollowUser(userId, targetId int) error
 	UnfollowUser(userId, targetId int) error
 }
@@ -45,6 +45,10 @@ type Repository interface {
 	GetPersonalProfile(userId int) (Domain, error)
 	GetProfileByID(userId int) (Domain, error)
 	GetUsers(limit, offset int) ([]Domain, error)
+	GetUserByEmail(email string) (Domain, error)
+	GetUserByUsername(username string) (Domain, error)
+	GetFollowers(userId int) ([]Domain, error)
+	GetFollowing(userId int) ([]Domain, error)
 	GetModeratedTopic(userId int) (Domain, error)
 	UpdatePersonalProfile(data *Domain, userId int) (Domain, error)
 	UpdatePassword(hashedPassword string, userId int) error
