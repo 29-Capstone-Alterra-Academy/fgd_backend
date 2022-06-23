@@ -4,8 +4,9 @@ go 1.18
 
 require gorm.io/gorm v1.23.5
 
+require github.com/google/uuid v1.3.0
+
 require (
-	github.com/gofrs/uuid v4.2.0+incompatible
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/labstack/gommon v0.3.1 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -23,7 +24,9 @@ type JWTConfig struct {
 
 type CustomToken struct {
 	AccessToken  string `json:"access_token"`
+	AccessUUID   string `json:"-"`
 	RefreshToken string `json:"refresh_token"`
+	RefreshUUID  string `json:"-"`
 }
 
 func (c *JWTConfig) Init() middleware.JWTConfig {
@@ -34,6 +37,9 @@ func (c *JWTConfig) Init() middleware.JWTConfig {
 }
 
 func (c *JWTConfig) GenerateToken(userId int, isAdmin bool, moderatedTopic []int) (CustomToken, error) {
+	var token CustomToken
+	var err error
+
 	accessClaims := JWTCustomClaims{
 		UserID:     userId,
 		Moderating: moderatedTopic,
@@ -46,10 +52,11 @@ func (c *JWTConfig) GenerateToken(userId int, isAdmin bool, moderatedTopic []int
 	}
 
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims)
-	t, err := accessToken.SignedString([]byte(c.Secret))
+	token.AccessToken, err = accessToken.SignedString([]byte(c.Secret))
 	if err != nil {
-		return CustomToken{}, err
+		return token, err
 	}
+	token.AccessUUID = uuid.New().String()
 
 	refreshClaims := jwt.StandardClaims{
 		ExpiresAt: time.Now().Local().Add(c.RefreshExpiry).Unix(),
@@ -58,15 +65,13 @@ func (c *JWTConfig) GenerateToken(userId int, isAdmin bool, moderatedTopic []int
 	}
 
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims)
-	rt, err := refreshToken.SignedString([]byte(c.Secret))
+	token.RefreshToken, err = refreshToken.SignedString([]byte(c.Secret))
 	if err != nil {
 		return CustomToken{}, err
 	}
+	token.RefreshUUID = uuid.New().String()
 
-	return CustomToken{
-		AccessToken:  t,
-		RefreshToken: rt,
-	}, nil
+	return token, nil
 }
 
 func ExtractUserClaims(c echo.Context) *JWTCustomClaims {
