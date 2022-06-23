@@ -10,11 +10,11 @@ type Domain struct {
 type Usecase interface {
 	FetchAuth(userId int) (Domain, error)
 	DeleteAuth(userId int) error
-	StoreAuth(auth middleware.CustomToken) error
+	StoreAuth(userId int, auth middleware.CustomToken) error
 }
 
 type Repository interface {
 	FetchAuth(userId int) (Domain, error)
 	DeleteAuth(userId int) error
-	StoreAuth(auth middleware.CustomToken) error
+	StoreAuth(userId int, auth middleware.CustomToken) error
 }
