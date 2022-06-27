@@ -22,7 +22,7 @@ func (rp *persistenceVerifyRepository) FetchVerifyData(email string) (verify.Dom
 	return verify.toDomain(), res.Error
 }
 
-func (rp *persistenceVerifyRepository) StoreVerifyData(email string, data verify.Domain) error {
+func (rp *persistenceVerifyRepository) StoreVerifyData(data verify.Domain) error {
 	verify := fromDomain(data)
 	res := rp.Conn.Create(&verify)
 	return res.Error
