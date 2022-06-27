@@ -159,8 +159,19 @@ func (rp *persistenceUserRepository) UpdatePassword(hashedPassword string, userI
 }
 
 func (rp *persistenceUserRepository) UpdatePersonalProfile(data *user.Domain, userId int) (user.Domain, error) {
+	existingUser := User{}
+	fetchResult := rp.Conn.Take(&existingUser, userId)
+	if fetchResult.Error != nil {
+		return user.Domain{}, fetchResult.Error
+	}
+
 	updatedUser := fromDomain(*data)
-	res := rp.Conn.Save(&updatedUser)
+
+	existingUser.Bio = updatedUser.Bio
+	existingUser.BirthDate = updatedUser.BirthDate
+	existingUser.Gender = updatedUser.Gender
+
+	res := rp.Conn.Save(&existingUser)
 
 	return updatedUser.toDomain(), res.Error
 }
