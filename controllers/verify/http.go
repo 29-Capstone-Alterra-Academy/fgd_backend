@@ -97,3 +97,21 @@ func (cr *VerifyController) SubmitForgetPasswordVerification(c echo.Context) err
 	// TODO Should redirect
 	return controllers.SuccessResponse(c, http.StatusOK, nil)
 }
+
+// TODO How to protect this path
+func (cr *VerifyController) SubmitNewPassword(c echo.Context) error {
+	claims := middleware.ExtractUserClaims(c)
+
+	req := request.PasswordReset{}
+	err := c.Bind(&req)
+	if err != nil {
+		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	err = cr.userUsecase.UpdatePassword(req.NewPassword, claims.UserID)
+	if err != nil {
+		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+	}
+
+	return controllers.SuccessResponse(c, http.StatusOK, nil)
+}
