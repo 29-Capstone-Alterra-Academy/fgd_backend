@@ -61,7 +61,7 @@ func (rp *persistenceUserRepository) CheckIsAdmin(userId int) (bool, error) {
 	user := User{}
 	res := rp.Conn.Preload("UserRole").Take("Type").Find(&user, userId)
 
-	return user.Role.Type == "admin", res.Error
+	return user.Role == "admin", res.Error
 }
 
 func (rp *persistenceUserRepository) GetModeratedTopic(userId int) (user.Domain, error) {
@@ -80,14 +80,9 @@ func (rp *persistenceUserRepository) CheckUserAvailibility(username string) (boo
 }
 
 func (rp *persistenceUserRepository) CreateUser(data *user.Domain) (user.Domain, error) {
-	userRole := UserRole{}
 	newUser := fromDomain(*data)
 
-	roleErr := rp.Conn.Where("type = ?", "user").Take(&userRole).Error
-	if roleErr != nil {
-		return user.Domain{}, roleErr
-	}
-	newUser.Role = userRole
+	newUser.Role = "user"
 	res := rp.Conn.Create(&newUser)
 
 	return newUser.toDomain(), res.Error
