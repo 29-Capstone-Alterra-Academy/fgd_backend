@@ -10,7 +10,7 @@ import (
 
 type User struct {
 	gorm.Model
-	Role         UserRole
+	Role         string
 	Username     string `gorm:"unique"`
 	Email        string `gorm:"unique"`
 	Password     string
@@ -18,16 +18,11 @@ type User struct {
 	Gender       string
 	BirthDate    time.Time
 	Bio          string
+	IsVerified   bool `gorm:"default:false"`
 
 	Following []*User `gorm:"many2many:user_follow"`
 
 	Notifications []notification.Notification
-}
-
-type UserRole struct {
-	ID     uint `gorm:"primaryKey"`
-	UserID uint
-	Type   string
 }
 
 type UserModeratedTopic struct {
@@ -37,7 +32,7 @@ type UserModeratedTopic struct {
 func (rec *User) toDomain() user.Domain {
 	return user.Domain{
 		ID:             int(rec.ID),
-		Role:           rec.Role.Type,
+		Role:           rec.Role,
 		Username:       rec.Username,
 		Email:          rec.Email,
 		Password:       rec.Password,
@@ -45,6 +40,7 @@ func (rec *User) toDomain() user.Domain {
 		Gender:         rec.Gender,
 		ModeratedTopic: []int{},
 		BirthDate:      rec.BirthDate,
+		IsVerified:     rec.IsVerified,
 		CreatedAt:      rec.CreatedAt,
 		UpdatedAt:      rec.UpdatedAt,
 		DeletedAt:      rec.DeletedAt.Time,
@@ -67,12 +63,13 @@ func fromDomain(userDomain user.Domain) *User {
 				Time: userDomain.DeletedAt,
 			},
 		},
-		Role:         UserRole{Type: userDomain.Role},
+		Role:         userDomain.Role,
 		Username:     userDomain.Username,
 		Email:        userDomain.Email,
 		Password:     userDomain.Password,
 		ProfileImage: &userDomain.ProfileImage,
 		Gender:       userDomain.Gender,
 		BirthDate:    userDomain.BirthDate,
+		IsVerified:   userDomain.IsVerified,
 	}
 }

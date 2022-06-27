@@ -17,6 +17,7 @@ type Domain struct {
 	ProfileImage   string
 	Gender         string
 	ModeratedTopic []int
+	IsVerified     bool
 	BirthDate      time.Time
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
