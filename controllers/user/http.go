@@ -6,6 +6,7 @@ import (
 	"fgd/controllers/user/request"
 	"fgd/core/auth"
 	"fgd/core/user"
+	"fgd/core/verify"
 	"fmt"
 	"io"
 	"net/http"
@@ -17,14 +18,16 @@ import (
 )
 
 type UserController struct {
-	userUsecase user.Usecase
-	authUsecase auth.Usecase
+	authUsecase   auth.Usecase
+	userUsecase   user.Usecase
+	verifyUsecase verify.Usecase
 }
 
-func InitUserController(ac auth.Usecase, uc user.Usecase) *UserController {
+func InitUserController(ac auth.Usecase, uc user.Usecase, vc verify.Usecase) *UserController {
 	return &UserController{
-		authUsecase: ac,
-		userUsecase: uc,
+		authUsecase:   ac,
+		userUsecase:   uc,
+		verifyUsecase: vc,
 	}
 }
 
@@ -60,19 +63,18 @@ func (cr *UserController) Register(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	_, err = cr.userUsecase.CreateUser(user.ToDomain())
+	userDomain, err := cr.userUsecase.CreateUser(user.ToDomain())
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	// TODO Send email
+	err = cr.verifyUsecase.SendVerifyToken(userDomain.Email, "EMAIL_VERIFY")
+	if err != nil {
+		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+	}
 
 	return controllers.SuccessResponse(c, http.StatusCreated, nil)
 }
-
-// func (cr *UserController) RequestReset(c echo.Context) error { // TODO Sent 6-digit code to user email }
-// func (cr *UserController) ResetCodeVerification(c echo.Context) error { // TODO }
-// func (cr *UserController) SubmitNewPassword(c echo.Context) error { // TODO How to protect this path }
 
 func (cr *UserController) RefreshToken(c echo.Context) error {
 	tokenReq := request.TokenRequest{}
