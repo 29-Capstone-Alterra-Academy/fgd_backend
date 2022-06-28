@@ -89,15 +89,12 @@ func (rp *persistenceUserRepository) CreateUser(data *user.Domain) (user.Domain,
 }
 
 func (rp *persistenceUserRepository) FollowUser(userId int, targetId int) error {
-	err := rp.Conn.
-		Model(&User{}).
-		Where("id = ?", userId).
+	user := User{Model: gorm.Model{ID: uint(userId)}}
+	targetUser := User{Model: gorm.Model{ID: uint(targetId)}}
+	return rp.Conn.
+		Model(&user).
 		Association("Following").
-		Append(&User{
-			Model: gorm.Model{ID: uint(targetId)},
-		})
-
-	return err
+		Append(targetUser)
 }
 
 func (rp *persistenceUserRepository) GetPersonalProfile(userId int) (user.Domain, error) {
@@ -141,15 +138,12 @@ func (rp *persistenceUserRepository) GetUsers(limit int, offset int) ([]user.Dom
 }
 
 func (rp *persistenceUserRepository) UnfollowUser(userId int, targetId int) error {
-	err := rp.Conn.
-		Model(&User{}).
-		Where("id = ?", userId).
+	user := User{Model: gorm.Model{ID: uint(userId)}}
+	targetUser := User{Model: gorm.Model{ID: uint(targetId)}}
+	return rp.Conn.
+		Model(&user).
 		Association("Following").
-		Delete(&User{
-			Model: gorm.Model{ID: uint(targetId)},
-		})
-
-	return err
+		Delete(targetUser)
 }
 
 func (rp *persistenceUserRepository) UpdatePassword(hashedPassword string, userId int) error {
