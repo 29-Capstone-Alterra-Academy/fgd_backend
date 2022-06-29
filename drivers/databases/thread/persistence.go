@@ -41,14 +41,12 @@ func (rp *persistenceThreadRepository) DeleteThread(userId int, threadId int) er
 	return res.Error
 }
 
-func (rp *persistenceThreadRepository) GetThreadByAuthorID(userId int) ([]thread.Domain, error) {
+func (rp *persistenceThreadRepository) GetThreadByAuthorID(userId, limit, offset int) ([]thread.Domain, error) {
 	threads := []Thread{}
-	fetchResult := rp.Conn.Where("author_id = ?", userId).Find(&threads)
+	fetchResult := rp.Conn.Limit(limit).Offset(offset).Where("author_id = ?", userId).Find(&threads)
 	if fetchResult.Error != nil {
 		return []thread.Domain{}, fetchResult.Error
 	}
-
-	// TODO Include like, unlike, and reply count
 
 	threadDomains := []thread.Domain{}
 	for _, thread := range threads {
@@ -59,14 +57,12 @@ func (rp *persistenceThreadRepository) GetThreadByAuthorID(userId int) ([]thread
 	return threadDomains, nil
 }
 
-func (rp *persistenceThreadRepository) GetThreadByTopicID(topicId int) ([]thread.Domain, error) {
+func (rp *persistenceThreadRepository) GetThreadByTopicID(topicId, limit, offset int) ([]thread.Domain, error) {
 	threads := []Thread{}
-	fetchResult := rp.Conn.Where("topic_id = ?", topicId).Find(&threads)
+	fetchResult := rp.Conn.Limit(limit).Offset(offset).Where("topic_id = ?", topicId).Find(&threads)
 	if fetchResult.Error != nil {
 		return []thread.Domain{}, fetchResult.Error
 	}
-
-	// TODO Include like, unlike, and reply count
 
 	threadDomains := []thread.Domain{}
 	for _, thread := range threads {

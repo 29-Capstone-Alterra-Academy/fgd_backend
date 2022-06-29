@@ -19,12 +19,12 @@ func (uc *threadUsecase) DeleteThread(userId int, threadId int) error {
 	return uc.threadRepository.DeleteThread(userId, threadId)
 }
 
-func (uc *threadUsecase) GetThreadByAuthorID(userId int) ([]Domain, error) {
-	return uc.threadRepository.GetThreadByAuthorID(userId)
+func (uc *threadUsecase) GetThreadByAuthorID(userId, limit, offset int) ([]Domain, error) {
+	return uc.threadRepository.GetThreadByAuthorID(userId, limit, offset)
 }
 
-func (uc *threadUsecase) GetThreadByTopicID(topicId int) ([]Domain, error) {
-	return uc.threadRepository.GetThreadByTopicID(topicId)
+func (uc *threadUsecase) GetThreadByTopicID(topicId, limit, offset int) ([]Domain, error) {
+	return uc.threadRepository.GetThreadByTopicID(topicId, limit, offset)
 }
 
 func (uc *threadUsecase) Like(userId int, threadId int) error {
