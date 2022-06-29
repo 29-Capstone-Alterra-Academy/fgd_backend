@@ -16,15 +16,35 @@ type UserProfile struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 }
 
-func FromDomain(userDomain *user.Domain) UserProfile {
-	return UserProfile{
-		ID:           userDomain.ID,
-		Username:     userDomain.Username,
-		Email:        userDomain.Email,
-		Gender:       userDomain.Gender,
-		ProfileImage: userDomain.ProfileImage,
-		IsVerified:   userDomain.IsVerified,
-		BirthDate:    userDomain.BirthDate,
-		UpdatedAt:    userDomain.UpdatedAt,
+type UserPublicProfile struct {
+	ID             int
+	Username       string
+	ProfileImage   string
+	ThreadCount    int
+	FollowingCount int
+	FollowersCount int
+}
+
+func FromDomain(userDomain *user.Domain, scope string) interface{} {
+	if scope == "personal" {
+		return UserProfile{
+			ID:           userDomain.ID,
+			Username:     userDomain.Username,
+			Email:        userDomain.Email,
+			Gender:       userDomain.Gender,
+			ProfileImage: userDomain.ProfileImage,
+			IsVerified:   userDomain.IsVerified,
+			BirthDate:    userDomain.BirthDate,
+			UpdatedAt:    userDomain.UpdatedAt,
+		}
+	} else {
+		return UserPublicProfile{
+			ID:             userDomain.ID,
+			Username:       userDomain.Username,
+			ProfileImage:   userDomain.ProfileImage,
+			ThreadCount:    userDomain.ThreadCount,
+			FollowingCount: userDomain.FollowingCount,
+			FollowersCount: userDomain.FollowersCount,
+		}
 	}
 }
