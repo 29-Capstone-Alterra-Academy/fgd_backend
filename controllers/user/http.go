@@ -166,7 +166,21 @@ func (cr *UserController) GetProfile(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusOK, response.FromDomain(&profile))
+	return controllers.SuccessResponse(c, http.StatusOK, response.FromDomain(&profile, "personal"))
+}
+
+func (cr *UserController) GetPublicProfile(c echo.Context) error {
+	userId, err := strconv.Atoi(c.Param("userId"))
+	if err != nil {
+		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	profile, err := cr.userUsecase.GetProfileByID(userId)
+	if err != nil {
+		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+	}
+
+	return controllers.SuccessResponse(c, http.StatusOK, response.FromDomain(&profile, "public"))
 }
 
 func (cr *UserController) UpdateProfileImage(c echo.Context) error {
