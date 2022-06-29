@@ -31,6 +31,29 @@ func (rp *persistenceTopicRepository) GetModerators(topicId int) {
 	panic("unimplemented")
 }
 
+func (rp *persistenceTopicRepository) GetTopicDetails(topicId int) (topic.Domain, error) {
+	existingTopic := Topic{}
+	res := rp.Conn.Take(&existingTopic, topicId)
+	if res.Error != nil {
+		return topic.Domain{}, res.Error
+	}
+
+	topicDomain := existingTopic.toDomain()
+	var threadCount int64
+	// var replyCount int64
+	var contributorCount int64
+	var moderatorCount int64
+
+	rp.Conn.Table("thread").Where("topic_id = ?", topicDomain.ID).Count(&threadCount)
+	// TODO Check reply in topic
+	rp.Conn.Table("thread").Where("topic_id = ?", topicDomain).Distinct("author_id").Count(&contributorCount)
+	topicDomain.ContributorCount = int(contributorCount)
+	rp.Conn.Table("topic_moderator").Where("moderated_by_id = ?", topicDomain.ID).Count(&moderatorCount)
+	topicDomain.ModeratorCount = int(moderatorCount)
+
+	return topicDomain, nil
+}
+
 func (rp *persistenceTopicRepository) GetTopics(limit, offset int, sort_by string) ([]topic.Domain, error) {
 	topics := []Topic{}
 
@@ -63,7 +86,15 @@ func (rp *persistenceTopicRepository) Subscribe(userId int, topicId int) error {
 }
 
 func (rp *persistenceTopicRepository) Unsubscribe(userId int, topicId int) error {
-	panic("unimplemented")
+	topic := Topic{Model: gorm.Model{ID: uint(topicId)}}
+	err := rp.Conn.
+		Model(&topic).
+		Association("SubscribedBy").
+		Delete(&user.User{
+			Model: gorm.Model{ID: uint(userId)},
+		})
+
+	return err
 }
 
 func (rp *persistenceTopicRepository) UpdateTopic(data *topic.Domain, topicId int) (topic.Domain, error) {
