@@ -22,7 +22,7 @@ func InitThreadController(tc thread.Usecase) *ThreadController {
 	}
 }
 
-func (cr *ThreadController) CreateThread(c echo.Context) error {
+func (cr *ThreadController) Create(c echo.Context) error {
 	topicId, err := strconv.Atoi(c.Param("topicId"))
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
@@ -44,7 +44,7 @@ func (cr *ThreadController) CreateThread(c echo.Context) error {
 	return controllers.SuccessResponse(c, http.StatusCreated, response.FromDomain(&newThread))
 }
 
-func (cr *ThreadController) UpdateThread(c echo.Context) error {
+func (cr *ThreadController) Update(c echo.Context) error {
 	threadId, err := strconv.Atoi(c.Param("threadId"))
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
@@ -66,7 +66,7 @@ func (cr *ThreadController) UpdateThread(c echo.Context) error {
 	return controllers.SuccessResponse(c, http.StatusOK, response.FromDomain(&updatedThread))
 }
 
-func (cr *ThreadController) DeleteThread(c echo.Context) error {
+func (cr *ThreadController) Delete(c echo.Context) error {
 	threadId, err := strconv.Atoi(c.Param("threadId"))
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
@@ -82,7 +82,7 @@ func (cr *ThreadController) DeleteThread(c echo.Context) error {
 	return controllers.SuccessResponse(c, http.StatusOK, nil)
 }
 
-func (cr *ThreadController) LikeThread(c echo.Context) error {
+func (cr *ThreadController) Like(c echo.Context) error {
 	threadId, err := strconv.Atoi(c.Param("threadId"))
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
@@ -98,7 +98,7 @@ func (cr *ThreadController) LikeThread(c echo.Context) error {
 	return controllers.SuccessResponse(c, http.StatusOK, nil)
 }
 
-func (cr *ThreadController) UndoLikeThread(c echo.Context) error {
+func (cr *ThreadController) UndoLike(c echo.Context) error {
 	threadId, err := strconv.Atoi(c.Param("threadId"))
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
@@ -114,7 +114,7 @@ func (cr *ThreadController) UndoLikeThread(c echo.Context) error {
 	return controllers.SuccessResponse(c, http.StatusOK, nil)
 }
 
-func (cr *ThreadController) UnlikeThread(c echo.Context) error {
+func (cr *ThreadController) Unlike(c echo.Context) error {
 	threadId, err := strconv.Atoi(c.Param("threadId"))
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
@@ -130,7 +130,7 @@ func (cr *ThreadController) UnlikeThread(c echo.Context) error {
 	return controllers.SuccessResponse(c, http.StatusOK, nil)
 }
 
-func (cr *ThreadController) UndoUnlikeThread(c echo.Context) error {
+func (cr *ThreadController) UndoUnlike(c echo.Context) error {
 	threadId, err := strconv.Atoi(c.Param("threadId"))
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
