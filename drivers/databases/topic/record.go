@@ -25,6 +25,8 @@ func (r *Topic) toDomain() topic.Domain {
 		ProfileImage: *r.ProfileImage,
 		Description:  r.Description,
 		Rules:        *r.Rules,
+		CreatedAt:    r.CreatedAt,
+		UpdatedAt:    r.UpdatedAt,
 	}
 }
 

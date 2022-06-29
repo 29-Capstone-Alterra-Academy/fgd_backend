@@ -109,6 +109,20 @@ func (cr *TopicController) GetTopics(c echo.Context) error {
 	return controllers.SuccessResponse(c, http.StatusOK, topics)
 }
 
+func (cr *TopicController) GetTopicDetails(c echo.Context) error {
+	topicId, err := strconv.Atoi(c.Param("topicId"))
+	if err != nil {
+		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	topicDetailDomain, err := cr.topicUsecase.GetTopicDetails(topicId)
+	if err != nil {
+		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+	}
+
+	return controllers.SuccessResponse(c, http.StatusOK, response.FromDomain(topicDetailDomain))
+}
+
 func (cr *TopicController) Subscribe(c echo.Context) error {
 	topicId, err := strconv.Atoi(c.Param("topicId"))
 	if err != nil {
