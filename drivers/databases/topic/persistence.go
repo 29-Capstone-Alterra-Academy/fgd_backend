@@ -51,9 +51,9 @@ func (rp *persistenceTopicRepository) GetTopics(limit, offset int, sort_by strin
 }
 
 func (rp *persistenceTopicRepository) Subscribe(userId int, topicId int) error {
+	topic := Topic{Model: gorm.Model{ID: uint(topicId)}}
 	err := rp.Conn.
-		Model(&Topic{}).
-		Where("id = ?", userId).
+		Model(&topic).
 		Association("SubscribedBy").
 		Append(&user.User{
 			Model: gorm.Model{ID: uint(userId)},
