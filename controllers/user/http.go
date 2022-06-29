@@ -4,6 +4,7 @@ import (
 	"fgd/app/middleware"
 	"fgd/controllers"
 	"fgd/controllers/user/request"
+	"fgd/controllers/user/response"
 	"fgd/core/auth"
 	"fgd/core/user"
 	"fgd/core/verify"
@@ -165,7 +166,7 @@ func (cr *UserController) GetProfile(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusOK, profile)
+	return controllers.SuccessResponse(c, http.StatusOK, response.FromDomain(&profile))
 }
 
 func (cr *UserController) UpdateProfileImage(c echo.Context) error {
