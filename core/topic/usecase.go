@@ -7,6 +7,10 @@ type topicUsecase struct {
 	userUsecase     user.Usecase
 }
 
+func (uc *topicUsecase) GetTopicDetails(topicId int) (Domain, error) {
+	return uc.topicRepository.GetTopicDetails(topicId)
+}
+
 func (uc *topicUsecase) CheckTopicAvailibility(topicName string) (bool, error) {
 	return uc.topicRepository.CheckTopicAvailibility(topicName)
 }
