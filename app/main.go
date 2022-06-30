@@ -90,7 +90,7 @@ func main() {
 	replyController := replyCtrl.InitReplyController(replyUsecae)
 	threadController := threadCtrl.InitThreadController(threadUsecase)
 	topicController := topicCtrl.InitTopicController(authUsecase, topicUsecase, userUsecase)
-	userController := userCtrl.InitUserController(authUsecase, userUsecase, verifyUsecase)
+	userController := userCtrl.InitUserController(authUsecase, userUsecase, verifyUsecase, conf)
 	verifyController := verifyCtrl.InitVerifyController(userUsecase, verifyUsecase)
 
 	e := echo.New()
