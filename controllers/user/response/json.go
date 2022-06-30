@@ -32,16 +32,16 @@ func FromDomain(userDomain *user.Domain, scope string) interface{} {
 			Username:     userDomain.Username,
 			Email:        userDomain.Email,
 			Gender:       userDomain.Gender,
-			ProfileImage: userDomain.ProfileImage,
+			ProfileImage: *userDomain.ProfileImage,
 			IsVerified:   userDomain.IsVerified,
-			BirthDate:    userDomain.BirthDate,
+			BirthDate:    *userDomain.BirthDate,
 			UpdatedAt:    userDomain.UpdatedAt,
 		}
 	} else {
 		return UserPublicProfile{
 			ID:             userDomain.ID,
 			Username:       userDomain.Username,
-			ProfileImage:   userDomain.ProfileImage,
+			ProfileImage:   *userDomain.ProfileImage,
 			ThreadCount:    userDomain.ThreadCount,
 			FollowingCount: userDomain.FollowingCount,
 			FollowersCount: userDomain.FollowersCount,

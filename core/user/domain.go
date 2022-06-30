@@ -14,11 +14,11 @@ type Domain struct {
 	ThreadCount    int
 	FollowingCount int
 	FollowersCount int
-	ProfileImage   string
+	ProfileImage   *string
 	Gender         string
 	ModeratedTopic []int
 	IsVerified     bool
-	BirthDate      time.Time
+	BirthDate      *time.Time
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 	DeletedAt      time.Time

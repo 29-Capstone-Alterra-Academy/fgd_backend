@@ -16,7 +16,7 @@ type User struct {
 	Password     string
 	ProfileImage *string
 	Gender       string
-	BirthDate    time.Time
+	BirthDate    *time.Time
 	Bio          string
 	IsVerified   bool `gorm:"default:false"`
 
@@ -36,7 +36,7 @@ func (rec *User) toDomain() user.Domain {
 		Username:       rec.Username,
 		Email:          rec.Email,
 		Password:       rec.Password,
-		ProfileImage:   *rec.ProfileImage,
+		ProfileImage:   rec.ProfileImage,
 		Gender:         rec.Gender,
 		ModeratedTopic: []int{},
 		BirthDate:      rec.BirthDate,
@@ -67,7 +67,7 @@ func fromDomain(userDomain user.Domain) *User {
 		Username:     userDomain.Username,
 		Email:        userDomain.Email,
 		Password:     userDomain.Password,
-		ProfileImage: &userDomain.ProfileImage,
+		ProfileImage: userDomain.ProfileImage,
 		Gender:       userDomain.Gender,
 		BirthDate:    userDomain.BirthDate,
 		IsVerified:   userDomain.IsVerified,
