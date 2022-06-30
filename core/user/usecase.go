@@ -107,9 +107,10 @@ func (uc *userUsecase) UpdateProfileImage(data *Domain, userId int) error {
 	return uc.userRepository.UpdateProfileImage(data, userId)
 }
 
-func InitUserUsecase(ac auth.Usecase, r Repository) Usecase {
+func InitUserUsecase(ac auth.Usecase, r Repository, jwtConf *middleware.JWTConfig) Usecase {
 	return &userUsecase{
 		userRepository: r,
 		authUsecase:    ac,
+		jwtAuth:        jwtConf,
 	}
 }
