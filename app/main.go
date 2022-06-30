@@ -57,6 +57,13 @@ func main() {
 		Database: conf.DB_NAME,
 	}
 
+	jwtConf := middleware.JWTConfig{
+		Secret:        conf.JWT_SECRET,
+		AccessExpiry:  time.Hour * 8,
+		RefreshExpiry: time.Hour * 24 * 7,
+	}
+
+
 	mailHelper, err := mail.NewMailHelper(conf.MAIL_AT, conf.MAIL_RT, conf.MAIL_CLIENT, conf.MAIL_SECRET, conf.MAIL_REDIRECT)
 	if err != nil {
 		// TODO Handle this better
@@ -74,7 +81,7 @@ func main() {
 	verifyRepo := factory.NewVerifyRepository(dbConn)
 
 	authUsecase := authCore.InitAuthUsecase(authRepo)
-	userUsecase := userCore.InitUserUsecase(authUsecase, userRepo)
+	userUsecase := userCore.InitUserUsecase(authUsecase, userRepo, &jwtConf)
 	topicUsecase := topicCore.InitTopicUsecase(topicRepo, userUsecase)
 	threadUsecase := threadCore.InitThreadUsecase(threadRepo, topicUsecase, userUsecase)
 	replyUsecae := replyCore.InitReplyUsecase(replyRepo, userUsecase)
@@ -85,12 +92,6 @@ func main() {
 	topicController := topicCtrl.InitTopicController(authUsecase, topicUsecase, userUsecase)
 	userController := userCtrl.InitUserController(authUsecase, userUsecase, verifyUsecase)
 	verifyController := verifyCtrl.InitVerifyController(userUsecase, verifyUsecase)
-
-	jwtConf := middleware.JWTConfig{
-		Secret:        conf.JWT_SECRET,
-		AccessExpiry:  time.Hour * 8,
-		RefreshExpiry: time.Hour * 24 * 7,
-	}
 
 	e := echo.New()
 
