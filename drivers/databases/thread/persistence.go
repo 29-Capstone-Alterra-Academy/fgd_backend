@@ -59,7 +59,7 @@ func (rp *persistenceThreadRepository) GetThreadByAuthorID(userId, limit, offset
 		threadDomain.LikeCount = int(likeCount)
 		rp.Conn.Table("unliked_thread").Where("thread_id", threadDomain.ID).Count(&unlikeCount)
 		threadDomain.UnlikeCount = int(unlikeCount)
-		rp.Conn.Table("reply").Where("thread_id", threadDomain.ID).Count(&replyCount)
+		rp.Conn.Table("replies").Where("thread_id", threadDomain.ID).Count(&replyCount)
 		threadDomain.ReplyCount = int(replyCount)
 
 		threadDomains = append(threadDomains, *threadDomain)
@@ -86,7 +86,7 @@ func (rp *persistenceThreadRepository) GetThreadByTopicID(topicId, limit, offset
 		threadDomain.LikeCount = int(likeCount)
 		rp.Conn.Table("unliked_thread").Where("thread_id", threadDomain.ID).Count(&unlikeCount)
 		threadDomain.UnlikeCount = int(unlikeCount)
-		rp.Conn.Table("reply").Where("thread_id", threadDomain.ID).Count(&replyCount)
+		rp.Conn.Table("replies").Where("thread_id", threadDomain.ID).Count(&replyCount)
 		threadDomain.ReplyCount = int(replyCount)
 
 		threadDomains = append(threadDomains, *threadDomain)
