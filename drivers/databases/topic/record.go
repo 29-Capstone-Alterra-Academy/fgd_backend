@@ -22,9 +22,9 @@ func (r *Topic) toDomain() topic.Domain {
 	return topic.Domain{
 		ID:           int(r.ID),
 		Name:         r.Name,
-		ProfileImage: r.ProfileImage,
+		ProfileImage: *r.ProfileImage,
 		Description:  r.Description,
-		Rules:        r.Rules,
+		Rules:        *r.Rules,
 		CreatedAt:    r.CreatedAt,
 		UpdatedAt:    r.UpdatedAt,
 	}
@@ -36,8 +36,8 @@ func fromDomain(topicDomain topic.Domain) *Topic {
 			ID: uint(topicDomain.ID),
 		},
 		Name:         topicDomain.Name,
-		ProfileImage: topicDomain.ProfileImage,
+		ProfileImage: &topicDomain.ProfileImage,
 		Description:  topicDomain.Description,
-		Rules:        topicDomain.Rules,
+		Rules:        &topicDomain.Rules,
 	}
 }

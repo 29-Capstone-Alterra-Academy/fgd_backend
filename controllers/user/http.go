@@ -1,7 +1,6 @@
 package user
 
 import (
-	"fgd/app/config"
 	"fgd/app/middleware"
 	"fgd/controllers"
 	"fgd/controllers/user/request"
@@ -15,20 +14,18 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/labstack/echo/v4"
 )
 
 type UserController struct {
-	config        config.Config
 	authUsecase   auth.Usecase
 	userUsecase   user.Usecase
 	verifyUsecase verify.Usecase
 }
 
-func InitUserController(ac auth.Usecase, uc user.Usecase, vc verify.Usecase, conf config.Config) *UserController {
+func InitUserController(ac auth.Usecase, uc user.Usecase, vc verify.Usecase) *UserController {
 	return &UserController{
-		config:        conf,
 		authUsecase:   ac,
 		userUsecase:   uc,
 		verifyUsecase: vc,
@@ -88,7 +85,7 @@ func (cr *UserController) RefreshToken(c echo.Context) error {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return middleware.CustomToken{}, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(cr.config.JWT_SECRET), nil
+		return []byte("secret"), nil
 	})
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusUnauthorized, err.Error())

@@ -47,19 +47,19 @@ func (rp *persistenceUserRepository) GetFollowing(userId int) ([]user.Domain, er
 
 func (rp *persistenceUserRepository) GetUserByEmail(email string) (user.Domain, error) {
 	user := User{}
-	res := rp.Conn.Omit("Following", "Notifications").Where("email = ?", email).Find(&user)
+	res := rp.Conn.Preload("UserRole").Omit("Following", "Notifications").Where("email = ?", email).Find(&user)
 	return user.toDomain(), res.Error
 }
 
 func (rp *persistenceUserRepository) GetUserByUsername(username string) (user.Domain, error) {
 	user := User{}
-	res := rp.Conn.Omit("Following", "Notifications").Where("username = ?", username).Find(&user)
+	res := rp.Conn.Preload("UserRole").Omit("Following", "Notifications").Where("username = ?", username).Find(&user)
 	return user.toDomain(), res.Error
 }
 
 func (rp *persistenceUserRepository) CheckIsAdmin(userId int) (bool, error) {
 	user := User{}
-	res := rp.Conn.Take("Role").Find(&user, userId)
+	res := rp.Conn.Preload("UserRole").Take("Type").Find(&user, userId)
 
 	return user.Role == "admin", res.Error
 }

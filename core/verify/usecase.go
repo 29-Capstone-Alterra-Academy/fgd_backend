@@ -54,7 +54,6 @@ func (uc *verifyUsecase) SendVerifyToken(email string, verify_type string) error
 	data.Code = code
 	data.Email = email
 	data.Type = verify_type
-  data.ExpiresAt = time.Now().Add(time.Minute * 5)
 
 	err := uc.verifyRepository.StoreVerifyData(data)
 	if err != nil {
