@@ -29,7 +29,7 @@ func (rec *Reply) toDomain() reply.Domain {
 		Author: reply.DomainAuthor{
 			ID:           int(rec.Author.ID),
 			Username:     rec.Author.Username,
-			ProfileImage: *rec.Author.ProfileImage,
+			ProfileImage: rec.Author.ProfileImage,
 		},
 		Image:     rec.Image,
 		Content:   rec.Content,

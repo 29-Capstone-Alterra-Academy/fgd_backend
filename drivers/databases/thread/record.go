@@ -15,7 +15,7 @@ type Thread struct {
 	AuthorID uint
 	Author   user.User `gorm:"ForeignKey:AuthorID"`
 	Title    string
-	Content  string
+	Content  *string
 	Image1   *string
 	Image2   *string
 	Image3   *string
@@ -34,7 +34,7 @@ func (r *Thread) toDomain() *thread.Domain {
 		Author: thread.DomainAuthor{
 			ID:           int(r.Author.ID),
 			Username:     r.Author.Username,
-			ProfileImage: *r.Author.ProfileImage,
+			ProfileImage: r.Author.ProfileImage,
 		},
 		Topic: thread.DomainTopic{
 			ID:   int(r.Topic.ID),
@@ -75,7 +75,7 @@ func fromDomain(threadDomain thread.Domain) *Thread {
 		Author: user.User{
 			Model:        gorm.Model{ID: uint(threadDomain.Author.ID)},
 			Username:     threadDomain.Author.Username,
-			ProfileImage: &threadDomain.Author.ProfileImage,
+			ProfileImage: threadDomain.Author.ProfileImage,
 		},
 		Title:   threadDomain.Title,
 		Content: threadDomain.Content,

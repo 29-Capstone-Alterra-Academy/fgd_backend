@@ -8,9 +8,9 @@ import (
 type Topic struct {
 	ID               int       `json:"id"`
 	Name             string    `json:"name"`
-	ProfileImage     string    `json:"profile_image"`
+	ProfileImage     *string   `json:"profile_image"`
 	Description      string    `json:"description"`
-	Rules            string    `json:"rules"`
+	Rules            *string   `json:"rules"`
 	ActivityCount    int       `json:"activity_count"`
 	ContributorCount int       `json:"contributor_count"`
 	ModeratorCount   int       `json:"moderator_count"`
