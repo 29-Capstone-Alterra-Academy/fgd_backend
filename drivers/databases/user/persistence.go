@@ -164,6 +164,7 @@ func (rp *persistenceUserRepository) UpdatePersonalProfile(data *user.Domain, us
 	existingUser.Bio = updatedUser.Bio
 	existingUser.BirthDate = updatedUser.BirthDate
 	existingUser.Gender = updatedUser.Gender
+	existingUser.ProfileImage = updatedUser.ProfileImage
 
 	res := rp.Conn.Save(&existingUser)
 
