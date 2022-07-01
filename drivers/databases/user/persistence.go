@@ -171,12 +171,6 @@ func (rp *persistenceUserRepository) UpdatePersonalProfile(data *user.Domain, us
 	return updatedUser.toDomain(), res.Error
 }
 
-func (rp *persistenceUserRepository) UpdateProfileImage(data *user.Domain, userId int) error {
-	res := rp.Conn.Model(&User{}).Where("id = ?", userId).Update("profile_image", data.ProfileImage)
-
-	return res.Error
-}
-
 func InitPersistenceUserRepository(c *gorm.DB) user.Repository {
 	return &persistenceUserRepository{
 		Conn: c,

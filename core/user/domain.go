@@ -35,7 +35,6 @@ type Usecase interface {
 	GetFollowing(userId int) ([]Domain, error)
 	UpdatePersonalProfile(data *Domain, userId int) (Domain, error)
 	UpdatePassword(newPassword string, userId int) error
-	UpdateProfileImage(data *Domain, userId int) error
 	FollowUser(userId, targetId int) error
 	UnfollowUser(userId, targetId int) error
 }
@@ -53,7 +52,6 @@ type Repository interface {
 	GetModeratedTopic(userId int) (Domain, error)
 	UpdatePersonalProfile(data *Domain, userId int) (Domain, error)
 	UpdatePassword(hashedPassword string, userId int) error
-	UpdateProfileImage(data *Domain, userId int) error
 	CheckIsAdmin(userId int) (bool, error)
 	FollowUser(userId, targetId int) error
 	UnfollowUser(userId, targetId int) error
