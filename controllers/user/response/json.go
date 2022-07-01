@@ -19,7 +19,7 @@ type UserProfile struct {
 type UserPublicProfile struct {
 	ID             int
 	Username       string
-	ProfileImage   string
+	ProfileImage   *string
 	ThreadCount    int
 	FollowingCount int
 	FollowersCount int
@@ -31,7 +31,7 @@ func FromDomain(userDomain *user.Domain, scope string) interface{} {
 			ID:           userDomain.ID,
 			Username:     userDomain.Username,
 			Email:        userDomain.Email,
-			Gender:       &userDomain.Gender,
+			Gender:       userDomain.Gender,
 			ProfileImage: userDomain.ProfileImage,
 			IsVerified:   userDomain.IsVerified,
 			BirthDate:    userDomain.BirthDate,
@@ -41,7 +41,7 @@ func FromDomain(userDomain *user.Domain, scope string) interface{} {
 		return UserPublicProfile{
 			ID:             userDomain.ID,
 			Username:       userDomain.Username,
-			ProfileImage:   *userDomain.ProfileImage,
+			ProfileImage:   userDomain.ProfileImage,
 			ThreadCount:    userDomain.ThreadCount,
 			FollowingCount: userDomain.FollowingCount,
 			FollowersCount: userDomain.FollowersCount,

@@ -20,6 +20,6 @@ func (r *Thread) ToDomain() *thread.Domain {
 		Image4:  &r.Image4,
 		Image5:  &r.Image5,
 		Title:   r.Title,
-		Content: r.Content,
+		Content: &r.Content,
 	}
 }

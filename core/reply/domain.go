@@ -3,22 +3,22 @@ package reply
 import "time"
 
 type Domain struct {
-	ID          int
-	Author      DomainAuthor
-	Image       *string
-	Content     string
+	ID           int
+	Author       DomainAuthor
+	Image        *string
+	Content      string
 	LikedCount   int
 	UnlikedCount int
-	ReplyCount  int
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	DeletedAt   time.Time
+	ReplyCount   int
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	DeletedAt    time.Time
 }
 
 type DomainAuthor struct {
 	ID           int
 	Username     string
-	ProfileImage string
+	ProfileImage *string
 }
 
 type Usecase interface {
