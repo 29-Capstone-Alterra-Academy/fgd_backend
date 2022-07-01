@@ -8,35 +8,35 @@ type replyUsecase struct {
 }
 
 func (uc *replyUsecase) CreateReplyReply(data *Domain, userId int, replyId int) (Domain, error) {
-	panic("unimplemented")
+	return uc.replyRepository.CreateReplyReply(data, userId, replyId)
 }
 
 func (uc *replyUsecase) CreateReplyThread(data *Domain, userId int, threadId int) (Domain, error) {
-	panic("unimplemented")
+	return uc.replyRepository.CreateReplyThread(data, userId, threadId)
 }
 
 func (uc *replyUsecase) DeleteReply(userId int, replyId int) error {
-	panic("unimplemented")
+	return uc.replyRepository.DeleteReply(userId, replyId)
 }
 
 func (uc *replyUsecase) EditReply(data *Domain, userId int, replyId int) (Domain, error) {
-	panic("unimplemented")
+	return uc.replyRepository.EditReply(data, userId, replyId)
 }
 
 func (uc *replyUsecase) Like(userId int, replyId int) error {
-	panic("unimplemented")
+	return uc.replyRepository.Like(userId, replyId)
 }
 
 func (uc *replyUsecase) UndoLike(userId int, replyId int) error {
-	panic("unimplemented")
+	return uc.replyRepository.UndoLike(userId, replyId)
 }
 
 func (uc *replyUsecase) UndoUnlike(userId int, replyId int) error {
-	panic("unimplemented")
+	return uc.replyRepository.UndoUnlike(userId, replyId)
 }
 
 func (uc *replyUsecase) Unlike(userId int, replyId int) error {
-	panic("unimplemented")
+	return uc.replyRepository.Unlike(userId, replyId)
 }
 
 func InitReplyUsecase(r Repository, uc user.Usecase) Usecase {
