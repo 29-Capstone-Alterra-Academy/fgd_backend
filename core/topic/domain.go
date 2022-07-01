@@ -5,9 +5,9 @@ import "time"
 type Domain struct {
 	ID               int
 	Name             string
-	ProfileImage     string
+	ProfileImage     *string
 	Description      string
-	Rules            string
+	Rules            *string
 	ActivityCount    int
 	ContributorCount int
 	ModeratorCount   int

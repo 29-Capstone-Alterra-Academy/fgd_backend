@@ -43,7 +43,7 @@ func (uc *userUsecase) CreateToken(username string, email string, password strin
 
 	moderatedTopic, _ := uc.userRepository.GetModeratedTopic(userDomain.ID)
 
-	token, err := uc.jwtAuth.GenerateToken(userDomain.ID, userDomain.Role == "admin", moderatedTopic.ModeratedTopic)
+	token, err := uc.jwtAuth.GenerateToken(userDomain.ID, userDomain.Role == "admin", *moderatedTopic.ModeratedTopic)
 	if err != nil {
 		return middleware.CustomToken{}, fmt.Errorf("error creating token: %v", err)
 	}
@@ -107,9 +107,10 @@ func (uc *userUsecase) UpdateProfileImage(data *Domain, userId int) error {
 	return uc.userRepository.UpdateProfileImage(data, userId)
 }
 
-func InitUserUsecase(ac auth.Usecase, r Repository) Usecase {
+func InitUserUsecase(ac auth.Usecase, r Repository, jwtConf *middleware.JWTConfig) Usecase {
 	return &userUsecase{
 		userRepository: r,
 		authUsecase:    ac,
+		jwtAuth:        jwtConf,
 	}
 }
