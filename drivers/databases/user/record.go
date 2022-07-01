@@ -37,8 +37,8 @@ func (rec *User) toDomain() user.Domain {
 		Email:          rec.Email,
 		Password:       rec.Password,
 		ProfileImage:   rec.ProfileImage,
-		Gender:         rec.Gender,
-		ModeratedTopic: []int{},
+		Gender:         &rec.Gender,
+		ModeratedTopic: &[]int{},
 		BirthDate:      rec.BirthDate,
 		IsVerified:     rec.IsVerified,
 		CreatedAt:      rec.CreatedAt,
@@ -49,7 +49,7 @@ func (rec *User) toDomain() user.Domain {
 
 func (rec *UserModeratedTopic) toDomain() user.Domain {
 	return user.Domain{
-		ModeratedTopic: rec.ID,
+		ModeratedTopic: &rec.ID,
 	}
 }
 
@@ -68,7 +68,7 @@ func fromDomain(userDomain user.Domain) *User {
 		Email:        userDomain.Email,
 		Password:     userDomain.Password,
 		ProfileImage: userDomain.ProfileImage,
-		Gender:       userDomain.Gender,
+		Gender:       *userDomain.Gender,
 		BirthDate:    userDomain.BirthDate,
 		IsVerified:   userDomain.IsVerified,
 	}

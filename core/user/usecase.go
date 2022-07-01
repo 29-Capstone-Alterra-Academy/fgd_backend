@@ -43,7 +43,7 @@ func (uc *userUsecase) CreateToken(username string, email string, password strin
 
 	moderatedTopic, _ := uc.userRepository.GetModeratedTopic(userDomain.ID)
 
-	token, err := uc.jwtAuth.GenerateToken(userDomain.ID, userDomain.Role == "admin", moderatedTopic.ModeratedTopic)
+	token, err := uc.jwtAuth.GenerateToken(userDomain.ID, userDomain.Role == "admin", *moderatedTopic.ModeratedTopic)
 	if err != nil {
 		return middleware.CustomToken{}, fmt.Errorf("error creating token: %v", err)
 	}
