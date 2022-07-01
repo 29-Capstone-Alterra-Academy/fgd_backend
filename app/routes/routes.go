@@ -33,9 +33,8 @@ func (c *Controllers) Register(e *echo.Echo) {
 	e.GET("/profile/verify", c.VerifyController.RequestEmailVerification, jwtMiddleware)
 	e.POST("/profile/verify", c.VerifyController.SubmitEmailVerification, jwtMiddleware)
 	e.GET("/profile", c.UserController.GetProfile, jwtMiddleware)
-	// e.PUT("/profile", c.UserController.UpdateProfile, jwtMiddleware)
-	e.PUT("/profile/image", c.UserController.UpdateProfileImage, jwtMiddleware)
-	e.GET("/user/:userId", c.UserController.GetPublicProfile, jwtMiddleware)
+	e.PUT("/profile", c.UserController.UpdateProfile, jwtMiddleware)
+	e.GET("/user/:userId", c.UserController.GetPublicProfile)
 	e.GET("/user/:userId/follow", c.UserController.Follow, jwtMiddleware)
 	e.GET("/user/:userId/unfollow", c.UserController.Unfollow, jwtMiddleware)
 
