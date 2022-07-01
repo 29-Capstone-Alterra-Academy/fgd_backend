@@ -81,9 +81,9 @@ func main() {
 
 	authUsecase := authCore.InitAuthUsecase(authRepo)
 	userUsecase := userCore.InitUserUsecase(authUsecase, userRepo, conf, &jwtConf)
-	topicUsecase := topicCore.InitTopicUsecase(topicRepo, userUsecase)
-	threadUsecase := threadCore.InitThreadUsecase(threadRepo, topicUsecase, userUsecase)
-	replyUsecae := replyCore.InitReplyUsecase(replyRepo, userUsecase)
+	topicUsecase := topicCore.InitTopicUsecase(topicRepo, userUsecase, conf)
+	threadUsecase := threadCore.InitThreadUsecase(threadRepo, topicUsecase, userUsecase, conf)
+	replyUsecae := replyCore.InitReplyUsecase(replyRepo, userUsecase, conf)
 	verifyUsecase := verifyCore.InitVerifyUsecase(verifyRepo, *mailHelper)
 
 	replyController := replyCtrl.InitReplyController(replyUsecae)

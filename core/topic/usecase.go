@@ -1,8 +1,13 @@
 package topic
 
-import "fgd/core/user"
+import (
+	"fgd/app/config"
+	"fgd/core/user"
+	"fgd/helper/format"
+)
 
 type topicUsecase struct {
+	config          config.Config
 	topicRepository Repository
 	userUsecase     user.Usecase
 }
@@ -16,7 +21,14 @@ func (uc *topicUsecase) CheckTopicAvailibility(topicName string) (bool, error) {
 }
 
 func (uc *topicUsecase) CreateTopic(data *Domain) (Domain, error) {
-	return uc.topicRepository.CreateTopic(data)
+	newTopic, err := uc.topicRepository.CreateTopic(data)
+	if err != nil {
+		return Domain{}, err
+	}
+
+	format.FormatImageLink(newTopic.ProfileImage, uc.config)
+
+	return newTopic, nil
 }
 
 func (uc *topicUsecase) GetModerators(topicId int) ([]Domain, error) {
@@ -36,11 +48,19 @@ func (uc *topicUsecase) Unsubscribe(userId, topicId int) error {
 }
 
 func (uc *topicUsecase) UpdateTopic(data *Domain, topicId int) (Domain, error) {
-	return uc.topicRepository.UpdateTopic(data, topicId)
+	updatedTopic, err := uc.topicRepository.UpdateTopic(data, topicId)
+	if err != nil {
+		return Domain{}, err
+	}
+
+	format.FormatImageLink(updatedTopic.ProfileImage, uc.config)
+
+	return updatedTopic, nil
 }
 
-func InitTopicUsecase(r Repository, u user.Usecase) Usecase {
+func InitTopicUsecase(r Repository, u user.Usecase, conf config.Config) Usecase {
 	return &topicUsecase{
+		config:          conf,
 		topicRepository: r,
 		userUsecase:     u,
 	}
