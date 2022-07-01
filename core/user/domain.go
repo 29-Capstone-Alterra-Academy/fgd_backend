@@ -15,8 +15,8 @@ type Domain struct {
 	FollowingCount int
 	FollowersCount int
 	ProfileImage   *string
-	Gender         *string
-	ModeratedTopic *[]int
+	Gender         string
+	ModeratedTopic []int
 	IsVerified     bool
 	BirthDate      *time.Time
 	CreatedAt      time.Time

@@ -12,7 +12,7 @@ type Domain struct {
 	Image4      *string
 	Image5      *string
 	Title       string
-	Content     *string
+	Content     string
 	LikeCount   int
 	UnlikeCount int
 	ReplyCount  int
@@ -24,7 +24,7 @@ type Domain struct {
 type DomainAuthor struct {
 	ID           int
 	Username     string
-	ProfileImage *string
+	ProfileImage string
 }
 
 type DomainTopic struct {

@@ -62,6 +62,6 @@ func (m *MailHelper) SendVerificationCode(code, recipient, verify_type string) e
 
 	message.Raw = base64.URLEncoding.EncodeToString(msg)
 
-	_, err := m.Service.Users.Messages.Send("me", &message).Do()
+	_, err := m.Service.Users.Messages.Send("Nomizo", &message).Do()
 	return err
 }

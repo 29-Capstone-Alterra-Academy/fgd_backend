@@ -12,8 +12,8 @@ type NewTopic struct {
 func (r *NewTopic) ToDomain() *topic.Domain {
 	return &topic.Domain{
 		Name:         r.Name,
-		ProfileImage: &r.ProfileImage,
+		ProfileImage: r.ProfileImage,
 		Description:  r.Description,
-		Rules:        &r.Rules,
+		Rules:        r.Rules,
 	}
 }
