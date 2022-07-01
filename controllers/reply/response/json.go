@@ -9,7 +9,7 @@ type Reply struct {
 	ID           int         `json:"id"`
 	Author       ReplyAuthor `json:"author"`
 	Content      string      `json:"content"`
-	Image        string      `json:"image,omitempty"`
+	Image        string      `json:"image"`
 	LikedCount   int         `json:"liked_count"`
 	UnlikedCount int         `json:"unliked_count"`
 	ReplyCount   int         `json:"reply_count"`
@@ -19,7 +19,7 @@ type Reply struct {
 type ReplyAuthor struct {
 	ID           int    `json:"id"`
 	Username     string `json:"username"`
-	ProfileImage string `json:"profile_image,omitempty"`
+	ProfileImage string `json:"profile_image"`
 }
 
 func FromDomain(data *reply.Domain) Reply {
