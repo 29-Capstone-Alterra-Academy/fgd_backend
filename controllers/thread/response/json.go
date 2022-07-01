@@ -9,12 +9,12 @@ type Thread struct {
 	ID           int          `json:"id"`
 	Author       ThreadAuthor `json:"author"`
 	Title        string       `json:"title"`
-	Content      string       `json:"content,omitempty"`
-	Image1       string       `json:"image_1,omitempty"`
-	Image2       string       `json:"image_2,omitempty"`
-	Image3       string       `json:"image_3,omitempty"`
-	Image4       string       `json:"image_4,omitempty"`
-	Image5       string       `json:"image_5,omitempty"`
+	Content      string       `json:"content"`
+	Image1       string       `json:"image_1"`
+	Image2       string       `json:"image_2"`
+	Image3       string       `json:"image_3"`
+	Image4       string       `json:"image_4"`
+	Image5       string       `json:"image_5"`
 	LikedCount   int          `json:"liked_count"`
 	UnlikedCount int          `json:"unliked_count"`
 	ReplyCount   int          `json:"reply_count"`
@@ -24,7 +24,7 @@ type Thread struct {
 type ThreadAuthor struct {
 	ID           int     `json:"id"`
 	Username     string  `json:"username"`
-	ProfileImage *string `json:"profile_image,omitempty"`
+	ProfileImage *string `json:"profile_image"`
 }
 
 func FromDomain(data *thread.Domain) Thread {
