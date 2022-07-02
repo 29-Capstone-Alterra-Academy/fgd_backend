@@ -6,6 +6,7 @@ import (
 	"fgd/core/auth"
 	"fgd/helper/crypt"
 	"fgd/helper/format"
+	stringHelper "fgd/helper/string"
 	"fmt"
 )
 
@@ -62,6 +63,11 @@ func (uc *userUsecase) CheckUserAvailibility(username string) (bool, error) {
 
 func (uc *userUsecase) CreateUser(data *Domain) (Domain, error) {
 	var err error
+
+  if data.Username == "" {
+    data.Username = stringHelper.GenerateRandomUsername()
+  }
+
 	data.Password, err = crypt.CreateHash(data.Password)
 	if err != nil {
 		return Domain{}, err
