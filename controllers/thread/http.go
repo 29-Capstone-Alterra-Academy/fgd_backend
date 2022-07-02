@@ -242,6 +242,56 @@ func (cr *ThreadController) DeleteThread(c echo.Context) error {
 	return controllers.SuccessResponse(c, http.StatusOK, nil)
 }
 
+func (cr *ThreadController) GetThread(c echo.Context) error {
+	threadId, err := strconv.Atoi(c.Param("threadId"))
+	if err != nil {
+		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	threadDomain, err := cr.threadUsecase.GetThreadByID(threadId)
+	if err != nil {
+		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+	}
+
+	return controllers.SuccessResponse(c, http.StatusOK, response.FromDomain(&threadDomain))
+}
+
+func (cr *ThreadController) GetThreads(c echo.Context) error {
+	limit, _ := strconv.Atoi(c.QueryParam("limit"))
+	offset, _ := strconv.Atoi(c.QueryParam("offset"))
+
+	userIdStr := c.QueryParam("userId")
+	topicIdStr := c.QueryParam("topicId")
+
+	if userIdStr != "" {
+		userId, err := strconv.Atoi(userIdStr)
+		if err != nil {
+			return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
+		}
+
+		threadDomain, err := cr.threadUsecase.GetThreadByAuthorID(userId, limit, offset)
+		if err != nil {
+			return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+		}
+
+		return controllers.SuccessResponse(c, http.StatusOK, response.FromDomains(&threadDomain))
+	} else if topicIdStr != "" {
+		topicId, err := strconv.Atoi(topicIdStr)
+		if err != nil {
+			return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
+		}
+
+		threadDomain, err := cr.threadUsecase.GetThreadByTopicID(topicId, limit, offset)
+		if err != nil {
+			return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+		}
+
+		return controllers.SuccessResponse(c, http.StatusOK, response.FromDomains(&threadDomain))
+	}
+
+	return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required query parameter")
+}
+
 func (cr *ThreadController) LikeThread(c echo.Context) error {
 	threadId, err := strconv.Atoi(c.Param("threadId"))
 	if err != nil {

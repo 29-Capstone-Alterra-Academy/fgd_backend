@@ -24,15 +24,16 @@ type Domain struct {
 type DomainAuthor struct {
 	ID           int
 	Username     string
-	ProfileImage *string
 }
 
 type DomainTopic struct {
 	ID   int
 	Name string
+	ProfileImage *string
 }
 
 type Usecase interface {
+	GetThreadByID(threadId int) (Domain, error)
 	GetThreadByAuthorID(userId, limit, offset int) ([]Domain, error)
 	GetThreadByTopicID(topicId, limit, offset int) ([]Domain, error)
 	CreateThread(data *Domain, userId, topicId int) (Domain, error)
@@ -45,6 +46,7 @@ type Usecase interface {
 }
 
 type Repository interface {
+	GetThreadByID(threadId int) (Domain, error)
 	GetThreadByAuthorID(userId, limit, offset int) ([]Domain, error)
 	GetThreadByTopicID(topicId, limit, offset int) ([]Domain, error)
 	CreateThread(data *Domain, userId, topicId int) (Domain, error)

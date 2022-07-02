@@ -41,6 +41,13 @@ func (rp *persistenceThreadRepository) DeleteThread(userId int, threadId int) er
 	return res.Error
 }
 
+func (rp *persistenceThreadRepository) GetThreadByID(threadId int) (thread.Domain, error) {
+	thread := Thread{}
+
+	res := rp.Conn.Take(&thread, threadId)
+	return *thread.toDomain(), res.Error
+}
+
 func (rp *persistenceThreadRepository) GetThreadByAuthorID(userId, limit, offset int) ([]thread.Domain, error) {
 	threads := []Thread{}
 	fetchResult := rp.Conn.Limit(limit).Offset(offset).Where("author_id = ?", userId).Find(&threads)

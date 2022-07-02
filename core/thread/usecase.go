@@ -33,6 +33,10 @@ func (uc *threadUsecase) DeleteThread(userId int, threadId int) error {
 	return uc.threadRepository.DeleteThread(userId, threadId)
 }
 
+func (cr *threadUsecase) GetThreadByID(threadId int) (Domain, error) {
+	return cr.threadRepository.GetThreadByID(threadId)
+}
+
 func (uc *threadUsecase) GetThreadByAuthorID(userId, limit, offset int) ([]Domain, error) {
 	return uc.threadRepository.GetThreadByAuthorID(userId, limit, offset)
 }

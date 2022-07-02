@@ -8,6 +8,7 @@ import (
 type Thread struct {
 	ID           int          `json:"id"`
 	Author       ThreadAuthor `json:"author"`
+	Topic        ThreadTopic  `json:"topic"`
 	Title        string       `json:"title"`
 	Content      *string      `json:"content"`
 	Image1       *string      `json:"image_1"`
@@ -21,19 +22,28 @@ type Thread struct {
 	UpdatedAt    time.Time    `json:"updated_at"`
 }
 
-type ThreadAuthor struct {
+type ThreadTopic struct {
 	ID           int     `json:"id"`
-	Username     string  `json:"username"`
+	Name         string  `json:"name"`
 	ProfileImage *string `json:"profile_image"`
+}
+
+type ThreadAuthor struct {
+	ID       int    `json:"id"`
+	Username string `json:"username"`
 }
 
 func FromDomain(data *thread.Domain) Thread {
 	return Thread{
 		ID: data.ID,
 		Author: ThreadAuthor{
-			ID:           data.Author.ID,
-			Username:     data.Author.Username,
-			ProfileImage: data.Author.ProfileImage,
+			ID:       data.Author.ID,
+			Username: data.Author.Username,
+		},
+		Topic: ThreadTopic{
+			ID:           data.Topic.ID,
+			Name:         data.Topic.Name,
+			ProfileImage: data.Topic.ProfileImage,
 		},
 		Title:        data.Title,
 		Content:      data.Content,
@@ -47,4 +57,36 @@ func FromDomain(data *thread.Domain) Thread {
 		ReplyCount:   data.ReplyCount,
 		UpdatedAt:    data.UpdatedAt,
 	}
+}
+
+func FromDomains(data *[]thread.Domain) []Thread {
+	threads := []Thread{}
+
+	for _, domain := range *data {
+		threads = append(threads, Thread{
+			ID: domain.ID,
+			Author: ThreadAuthor{
+				ID:       domain.Author.ID,
+				Username: domain.Author.Username,
+			},
+			Topic: ThreadTopic{
+				ID:           domain.Topic.ID,
+				Name:         domain.Topic.Name,
+				ProfileImage: domain.Topic.ProfileImage,
+			},
+			Title:        domain.Title,
+			Content:      domain.Content,
+			Image1:       domain.Image1,
+			Image2:       domain.Image2,
+			Image3:       domain.Image3,
+			Image4:       domain.Image4,
+			Image5:       domain.Image5,
+			LikedCount:   domain.LikeCount,
+			UnlikedCount: domain.UnlikeCount,
+			ReplyCount:   domain.ReplyCount,
+			UpdatedAt:    domain.UpdatedAt,
+		})
+	}
+
+	return threads
 }

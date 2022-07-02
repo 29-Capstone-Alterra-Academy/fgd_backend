@@ -48,7 +48,8 @@ func (c *Controllers) Register(e *echo.Echo) {
 	e.GET("/topic/:topicId/subscribe", c.TopicController.Unsubscribe, jwtMiddleware)
 	e.POST("/topic/:topicId/thread", c.ThreadController.CreateThread, jwtMiddleware)
 
-	// e.GET("/thread", c.ThreadController.GetThreads, jwtMiddleware)
+	e.GET("/thread", c.ThreadController.GetThreads)
+	e.GET("/thread/:threadId", c.ThreadController.GetThread)
 	e.PUT("/thread/:threadId", c.ThreadController.UpdateThread, jwtMiddleware)
 	e.DELETE("/thread/:threadId", c.ThreadController.DeleteThread, jwtMiddleware)
 	e.POST("/thread/:threadId/like", c.ThreadController.LikeThread, jwtMiddleware)
