@@ -85,7 +85,14 @@ func (uc *userUsecase) FollowUser(userId, targetId int) error {
 }
 
 func (uc *userUsecase) GetPersonalProfile(userId int) (Domain, error) {
-	return uc.userRepository.GetPersonalProfile(userId)
+	profile, err := uc.userRepository.GetPersonalProfile(userId)
+	if err != nil {
+		return Domain{}, err
+	}
+
+	format.FormatImageLink(uc.config, profile.ProfileImage)
+
+	return profile, nil
 }
 
 func (uc *userUsecase) GetProfileByID(userId int) (Domain, error) {
@@ -93,7 +100,16 @@ func (uc *userUsecase) GetProfileByID(userId int) (Domain, error) {
 }
 
 func (uc *userUsecase) GetUsers(limit int, offset int) ([]Domain, error) {
-	return uc.userRepository.GetUsers(limit, offset)
+	users, err := uc.userRepository.GetUsers(limit, offset)
+	if err != nil {
+		return []Domain{}, err
+	}
+
+	for _, user := range users {
+		format.FormatImageLink(uc.config, user.ProfileImage)
+	}
+
+	return users, nil
 }
 
 func (uc *userUsecase) UnfollowUser(userId, targetId int) error {
@@ -116,6 +132,7 @@ func (uc *userUsecase) UpdatePersonalProfile(data *Domain, userId int) (Domain, 
 	if err != nil {
 		return Domain{}, err
 	}
+
 	format.FormatImageLink(uc.config, updatedProfile.ProfileImage)
 
 	return updatedProfile, nil
