@@ -8,6 +8,7 @@ import (
 	"fgd/helper/format"
 	stringHelper "fgd/helper/string"
 	"fmt"
+	"strings"
 )
 
 type userUsecase struct {
@@ -75,6 +76,9 @@ func (uc *userUsecase) CreateUser(data *Domain) (Domain, error) {
 	if err != nil {
 		return Domain{}, err
 	}
+
+	data.Username = strings.ToLower(data.Username)
+	data.Email = strings.ToLower(data.Email)
 
 	newUser, err := uc.userRepository.CreateUser(data)
 	return newUser, err
