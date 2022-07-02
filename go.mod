@@ -1,5 +1,6 @@
 module fgd
 
+// +heroku goVersion go1.18
 go 1.18
 
 require gorm.io/gorm v1.23.6

@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func GenerateRandomNumber() string {
+func GenerateToken() string {
 	mrand.Seed(time.Now().Unix())
 	max := big.NewInt(99999999)
 	n, _ := rand.Int(rand.Reader, max)

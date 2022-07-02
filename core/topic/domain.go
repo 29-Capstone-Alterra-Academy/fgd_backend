@@ -16,7 +16,7 @@ type Domain struct {
 }
 
 type Usecase interface {
-	CreateTopic(data *Domain) (Domain, error)
+	CreateTopic(data *Domain, userId int) (Domain, error)
 	CheckTopicAvailibility(topicName string) (bool, error)
 	GetTopics(limit, offset int, sort_by string) ([]Domain, error)
 	GetTopicDetails(topicId int) (Domain, error)

@@ -1,13 +1,17 @@
 package user
 
 import (
+	"fgd/app/config"
 	"fgd/app/middleware"
 	"fgd/core/auth"
 	"fgd/helper/crypt"
+	"fgd/helper/format"
+	stringHelper "fgd/helper/string"
 	"fmt"
 )
 
 type userUsecase struct {
+	config         config.Config
 	userRepository Repository
 	authUsecase    auth.Usecase
 	jwtAuth        *middleware.JWTConfig
@@ -59,6 +63,11 @@ func (uc *userUsecase) CheckUserAvailibility(username string) (bool, error) {
 
 func (uc *userUsecase) CreateUser(data *Domain) (Domain, error) {
 	var err error
+
+  if data.Username == "" {
+    data.Username = stringHelper.GenerateRandomUsername()
+  }
+
 	data.Password, err = crypt.CreateHash(data.Password)
 	if err != nil {
 		return Domain{}, err
@@ -100,14 +109,16 @@ func (uc *userUsecase) UpdatePassword(newPassword string, userId int) error {
 }
 
 func (uc *userUsecase) UpdatePersonalProfile(data *Domain, userId int) (Domain, error) {
-	return uc.userRepository.UpdatePersonalProfile(data, userId)
+	updatedProfile, err := uc.userRepository.UpdatePersonalProfile(data, userId)
+	if err != nil {
+		return Domain{}, err
+	}
+	format.FormatImageLink(updatedProfile.ProfileImage, uc.config)
+
+	return updatedProfile, nil
 }
 
-func (uc *userUsecase) UpdateProfileImage(data *Domain, userId int) error {
-	return uc.userRepository.UpdateProfileImage(data, userId)
-}
-
-func InitUserUsecase(ac auth.Usecase, r Repository, jwtConf *middleware.JWTConfig) Usecase {
+func InitUserUsecase(ac auth.Usecase, r Repository, conf config.Config, jwtConf *middleware.JWTConfig) Usecase {
 	return &userUsecase{
 		userRepository: r,
 		authUsecase:    ac,

@@ -6,6 +6,7 @@ import (
 	"fgd/controllers/reply/request"
 	"fgd/controllers/reply/response"
 	"fgd/core/reply"
+	"fgd/helper/storage"
 	"net/http"
 	"strconv"
 
@@ -30,18 +31,34 @@ func (cr *ReplyController) CreateForReply(c echo.Context) error {
 
 	claims := middleware.ExtractUserClaims(c)
 
-	reply := request.Reply{}
-	err = c.Bind(&reply)
-	if err != nil {
+	var fileName string
+
+	content := c.FormValue("content")
+	image, err := c.FormFile("image")
+	if err != nil && err != http.ErrMissingFile {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	newReply, err := cr.replyUsecase.CreateReplyReply(reply.ToDomain(), claims.UserID, replyId)
+	newReply := request.Reply{}
+
+	if err != http.ErrMissingFile {
+		fileName, uploadErr := storage.StoreFile(image)
+		if uploadErr != nil {
+			return controllers.FailureResponse(c, http.StatusUnprocessableEntity, uploadErr.Error())
+		}
+		newReply.Image = fileName
+	} else {
+		newReply.Image = fileName
+	}
+
+	newReply.Content = content
+
+	replyDomain, err := cr.replyUsecase.CreateReplyReply(newReply.ToDomain(), claims.UserID, replyId)
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusCreated, response.FromDomain(&newReply))
+	return controllers.SuccessResponse(c, http.StatusCreated, response.FromDomain(&replyDomain))
 }
 
 func (cr *ReplyController) CreateForThread(c echo.Context) error {
@@ -52,21 +69,37 @@ func (cr *ReplyController) CreateForThread(c echo.Context) error {
 
 	claims := middleware.ExtractUserClaims(c)
 
-	reply := request.Reply{}
-	err = c.Bind(&reply)
-	if err != nil {
+	var fileName string
+
+	content := c.FormValue("content")
+	image, err := c.FormFile("image")
+	if err != nil && err != http.ErrMissingFile {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	newReply, err := cr.replyUsecase.CreateReplyThread(reply.ToDomain(), claims.UserID, threadId)
+	newReply := request.Reply{}
+
+	if err != http.ErrMissingFile {
+		fileName, uploadErr := storage.StoreFile(image)
+		if uploadErr != nil {
+			return controllers.FailureResponse(c, http.StatusUnprocessableEntity, uploadErr.Error())
+		}
+		newReply.Image = fileName
+	} else {
+		newReply.Image = fileName
+	}
+
+	newReply.Content = content
+
+	replyDomain, err := cr.replyUsecase.CreateReplyThread(newReply.ToDomain(), claims.UserID, threadId)
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusCreated, response.FromDomain(&newReply))
+	return controllers.SuccessResponse(c, http.StatusCreated, response.FromDomain(&replyDomain))
 }
 
-func (cr *ReplyController) Edit(c echo.Context) error {
+func (cr *ReplyController) UpdateReply(c echo.Context) error {
 	replyId, err := strconv.Atoi(c.Param("replyId"))
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
@@ -74,21 +107,37 @@ func (cr *ReplyController) Edit(c echo.Context) error {
 
 	claims := middleware.ExtractUserClaims(c)
 
-	reply := request.Reply{}
-	err = c.Bind(&reply)
-	if err != nil {
+	var fileName string
+
+	content := c.FormValue("content")
+	image, err := c.FormFile("image")
+	if err != nil && err != http.ErrMissingFile {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	updatedReply, err := cr.replyUsecase.EditReply(reply.ToDomain(), claims.UserID, replyId)
+	updatedReply := request.Reply{}
+
+	if err != http.ErrMissingFile {
+		fileName, uploadErr := storage.StoreFile(image)
+		if uploadErr != nil {
+			return controllers.FailureResponse(c, http.StatusUnprocessableEntity, uploadErr.Error())
+		}
+		updatedReply.Image = fileName
+	} else {
+		updatedReply.Image = fileName
+	}
+
+	updatedReply.Content = content
+
+	replyDomain, err := cr.replyUsecase.EditReply(updatedReply.ToDomain(), claims.UserID, replyId)
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusCreated, response.FromDomain(&updatedReply))
+	return controllers.SuccessResponse(c, http.StatusCreated, response.FromDomain(&replyDomain))
 }
 
-func (cr *ReplyController) Delete(c echo.Context) error {
+func (cr *ReplyController) DeleteReply(c echo.Context) error {
 	replyId, err := strconv.Atoi(c.Param("replyId"))
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
@@ -104,7 +153,7 @@ func (cr *ReplyController) Delete(c echo.Context) error {
 	return controllers.SuccessResponse(c, http.StatusOK, nil)
 }
 
-func (cr *ReplyController) Like(c echo.Context) error {
+func (cr *ReplyController) LikeReply(c echo.Context) error {
 	replyId, err := strconv.Atoi(c.Param("replyId"))
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
@@ -120,7 +169,7 @@ func (cr *ReplyController) Like(c echo.Context) error {
 	return controllers.SuccessResponse(c, http.StatusOK, nil)
 }
 
-func (cr *ReplyController) UndoLike(c echo.Context) error {
+func (cr *ReplyController) UndoLikeReply(c echo.Context) error {
 	replyId, err := strconv.Atoi(c.Param("replyId"))
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
@@ -136,7 +185,7 @@ func (cr *ReplyController) UndoLike(c echo.Context) error {
 	return controllers.SuccessResponse(c, http.StatusOK, nil)
 }
 
-func (cr *ReplyController) Unlike(c echo.Context) error {
+func (cr *ReplyController) UnlikeReply(c echo.Context) error {
 	replyId, err := strconv.Atoi(c.Param("replyId"))
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
@@ -152,7 +201,7 @@ func (cr *ReplyController) Unlike(c echo.Context) error {
 	return controllers.SuccessResponse(c, http.StatusOK, nil)
 }
 
-func (cr *ReplyController) UndoUnlike(c echo.Context) error {
+func (cr *ReplyController) UndoUnlikeReply(c echo.Context) error {
 	replyId, err := strconv.Atoi(c.Param("replyId"))
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())

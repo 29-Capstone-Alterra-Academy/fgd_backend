@@ -9,11 +9,11 @@ import (
 	"fgd/core/auth"
 	"fgd/core/user"
 	"fgd/core/verify"
+	"fgd/helper/storage"
 	"fmt"
-	"io"
 	"net/http"
-	"os"
 	"strconv"
+	"time"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
@@ -36,7 +36,7 @@ func InitUserController(ac auth.Usecase, uc user.Usecase, vc verify.Usecase, con
 }
 
 func (cr *UserController) Login(c echo.Context) error {
-	user := request.User{}
+	user := request.UserAuth{}
 	if err := c.Bind(&user); err != nil {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -61,7 +61,7 @@ func (cr *UserController) Logout(c echo.Context) error {
 }
 
 func (cr *UserController) Register(c echo.Context) error {
-	user := request.User{}
+	user := request.UserAuth{}
 	err := c.Bind(&user)
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
@@ -186,27 +186,48 @@ func (cr *UserController) GetPublicProfile(c echo.Context) error {
 	return controllers.SuccessResponse(c, http.StatusOK, response.FromDomain(&profile, "public"))
 }
 
-func (cr *UserController) UpdateProfileImage(c echo.Context) error {
-	file, err := c.FormFile("profileImage")
+func (cr *UserController) UpdateProfile(c echo.Context) error {
+	claims := middleware.ExtractUserClaims(c)
+
+	var birthDate time.Time
+	var err error
+
+	username := c.FormValue("username")
+	email := c.FormValue("email")
+	gender := c.FormValue("gender")
+	birthDateStr := c.FormValue("birth_date")
+
+	if birthDateStr != "" {
+		birthDate, err = time.Parse("2006-01-02", birthDateStr)
+		if err != nil {
+			return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
+		}
+	}
+
+	profileImage, err := c.FormFile("profile_image")
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
 	}
-
-	src, err := file.Open()
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
+	var profileImageFilename string
+	if profileImage != nil {
+		profileImageFilename, err = storage.StoreFile(profileImage)
+		if err != nil {
+			return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
+		}
 	}
-	defer src.Close()
 
-	dst, err := os.Create(file.Filename)
+	user := request.UserProfile{
+		Username:     username,
+		Email:        email,
+		Gender:       &gender,
+		BirthDate:    &birthDate,
+		ProfileImage: &profileImageFilename,
+	}
+
+	updatedUser, err := cr.userUsecase.UpdatePersonalProfile(user.ToDomain(), claims.UserID)
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
-	defer dst.Close()
 
-	if _, err := io.Copy(dst, src); err != nil {
-		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
-	}
-
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
+	return controllers.SuccessResponse(c, http.StatusOK, response.FromDomain(&updatedUser, "personal"))
 }

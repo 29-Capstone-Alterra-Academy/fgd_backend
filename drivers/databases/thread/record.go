@@ -32,13 +32,13 @@ func (r *Thread) toDomain() *thread.Domain {
 	return &thread.Domain{
 		ID: int(r.ID),
 		Author: thread.DomainAuthor{
-			ID:           int(r.Author.ID),
-			Username:     r.Author.Username,
-			ProfileImage: r.Author.ProfileImage,
+			ID:       int(r.Author.ID),
+			Username: r.Author.Username,
 		},
 		Topic: thread.DomainTopic{
-			ID:   int(r.Topic.ID),
-			Name: r.Topic.Name,
+			ID:           int(r.Topic.ID),
+			Name:         r.Topic.Name,
+			ProfileImage: r.Topic.ProfileImage,
 		},
 		Image1:      r.Image1,
 		Image2:      r.Image2,
@@ -59,23 +59,15 @@ func (r *Thread) toDomain() *thread.Domain {
 func fromDomain(threadDomain thread.Domain) *Thread {
 	return &Thread{
 		Model: gorm.Model{
-			ID:        uint(threadDomain.ID),
-			CreatedAt: threadDomain.CreatedAt,
-			UpdatedAt: threadDomain.UpdatedAt,
-			DeletedAt: gorm.DeletedAt{
-				Time: threadDomain.DeletedAt,
-			},
+			ID: uint(threadDomain.ID),
 		},
 		TopicID: uint(threadDomain.Topic.ID),
 		Topic: topic.Topic{
 			Model: gorm.Model{ID: uint(threadDomain.Topic.ID)},
-			Name:  threadDomain.Topic.Name,
 		},
 		AuthorID: uint(threadDomain.Author.ID),
 		Author: user.User{
-			Model:        gorm.Model{ID: uint(threadDomain.Author.ID)},
-			Username:     threadDomain.Author.Username,
-			ProfileImage: threadDomain.Author.ProfileImage,
+			Model: gorm.Model{ID: uint(threadDomain.Author.ID)},
 		},
 		Title:   threadDomain.Title,
 		Content: threadDomain.Content,

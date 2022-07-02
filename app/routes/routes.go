@@ -22,7 +22,7 @@ type Controllers struct {
 }
 
 func (c *Controllers) Register(e *echo.Echo) {
-	e.Use(echoMiddleware.Logger(), echoMiddleware.Recover())
+	e.Use(echoMiddleware.Logger(), echoMiddleware.Recover(), echoMiddleware.CORS())
 	jwtMiddleware := echoMiddleware.JWTWithConfig(c.JWTMiddleware)
 
 	e.POST("/login", c.UserController.Login)
@@ -33,9 +33,8 @@ func (c *Controllers) Register(e *echo.Echo) {
 	e.GET("/profile/verify", c.VerifyController.RequestEmailVerification, jwtMiddleware)
 	e.POST("/profile/verify", c.VerifyController.SubmitEmailVerification, jwtMiddleware)
 	e.GET("/profile", c.UserController.GetProfile, jwtMiddleware)
-	// e.PUT("/profile", c.UserController.UpdateProfile, jwtMiddleware)
-	e.PUT("/profile/image", c.UserController.UpdateProfileImage, jwtMiddleware)
-	e.GET("/user/:userId", c.UserController.GetPublicProfile, jwtMiddleware)
+	e.PUT("/profile", c.UserController.UpdateProfile, jwtMiddleware)
+	e.GET("/user/:userId", c.UserController.GetPublicProfile)
 	e.GET("/user/:userId/follow", c.UserController.Follow, jwtMiddleware)
 	e.GET("/user/:userId/unfollow", c.UserController.Unfollow, jwtMiddleware)
 
@@ -47,22 +46,23 @@ func (c *Controllers) Register(e *echo.Echo) {
 	e.POST("/topic/:topicId/modrequest", c.TopicController.RequestPromotion, jwtMiddleware)
 	e.GET("/topic/:topicId/subscribe", c.TopicController.Subscribe, jwtMiddleware)
 	e.GET("/topic/:topicId/subscribe", c.TopicController.Unsubscribe, jwtMiddleware)
-	e.POST("/topic/:topicId/thread", c.ThreadController.Create, jwtMiddleware)
+	e.POST("/topic/:topicId/thread", c.ThreadController.CreateThread, jwtMiddleware)
 
-	// e.GET("/thread", c.ThreadController.GetThreads, jwtMiddleware)
-	e.PUT("/thread/:threadId", c.ThreadController.Update, jwtMiddleware)
-	e.DELETE("/thread/:threadId", c.ThreadController.Delete, jwtMiddleware)
-	e.POST("/thread/:threadId/like", c.ThreadController.Like, jwtMiddleware)
-	e.DELETE("/thread/:threadId/unlike", c.ThreadController.UndoUnlike, jwtMiddleware)
-	e.POST("/thread/:threadId/unlike", c.ThreadController.Unlike, jwtMiddleware)
-	e.DELETE("/thread/:threadId/like", c.ThreadController.UndoLike, jwtMiddleware)
+	e.GET("/thread", c.ThreadController.GetThreads)
+	e.GET("/thread/:threadId", c.ThreadController.GetThread)
+	e.PUT("/thread/:threadId", c.ThreadController.UpdateThread, jwtMiddleware)
+	e.DELETE("/thread/:threadId", c.ThreadController.DeleteThread, jwtMiddleware)
+	e.POST("/thread/:threadId/like", c.ThreadController.LikeThread, jwtMiddleware)
+	e.DELETE("/thread/:threadId/unlike", c.ThreadController.UndoUnlikeThread, jwtMiddleware)
+	e.POST("/thread/:threadId/unlike", c.ThreadController.UnlikeThread, jwtMiddleware)
+	e.DELETE("/thread/:threadId/like", c.ThreadController.UndoLikeThread, jwtMiddleware)
 
 	e.POST("/thread/:threadId/reply", c.ReplyController.CreateForThread, jwtMiddleware)
 	e.GET("/reply/:replyId/reply", c.ReplyController.CreateForReply, jwtMiddleware)
 	// e.GET("/reply/:replyId", c.ReplyController.GetChilds, jwtMiddleware)
-	// e.PUT("/reply/:replyId", c.ReplyController.Update, jwtMiddleware)
-	e.POST("/reply/:replyId/like", c.ReplyController.Like, jwtMiddleware)
-	e.DELETE("/reply/:replyId/like", c.ReplyController.UndoLike, jwtMiddleware)
-	e.POST("/reply/:replyId/unlike", c.ReplyController.Unlike, jwtMiddleware)
-	e.DELETE("/reply/:replyId/unlike", c.ReplyController.UndoUnlike, jwtMiddleware)
+	e.PUT("/reply/:replyId", c.ReplyController.UpdateReply, jwtMiddleware)
+	e.POST("/reply/:replyId/like", c.ReplyController.LikeReply, jwtMiddleware)
+	e.DELETE("/reply/:replyId/like", c.ReplyController.UndoLikeReply, jwtMiddleware)
+	e.POST("/reply/:replyId/unlike", c.ReplyController.UnlikeReply, jwtMiddleware)
+	e.DELETE("/reply/:replyId/unlike", c.ReplyController.UndoUnlikeReply, jwtMiddleware)
 }

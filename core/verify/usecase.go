@@ -48,7 +48,7 @@ func (uc *verifyUsecase) CheckVerifyData(email string, data Domain) (bool, error
 }
 
 func (uc *verifyUsecase) SendVerifyToken(email string, verify_type string) error {
-	code := token.GenerateRandomNumber()
+	code := token.GenerateToken()
 
 	data := Domain{}
 	data.Code = code
