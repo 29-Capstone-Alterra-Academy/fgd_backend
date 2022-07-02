@@ -13,7 +13,14 @@ type topicUsecase struct {
 }
 
 func (uc *topicUsecase) GetTopicDetails(topicId int) (Domain, error) {
-	return uc.topicRepository.GetTopicDetails(topicId)
+	topic, err := uc.topicRepository.GetTopicDetails(topicId)
+	if err != nil {
+		return Domain{}, err
+	}
+
+	format.FormatImageLink(topic.ProfileImage, uc.config)
+
+	return topic, nil
 }
 
 func (uc *topicUsecase) CheckTopicAvailibility(topicName string) (bool, error) {
@@ -38,7 +45,16 @@ func (uc *topicUsecase) GetModerators(topicId int) ([]Domain, error) {
 }
 
 func (uc *topicUsecase) GetTopics(limit, offset int, sort_by string) ([]Domain, error) {
-	return uc.topicRepository.GetTopics(limit, offset, sort_by)
+	topics, err := uc.topicRepository.GetTopics(limit, offset, sort_by)
+	if err != nil {
+		return []Domain{}, err
+	}
+
+	for _, topic := range topics {
+		format.FormatImageLink(topic.ProfileImage, uc.config)
+	}
+
+	return topics, nil
 }
 
 func (uc *topicUsecase) Subscribe(userId, topicId int) error {

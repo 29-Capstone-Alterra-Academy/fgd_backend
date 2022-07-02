@@ -19,6 +19,7 @@ func (uc *threadUsecase) CreateThread(data *Domain, userId int, topicId int) (Do
 	if err != nil {
 		return Domain{}, err
 	}
+	format.FormatImageLink(newThread.Topic.ProfileImage, uc.config)
 
 	format.FormatImageLink(
 		uc.config,
@@ -36,16 +37,59 @@ func (uc *threadUsecase) DeleteThread(userId int, threadId int) error {
 	return uc.threadRepository.DeleteThread(userId, threadId)
 }
 
-func (cr *threadUsecase) GetThreadByID(threadId int) (Domain, error) {
-	return cr.threadRepository.GetThreadByID(threadId)
+func (uc *threadUsecase) GetThreadByID(threadId int) (Domain, error) {
+	thread, err := uc.threadRepository.GetThreadByID(threadId)
+	if err != nil {
+		return Domain{}, err
+	}
+
+	format.FormatImageLink(thread.Topic.ProfileImage, uc.config)
+
+	format.FormatImageLink(thread.Image1, uc.config)
+	format.FormatImageLink(thread.Image2, uc.config)
+	format.FormatImageLink(thread.Image3, uc.config)
+	format.FormatImageLink(thread.Image4, uc.config)
+	format.FormatImageLink(thread.Image5, uc.config)
+
+	return thread, nil
 }
 
 func (uc *threadUsecase) GetThreadByAuthorID(userId, limit, offset int) ([]Domain, error) {
-	return uc.threadRepository.GetThreadByAuthorID(userId, limit, offset)
+	threads, err := uc.threadRepository.GetThreadByAuthorID(userId, limit, offset)
+	if err != nil {
+		return []Domain{}, err
+	}
+
+	for _, thread := range threads {
+		format.FormatImageLink(thread.Topic.ProfileImage, uc.config)
+
+		format.FormatImageLink(thread.Image1, uc.config)
+		format.FormatImageLink(thread.Image2, uc.config)
+		format.FormatImageLink(thread.Image3, uc.config)
+		format.FormatImageLink(thread.Image4, uc.config)
+		format.FormatImageLink(thread.Image5, uc.config)
+	}
+
+	return threads, nil
 }
 
 func (uc *threadUsecase) GetThreadByTopicID(topicId, limit, offset int) ([]Domain, error) {
-	return uc.threadRepository.GetThreadByTopicID(topicId, limit, offset)
+	threads, err := uc.threadRepository.GetThreadByTopicID(topicId, limit, offset)
+	if err != nil {
+		return []Domain{}, err
+	}
+
+	for _, thread := range threads {
+		format.FormatImageLink(thread.Topic.ProfileImage, uc.config)
+
+		format.FormatImageLink(thread.Image1, uc.config)
+		format.FormatImageLink(thread.Image2, uc.config)
+		format.FormatImageLink(thread.Image3, uc.config)
+		format.FormatImageLink(thread.Image4, uc.config)
+		format.FormatImageLink(thread.Image5, uc.config)
+	}
+
+	return threads, nil
 }
 
 func (uc *threadUsecase) Like(userId int, threadId int) error {
@@ -69,6 +113,7 @@ func (uc *threadUsecase) UpdateThread(data *Domain, userId, threadId int) (Domai
 	if err != nil {
 		return Domain{}, err
 	}
+	format.FormatImageLink(updatedThread.Topic.ProfileImage, uc.config)
 
 	format.FormatImageLink(
 		uc.config,
