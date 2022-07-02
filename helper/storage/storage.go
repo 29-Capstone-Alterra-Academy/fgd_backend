@@ -8,6 +8,10 @@ import (
 	"github.com/google/uuid"
 )
 
+func InitializeStaticDirectory(path string) error {
+	return os.MkdirAll(path, os.ModePerm)
+}
+
 func StoreFile(file *multipart.FileHeader) (string, error) {
 	fileName := uuid.New().String()
 
