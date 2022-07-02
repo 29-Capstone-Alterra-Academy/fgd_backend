@@ -8,6 +8,7 @@ import (
 	"fgd/core/auth"
 	"fgd/core/topic"
 	"fgd/core/user"
+	"fgd/helper/storage"
 	"net/http"
 	"strconv"
 
@@ -30,20 +31,72 @@ func InitTopicController(ac auth.Usecase, tc topic.Usecase, uc user.Usecase) *To
 
 func (cr *TopicController) CreateTopic(c echo.Context) error {
 	claims := middleware.ExtractUserClaims(c)
-	userId := claims.UserID
 
-	newTopic := request.NewTopic{}
-	err := c.Bind(&newTopic)
-	if err != nil {
+	var fileName string
+
+	topicName := c.FormValue("name")
+	description := c.FormValue("description")
+	rules := c.FormValue("rules")
+	profileImage, err := c.FormFile("profile_image")
+	if err != nil && err != http.ErrMissingFile {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	topicDomain, err := cr.topicUsecase.CreateTopic(newTopic.ToDomain())
+	newTopic := request.NewTopic{}
+	if err != http.ErrMissingFile {
+		fileName, uploadErr := storage.StoreFile(profileImage)
+		if uploadErr != nil {
+			return controllers.FailureResponse(c, http.StatusUnprocessableEntity, uploadErr.Error())
+		}
+		newTopic.ProfileImage = fileName
+	} else {
+		newTopic.ProfileImage = fileName
+	}
+
+	newTopic.Name = topicName
+	newTopic.Description = description
+	newTopic.Rules = rules
+
+	topicDomain, err := cr.topicUsecase.CreateTopic(newTopic.ToDomain(), claims.UserID)
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	err = cr.topicUsecase.Subscribe(userId, topicDomain.ID)
+	return controllers.SuccessResponse(c, http.StatusCreated, topicDomain)
+}
+
+func (cr *TopicController) UpdateTopic(c echo.Context) error {
+	topicId, err := strconv.Atoi(c.Param("topicId"))
+	if err != nil {
+		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	var fileName string
+
+	topicName := c.FormValue("name")
+	description := c.FormValue("description")
+	rules := c.FormValue("rules")
+	profileImage, err := c.FormFile("profile_image")
+	if err != nil && err != http.ErrMissingFile {
+		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	newTopic := request.NewTopic{}
+	if err != http.ErrMissingFile {
+		fileName, uploadErr := storage.StoreFile(profileImage)
+		if uploadErr != nil {
+			return controllers.FailureResponse(c, http.StatusUnprocessableEntity, uploadErr.Error())
+		}
+		newTopic.ProfileImage = fileName
+	} else {
+		newTopic.ProfileImage = fileName
+	}
+
+	newTopic.Name = topicName
+	newTopic.Description = description
+	newTopic.Rules = rules
+
+	topicDomain, err := cr.topicUsecase.UpdateTopic(newTopic.ToDomain(), topicId)
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}

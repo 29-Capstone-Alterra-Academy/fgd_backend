@@ -20,7 +20,7 @@ func (uc *topicUsecase) CheckTopicAvailibility(topicName string) (bool, error) {
 	return uc.topicRepository.CheckTopicAvailibility(topicName)
 }
 
-func (uc *topicUsecase) CreateTopic(data *Domain) (Domain, error) {
+func (uc *topicUsecase) CreateTopic(data *Domain, userId int) (Domain, error) {
 	newTopic, err := uc.topicRepository.CreateTopic(data)
 	if err != nil {
 		return Domain{}, err
@@ -28,7 +28,9 @@ func (uc *topicUsecase) CreateTopic(data *Domain) (Domain, error) {
 
 	format.FormatImageLink(newTopic.ProfileImage, uc.config)
 
-	return newTopic, nil
+	err = uc.topicRepository.Subscribe(userId, newTopic.ID)
+
+	return newTopic, err
 }
 
 func (uc *topicUsecase) GetModerators(topicId int) ([]Domain, error) {
