@@ -67,6 +67,8 @@ func (uc *userUsecase) CreateUser(data *Domain) (Domain, error) {
 
 	if data.Username == "" {
 		data.Username = stringHelper.GenerateRandomUsername()
+	} else if len(data.Username) < 6 {
+		return Domain{}, fmt.Errorf("error: username should be at least 6 character")
 	}
 
 	if len(data.Password) < 8 {
