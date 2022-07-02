@@ -1,18 +1,24 @@
 package storage
 
 import (
+	"fgd/app/config"
 	"io"
 	"mime/multipart"
 	"os"
+	"path/filepath"
 
 	"github.com/google/uuid"
 )
 
-func InitializeStaticDirectory(path string) error {
-	return os.MkdirAll(path, os.ModePerm)
+type StorageHelper struct {
+	conf config.Config
 }
 
-func StoreFile(file *multipart.FileHeader) (string, error) {
+func (h *StorageHelper) InitializeStaticDirectory() error {
+	return os.MkdirAll(filepath.Join(h.conf.STATIC_ROOT, h.conf.STATIC_PATH), os.ModePerm)
+}
+
+func (h *StorageHelper) StoreFile(file *multipart.FileHeader) (string, error) {
 	fileName := uuid.New().String()
 
 	src, err := file.Open()
@@ -22,7 +28,7 @@ func StoreFile(file *multipart.FileHeader) (string, error) {
 
 	defer src.Close()
 
-	dst, err := os.Create(fileName)
+	dst, err := os.Create(filepath.Join(h.conf.STATIC_ROOT, h.conf.STATIC_PATH, fileName))
 	if err != nil {
 		return "", err
 	}
@@ -32,4 +38,10 @@ func StoreFile(file *multipart.FileHeader) (string, error) {
 	}
 
 	return fileName, nil
+}
+
+func NewStorageHelper(c config.Config) *StorageHelper {
+	return &StorageHelper{
+		conf: c,
+	}
 }
