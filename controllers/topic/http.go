@@ -64,7 +64,7 @@ func (cr *TopicController) CreateTopic(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusCreated, topicDomain)
+	return controllers.SuccessResponse(c, http.StatusCreated, response.FromDomain(topicDomain))
 }
 
 func (cr *TopicController) UpdateTopic(c echo.Context) error {
@@ -103,7 +103,7 @@ func (cr *TopicController) UpdateTopic(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusCreated, topicDomain)
+	return controllers.SuccessResponse(c, http.StatusCreated, response.FromDomain(topicDomain))
 }
 
 func (cr *TopicController) CheckAvailibility(c echo.Context) error {
@@ -156,6 +156,7 @@ func (cr *TopicController) GetTopics(c echo.Context) error {
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
+
 	topics := []response.Topic{}
 	for _, topicDomain := range topicDomains {
 		topics = append(topics, response.FromDomain(topicDomain))
