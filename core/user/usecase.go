@@ -68,6 +68,9 @@ func (uc *userUsecase) CreateUser(data *Domain) (Domain, error) {
 		data.Username = stringHelper.GenerateRandomUsername()
 	}
 
+	if len(data.Password) < 8 {
+		return Domain{}, fmt.Errorf("error: password must be at least 8 character")
+	}
 	data.Password, err = crypt.CreateHash(data.Password)
 	if err != nil {
 		return Domain{}, err
