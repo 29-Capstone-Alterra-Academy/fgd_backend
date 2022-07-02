@@ -63,6 +63,11 @@ func main() {
 		RefreshExpiry: time.Hour * 24 * 7,
 	}
 
+  storageErr := storage.InitializeStaticDirectory("files/public/assets")
+  if storageErr != nil {
+    log.Fatal(storageErr)
+  }
+
 	mailHelper, err := mail.NewMailHelper(conf.MAIL_AT, conf.MAIL_RT, conf.MAIL_CLIENT, conf.MAIL_SECRET, conf.MAIL_REDIRECT)
 	if err != nil {
 		// TODO Handle this better

@@ -65,4 +65,6 @@ func (c *Controllers) Register(e *echo.Echo) {
 	e.DELETE("/reply/:replyId/like", c.ReplyController.UndoLikeReply, jwtMiddleware)
 	e.POST("/reply/:replyId/unlike", c.ReplyController.UnlikeReply, jwtMiddleware)
 	e.DELETE("/reply/:replyId/unlike", c.ReplyController.UndoUnlikeReply, jwtMiddleware)
+
+	e.Static("/", "files")
 }
