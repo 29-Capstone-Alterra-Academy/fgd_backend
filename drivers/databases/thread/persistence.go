@@ -44,7 +44,7 @@ func (rp *persistenceThreadRepository) DeleteThread(userId int, threadId int) er
 func (rp *persistenceThreadRepository) GetThreadByID(threadId int) (thread.Domain, error) {
 	thread := Thread{}
 
-	res := rp.Conn.Take(&thread, threadId)
+	res := rp.Conn.Preload("Author").Preload("Topic").Take(&thread, threadId)
 	return *thread.toDomain(), res.Error
 }
 
