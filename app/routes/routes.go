@@ -22,7 +22,7 @@ type Controllers struct {
 }
 
 func (c *Controllers) Register(e *echo.Echo) {
-	e.Use(echoMiddleware.Logger(), echoMiddleware.Recover(), echoMiddleware.CORS())
+	e.Use(echoMiddleware.Logger(), echoMiddleware.Recover(), echoMiddleware.CORS(), echoMiddleware.Static("/"))
 	jwtMiddleware := echoMiddleware.JWTWithConfig(c.JWTMiddleware)
 
 	e.POST("/login", c.UserController.Login)
