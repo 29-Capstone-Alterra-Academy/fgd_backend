@@ -12,7 +12,7 @@ type UserProfile struct {
 	Gender       *string   `json:"gender"`
 	ProfileImage *string   `json:"profile_image"`
 	IsVerified   bool      `json:"is_verified"`
-	BirthDate    string    `json:"birth_date"`
+	BirthDate    *string   `json:"birth_date"`
 	UpdatedAt    time.Time `json:"updated_at"`
 }
 
@@ -27,16 +27,19 @@ type UserPublicProfile struct {
 
 func FromDomain(userDomain *user.Domain, scope string) interface{} {
 	if scope == "personal" {
-		return UserProfile{
+		userProfile := UserProfile{
 			ID:           userDomain.ID,
 			Username:     userDomain.Username,
 			Email:        userDomain.Email,
 			Gender:       userDomain.Gender,
 			ProfileImage: userDomain.ProfileImage,
 			IsVerified:   userDomain.IsVerified,
-			BirthDate:    userDomain.BirthDate.Format("2006-01-02"),
 			UpdatedAt:    userDomain.UpdatedAt,
 		}
+		if userDomain.BirthDate != nil {
+			*userProfile.BirthDate = userDomain.BirthDate.Format("2006-01-02")
+		}
+		return userProfile
 	} else {
 		return UserPublicProfile{
 			ID:             userDomain.ID,
