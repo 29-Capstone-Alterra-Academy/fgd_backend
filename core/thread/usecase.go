@@ -20,11 +20,14 @@ func (uc *threadUsecase) CreateThread(data *Domain, userId int, topicId int) (Do
 		return Domain{}, err
 	}
 
-	format.FormatImageLink(newThread.Image1, uc.config)
-	format.FormatImageLink(newThread.Image2, uc.config)
-	format.FormatImageLink(newThread.Image3, uc.config)
-	format.FormatImageLink(newThread.Image4, uc.config)
-	format.FormatImageLink(newThread.Image5, uc.config)
+	format.FormatImageLink(
+		uc.config,
+		newThread.Image1,
+		newThread.Image2,
+		newThread.Image3,
+		newThread.Image4,
+		newThread.Image5,
+	)
 
 	return newThread, nil
 }
@@ -67,11 +70,14 @@ func (uc *threadUsecase) UpdateThread(data *Domain, userId, threadId int) (Domai
 		return Domain{}, err
 	}
 
-	format.FormatImageLink(updatedThread.Image1, uc.config)
-	format.FormatImageLink(updatedThread.Image2, uc.config)
-	format.FormatImageLink(updatedThread.Image3, uc.config)
-	format.FormatImageLink(updatedThread.Image4, uc.config)
-	format.FormatImageLink(updatedThread.Image5, uc.config)
+	format.FormatImageLink(
+		uc.config,
+		updatedThread.Image1,
+		updatedThread.Image2,
+		updatedThread.Image3,
+		updatedThread.Image4,
+		updatedThread.Image5,
+	)
 
 	return updatedThread, nil
 }
