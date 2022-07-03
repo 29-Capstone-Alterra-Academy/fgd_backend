@@ -26,7 +26,7 @@ func (uc *topicUsecase) CreateTopic(data *Domain, userId int) (Domain, error) {
 		return Domain{}, err
 	}
 
-	format.FormatImageLink(newTopic.ProfileImage, uc.config)
+	format.FormatImageLink(uc.config, newTopic.ProfileImage)
 
 	err = uc.topicRepository.Subscribe(userId, newTopic.ID)
 
@@ -55,7 +55,7 @@ func (uc *topicUsecase) UpdateTopic(data *Domain, topicId int) (Domain, error) {
 		return Domain{}, err
 	}
 
-	format.FormatImageLink(updatedTopic.ProfileImage, uc.config)
+	format.FormatImageLink(uc.config, updatedTopic.ProfileImage)
 
 	return updatedTopic, nil
 }
