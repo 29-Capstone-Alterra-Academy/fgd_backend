@@ -13,11 +13,15 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type ThreadController struct{ threadUsecase thread.Usecase }
+type ThreadController struct {
+	threadUsecase thread.Usecase
+	storageHelper *storage.StorageHelper
+}
 
-func InitThreadController(tc thread.Usecase) *ThreadController {
+func InitThreadController(tc thread.Usecase, sh *storage.StorageHelper) *ThreadController {
 	return &ThreadController{
 		threadUsecase: tc,
+		storageHelper: sh,
 	}
 }
 
@@ -43,7 +47,7 @@ func (cr *ThreadController) CreateThread(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
 	}
 	if err != http.ErrMissingFile {
-		image1, uploadErr := storage.StoreFile(imageFile1)
+		image1, uploadErr := cr.storageHelper.StoreFile(imageFile1)
 		if uploadErr != nil {
 			return controllers.FailureResponse(c, http.StatusUnprocessableEntity, uploadErr.Error())
 		}
@@ -57,7 +61,7 @@ func (cr *ThreadController) CreateThread(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
 	}
 	if err != http.ErrMissingFile {
-		image2, uploadErr := storage.StoreFile(imageFile2)
+		image2, uploadErr := cr.storageHelper.StoreFile(imageFile2)
 		if uploadErr != nil {
 			return controllers.FailureResponse(c, http.StatusUnprocessableEntity, uploadErr.Error())
 		}
@@ -71,7 +75,7 @@ func (cr *ThreadController) CreateThread(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
 	}
 	if err != http.ErrMissingFile {
-		image3, uploadErr := storage.StoreFile(imageFile3)
+		image3, uploadErr := cr.storageHelper.StoreFile(imageFile3)
 		if uploadErr != nil {
 			return controllers.FailureResponse(c, http.StatusUnprocessableEntity, uploadErr.Error())
 		}
@@ -85,7 +89,7 @@ func (cr *ThreadController) CreateThread(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
 	}
 	if err != http.ErrMissingFile {
-		image4, uploadErr := storage.StoreFile(imageFile4)
+		image4, uploadErr := cr.storageHelper.StoreFile(imageFile4)
 		if uploadErr != nil {
 			return controllers.FailureResponse(c, http.StatusUnprocessableEntity, uploadErr.Error())
 		}
@@ -99,7 +103,7 @@ func (cr *ThreadController) CreateThread(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
 	}
 	if err != http.ErrMissingFile {
-		image5, uploadErr := storage.StoreFile(imageFile5)
+		image5, uploadErr := cr.storageHelper.StoreFile(imageFile5)
 		if uploadErr != nil {
 			return controllers.FailureResponse(c, http.StatusUnprocessableEntity, uploadErr.Error())
 		}
@@ -148,7 +152,7 @@ func (cr *ThreadController) UpdateThread(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
 	}
 	if err != http.ErrMissingFile {
-		image1, uploadErr := storage.StoreFile(imageFile1)
+		image1, uploadErr := cr.storageHelper.StoreFile(imageFile1)
 		if uploadErr != nil {
 			return controllers.FailureResponse(c, http.StatusUnprocessableEntity, uploadErr.Error())
 		}
@@ -162,7 +166,7 @@ func (cr *ThreadController) UpdateThread(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
 	}
 	if err != http.ErrMissingFile {
-		image2, uploadErr := storage.StoreFile(imageFile2)
+		image2, uploadErr := cr.storageHelper.StoreFile(imageFile2)
 		if uploadErr != nil {
 			return controllers.FailureResponse(c, http.StatusUnprocessableEntity, uploadErr.Error())
 		}
@@ -176,7 +180,7 @@ func (cr *ThreadController) UpdateThread(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
 	}
 	if err != http.ErrMissingFile {
-		image3, uploadErr := storage.StoreFile(imageFile3)
+		image3, uploadErr := cr.storageHelper.StoreFile(imageFile3)
 		if uploadErr != nil {
 			return controllers.FailureResponse(c, http.StatusUnprocessableEntity, uploadErr.Error())
 		}
@@ -190,7 +194,7 @@ func (cr *ThreadController) UpdateThread(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
 	}
 	if err != http.ErrMissingFile {
-		image4, uploadErr := storage.StoreFile(imageFile4)
+		image4, uploadErr := cr.storageHelper.StoreFile(imageFile4)
 		if uploadErr != nil {
 			return controllers.FailureResponse(c, http.StatusUnprocessableEntity, uploadErr.Error())
 		}
@@ -204,7 +208,7 @@ func (cr *ThreadController) UpdateThread(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
 	}
 	if err != http.ErrMissingFile {
-		image5, uploadErr := storage.StoreFile(imageFile5)
+		image5, uploadErr := cr.storageHelper.StoreFile(imageFile5)
 		if uploadErr != nil {
 			return controllers.FailureResponse(c, http.StatusUnprocessableEntity, uploadErr.Error())
 		}

@@ -5,6 +5,7 @@ import (
 	"fgd/app/middleware"
 	"fgd/app/routes"
 	"fgd/helper/mail"
+	"fgd/helper/storage"
 	"fmt"
 	"log"
 	"os"
@@ -63,6 +64,13 @@ func main() {
 		RefreshExpiry: time.Hour * 24 * 7,
 	}
 
+	storageHelper := storage.NewStorageHelper(conf)
+
+	storageErr := storageHelper.InitializeStaticDirectory()
+	if storageErr != nil {
+		log.Fatal(storageErr)
+	}
+
 	mailHelper, err := mail.NewMailHelper(conf.MAIL_AT, conf.MAIL_RT, conf.MAIL_CLIENT, conf.MAIL_SECRET, conf.MAIL_REDIRECT)
 	if err != nil {
 		// TODO Handle this better
@@ -86,10 +94,10 @@ func main() {
 	replyUsecae := replyCore.InitReplyUsecase(replyRepo, userUsecase, conf)
 	verifyUsecase := verifyCore.InitVerifyUsecase(verifyRepo, *mailHelper)
 
-	replyController := replyCtrl.InitReplyController(replyUsecae)
-	threadController := threadCtrl.InitThreadController(threadUsecase)
-	topicController := topicCtrl.InitTopicController(authUsecase, topicUsecase, userUsecase)
-	userController := userCtrl.InitUserController(authUsecase, userUsecase, verifyUsecase, conf)
+	replyController := replyCtrl.InitReplyController(replyUsecae, storageHelper)
+	threadController := threadCtrl.InitThreadController(threadUsecase, storageHelper)
+	topicController := topicCtrl.InitTopicController(authUsecase, topicUsecase, userUsecase, storageHelper)
+	userController := userCtrl.InitUserController(authUsecase, userUsecase, verifyUsecase, conf, storageHelper)
 	verifyController := verifyCtrl.InitVerifyController(userUsecase, verifyUsecase)
 
 	e := echo.New()

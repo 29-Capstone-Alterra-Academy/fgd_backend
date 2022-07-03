@@ -1,8 +1,7 @@
 package config
 
-import "os"
-
 type Config struct {
+	DOMAIN        string
 	HOST          string
 	PORT          string
 	DB_USERNAME   string
@@ -16,6 +15,8 @@ type Config struct {
 	MAIL_CLIENT   string
 	MAIL_SECRET   string
 	MAIL_REDIRECT string
+	STATIC_ROOT   string
+	STATIC_PATH   string
 }
 
 func InitializeConfig() Config {

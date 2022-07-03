@@ -1,7 +1,7 @@
 package routes
 
 import (
-	// "fgd/app/middleware"
+	"fgd/app/middleware"
 	"fgd/controllers/reply"
 	"fgd/controllers/thread"
 	"fgd/controllers/topic"
@@ -22,7 +22,7 @@ type Controllers struct {
 }
 
 func (c *Controllers) Register(e *echo.Echo) {
-	e.Use(echoMiddleware.Logger(), echoMiddleware.Recover(), echoMiddleware.CORS())
+	e.Use(echoMiddleware.Logger(), echoMiddleware.Recover(), echoMiddleware.CORS(), echoMiddleware.Static("/"))
 	jwtMiddleware := echoMiddleware.JWTWithConfig(c.JWTMiddleware)
 
 	e.POST("/login", c.UserController.Login)
@@ -42,6 +42,7 @@ func (c *Controllers) Register(e *echo.Echo) {
 	e.POST("/topic", c.TopicController.CreateTopic, jwtMiddleware)
 	e.POST("/topic/check", c.TopicController.CheckAvailibility, jwtMiddleware)
 	e.GET("/topic/:topicId", c.TopicController.GetTopicDetails, jwtMiddleware)
+	e.PUT("/topic/:topicId", c.TopicController.UpdateTopic, jwtMiddleware, middleware.ModeratorValidation)
 	// e.GET("/topic/:topicId/moderator", c.TopicController.GetModerators, jwtMiddleware)
 	e.POST("/topic/:topicId/modrequest", c.TopicController.RequestPromotion, jwtMiddleware)
 	e.GET("/topic/:topicId/subscribe", c.TopicController.Subscribe, jwtMiddleware)
@@ -65,4 +66,6 @@ func (c *Controllers) Register(e *echo.Echo) {
 	e.DELETE("/reply/:replyId/like", c.ReplyController.UndoLikeReply, jwtMiddleware)
 	e.POST("/reply/:replyId/unlike", c.ReplyController.UnlikeReply, jwtMiddleware)
 	e.DELETE("/reply/:replyId/unlike", c.ReplyController.UndoUnlikeReply, jwtMiddleware)
+
+	e.Static("/", "files")
 }

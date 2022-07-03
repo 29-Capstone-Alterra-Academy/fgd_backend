@@ -22,6 +22,7 @@ func (uc *threadUsecase) CreateThread(data *Domain, userId int, topicId int) (Do
 
 	format.FormatImageLink(
 		uc.config,
+		newThread.Topic.ProfileImage,
 		newThread.Image1,
 		newThread.Image2,
 		newThread.Image3,
@@ -36,16 +37,65 @@ func (uc *threadUsecase) DeleteThread(userId int, threadId int) error {
 	return uc.threadRepository.DeleteThread(userId, threadId)
 }
 
-func (cr *threadUsecase) GetThreadByID(threadId int) (Domain, error) {
-	return cr.threadRepository.GetThreadByID(threadId)
+func (uc *threadUsecase) GetThreadByID(threadId int) (Domain, error) {
+	thread, err := uc.threadRepository.GetThreadByID(threadId)
+	if err != nil {
+		return Domain{}, err
+	}
+
+	format.FormatImageLink(
+		uc.config,
+		thread.Topic.ProfileImage,
+		thread.Image1,
+		thread.Image2,
+		thread.Image3,
+		thread.Image4,
+		thread.Image5,
+	)
+
+	return thread, nil
 }
 
 func (uc *threadUsecase) GetThreadByAuthorID(userId, limit, offset int) ([]Domain, error) {
-	return uc.threadRepository.GetThreadByAuthorID(userId, limit, offset)
+	threads, err := uc.threadRepository.GetThreadByAuthorID(userId, limit, offset)
+	if err != nil {
+		return []Domain{}, err
+	}
+
+	for _, thread := range threads {
+		format.FormatImageLink(
+			uc.config,
+			thread.Topic.ProfileImage,
+			thread.Image1,
+			thread.Image2,
+			thread.Image3,
+			thread.Image4,
+			thread.Image5,
+		)
+	}
+
+	return threads, nil
 }
 
 func (uc *threadUsecase) GetThreadByTopicID(topicId, limit, offset int) ([]Domain, error) {
-	return uc.threadRepository.GetThreadByTopicID(topicId, limit, offset)
+	threads, err := uc.threadRepository.GetThreadByTopicID(topicId, limit, offset)
+	if err != nil {
+		return []Domain{}, err
+	}
+
+	for _, thread := range threads {
+		format.FormatImageLink(
+			uc.config,
+			thread.Topic.ProfileImage,
+			thread.Image1,
+			thread.Image2,
+			thread.Image3,
+			thread.Image4,
+			thread.Image5,
+		)
+	}
+
+	return threads, nil
 }
 
 func (uc *threadUsecase) Like(userId int, threadId int) error {
@@ -72,6 +122,7 @@ func (uc *threadUsecase) UpdateThread(data *Domain, userId, threadId int) (Domai
 
 	format.FormatImageLink(
 		uc.config,
+		updatedThread.Topic.ProfileImage,
 		updatedThread.Image1,
 		updatedThread.Image2,
 		updatedThread.Image3,

@@ -16,16 +16,18 @@ import (
 )
 
 type TopicController struct {
-	authUsecase  auth.Usecase
-	topicUsecase topic.Usecase
-	userUsecase  user.Usecase
+	authUsecase   auth.Usecase
+	topicUsecase  topic.Usecase
+	userUsecase   user.Usecase
+	storageHelper *storage.StorageHelper
 }
 
-func InitTopicController(ac auth.Usecase, tc topic.Usecase, uc user.Usecase) *TopicController {
+func InitTopicController(ac auth.Usecase, tc topic.Usecase, uc user.Usecase, sh *storage.StorageHelper) *TopicController {
 	return &TopicController{
-		authUsecase:  ac,
-		topicUsecase: tc,
-		userUsecase:  uc,
+		authUsecase:   ac,
+		topicUsecase:  tc,
+		userUsecase:   uc,
+		storageHelper: sh,
 	}
 }
 
@@ -44,7 +46,7 @@ func (cr *TopicController) CreateTopic(c echo.Context) error {
 
 	newTopic := request.NewTopic{}
 	if err != http.ErrMissingFile {
-		fileName, uploadErr := storage.StoreFile(profileImage)
+		fileName, uploadErr := cr.storageHelper.StoreFile(profileImage)
 		if uploadErr != nil {
 			return controllers.FailureResponse(c, http.StatusUnprocessableEntity, uploadErr.Error())
 		}
@@ -62,7 +64,7 @@ func (cr *TopicController) CreateTopic(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusCreated, topicDomain)
+	return controllers.SuccessResponse(c, http.StatusCreated, response.FromDomain(topicDomain))
 }
 
 func (cr *TopicController) UpdateTopic(c echo.Context) error {
@@ -83,7 +85,7 @@ func (cr *TopicController) UpdateTopic(c echo.Context) error {
 
 	newTopic := request.NewTopic{}
 	if err != http.ErrMissingFile {
-		fileName, uploadErr := storage.StoreFile(profileImage)
+		fileName, uploadErr := cr.storageHelper.StoreFile(profileImage)
 		if uploadErr != nil {
 			return controllers.FailureResponse(c, http.StatusUnprocessableEntity, uploadErr.Error())
 		}
@@ -101,7 +103,7 @@ func (cr *TopicController) UpdateTopic(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusCreated, topicDomain)
+	return controllers.SuccessResponse(c, http.StatusCreated, response.FromDomain(topicDomain))
 }
 
 func (cr *TopicController) CheckAvailibility(c echo.Context) error {
@@ -154,6 +156,7 @@ func (cr *TopicController) GetTopics(c echo.Context) error {
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
+
 	topics := []response.Topic{}
 	for _, topicDomain := range topicDomains {
 		topics = append(topics, response.FromDomain(topicDomain))

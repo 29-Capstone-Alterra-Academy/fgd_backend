@@ -24,14 +24,16 @@ type UserController struct {
 	authUsecase   auth.Usecase
 	userUsecase   user.Usecase
 	verifyUsecase verify.Usecase
+	storageHelper *storage.StorageHelper
 }
 
-func InitUserController(ac auth.Usecase, uc user.Usecase, vc verify.Usecase, conf config.Config) *UserController {
+func InitUserController(ac auth.Usecase, uc user.Usecase, vc verify.Usecase, conf config.Config, sh *storage.StorageHelper) *UserController {
 	return &UserController{
 		config:        conf,
 		authUsecase:   ac,
 		userUsecase:   uc,
 		verifyUsecase: vc,
+		storageHelper: sh,
 	}
 }
 
@@ -210,7 +212,7 @@ func (cr *UserController) UpdateProfile(c echo.Context) error {
 	}
 	var profileImageFilename string
 	if profileImage != nil {
-		profileImageFilename, err = storage.StoreFile(profileImage)
+		profileImageFilename, err = cr.storageHelper.StoreFile(profileImage)
 		if err != nil {
 			return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
 		}

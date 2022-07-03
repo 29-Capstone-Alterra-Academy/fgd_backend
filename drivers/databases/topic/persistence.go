@@ -46,9 +46,9 @@ func (rp *persistenceTopicRepository) GetTopicDetails(topicId int) (topic.Domain
 
 	rp.Conn.Table("threads").Where("topic_id = ?", topicDomain.ID).Count(&threadCount)
 	// TODO Check reply in topic
-	rp.Conn.Table("threads").Where("topic_id = ?", topicDomain).Distinct("author_id").Count(&contributorCount)
+	rp.Conn.Table("threads").Where("topic_id = ?", topicDomain.ID).Distinct("author_id").Count(&contributorCount)
 	topicDomain.ContributorCount = int(contributorCount)
-	rp.Conn.Table("topic_moderator").Where("moderated_by_id = ?", topicDomain.ID).Count(&moderatorCount)
+	rp.Conn.Table("topic_moderator").Where("user_id = ?", topicDomain.ID).Count(&moderatorCount)
 	topicDomain.ModeratorCount = int(moderatorCount)
 
 	return topicDomain, nil

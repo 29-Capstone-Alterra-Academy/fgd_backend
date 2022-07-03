@@ -8,6 +8,7 @@ import (
 	"fgd/helper/format"
 	stringHelper "fgd/helper/string"
 	"fmt"
+	"strings"
 )
 
 type userUsecase struct {
@@ -66,12 +67,20 @@ func (uc *userUsecase) CreateUser(data *Domain) (Domain, error) {
 
 	if data.Username == "" {
 		data.Username = stringHelper.GenerateRandomUsername()
+	} else if len(data.Username) < 6 {
+		return Domain{}, fmt.Errorf("error: username should be at least 6 character")
 	}
 
+	if len(data.Password) < 8 {
+		return Domain{}, fmt.Errorf("error: password must be at least 8 character")
+	}
 	data.Password, err = crypt.CreateHash(data.Password)
 	if err != nil {
 		return Domain{}, err
 	}
+
+	data.Username = strings.ToLower(data.Username)
+	data.Email = strings.ToLower(data.Email)
 
 	newUser, err := uc.userRepository.CreateUser(data)
 	return newUser, err
@@ -82,7 +91,14 @@ func (uc *userUsecase) FollowUser(userId, targetId int) error {
 }
 
 func (uc *userUsecase) GetPersonalProfile(userId int) (Domain, error) {
-	return uc.userRepository.GetPersonalProfile(userId)
+	profile, err := uc.userRepository.GetPersonalProfile(userId)
+	if err != nil {
+		return Domain{}, err
+	}
+
+	format.FormatImageLink(uc.config, profile.ProfileImage)
+
+	return profile, nil
 }
 
 func (uc *userUsecase) GetProfileByID(userId int) (Domain, error) {
@@ -90,7 +106,16 @@ func (uc *userUsecase) GetProfileByID(userId int) (Domain, error) {
 }
 
 func (uc *userUsecase) GetUsers(limit int, offset int) ([]Domain, error) {
-	return uc.userRepository.GetUsers(limit, offset)
+	users, err := uc.userRepository.GetUsers(limit, offset)
+	if err != nil {
+		return []Domain{}, err
+	}
+
+	for _, user := range users {
+		format.FormatImageLink(uc.config, user.ProfileImage)
+	}
+
+	return users, nil
 }
 
 func (uc *userUsecase) UnfollowUser(userId, targetId int) error {
@@ -113,6 +138,7 @@ func (uc *userUsecase) UpdatePersonalProfile(data *Domain, userId int) (Domain, 
 	if err != nil {
 		return Domain{}, err
 	}
+
 	format.FormatImageLink(uc.config, updatedProfile.ProfileImage)
 
 	return updatedProfile, nil

@@ -18,7 +18,12 @@ func (uc *replyUsecase) CreateReplyReply(data *Domain, userId int, replyId int) 
 		return Domain{}, err
 	}
 
-	format.FormatImageLink(uc.config, newReply.Image)
+	format.FormatImageLink(
+		uc.config,
+		newReply.Author.ProfileImage,
+		newReply.Image,
+	)
+
 	return newReply, nil
 }
 
@@ -28,7 +33,12 @@ func (uc *replyUsecase) CreateReplyThread(data *Domain, userId int, threadId int
 		return Domain{}, err
 	}
 
-	format.FormatImageLink(uc.config, updatedReply.Image)
+	format.FormatImageLink(
+		uc.config,
+		updatedReply.Author.ProfileImage,
+		updatedReply.Image,
+	)
+
 	return updatedReply, nil
 }
 
@@ -42,7 +52,12 @@ func (uc *replyUsecase) EditReply(data *Domain, userId int, replyId int) (Domain
 		return Domain{}, err
 	}
 
-	format.FormatImageLink(uc.config, updatedReply.Image)
+	format.FormatImageLink(
+		uc.config,
+		updatedReply.Author.ProfileImage,
+		updatedReply.Image,
+	)
+
 	return updatedReply, nil
 }
 

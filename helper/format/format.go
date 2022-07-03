@@ -7,9 +7,9 @@ import (
 
 func FormatImageLink(conf config.Config, fileNames ...*string) {
 	for _, fileName := range fileNames {
-		if fileName != nil {
+		if fileName != nil && *fileName != "" {
 			temp := *fileName
-			*fileName = fmt.Sprintf("%s:%s/public/asset/%s", conf.HOST, conf.PORT, temp)
+			*fileName = fmt.Sprintf("%s/%s%s", conf.DOMAIN, conf.STATIC_PATH, temp)
 		}
 	}
 }

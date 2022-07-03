@@ -14,12 +14,14 @@ import (
 )
 
 type ReplyController struct {
-	replyUsecase reply.Usecase
+	replyUsecase  reply.Usecase
+	storageHelper *storage.StorageHelper
 }
 
-func InitReplyController(rc reply.Usecase) *ReplyController {
+func InitReplyController(rc reply.Usecase, sh *storage.StorageHelper) *ReplyController {
 	return &ReplyController{
-		replyUsecase: rc,
+		replyUsecase:  rc,
+		storageHelper: sh,
 	}
 }
 
@@ -42,7 +44,7 @@ func (cr *ReplyController) CreateForReply(c echo.Context) error {
 	newReply := request.Reply{}
 
 	if err != http.ErrMissingFile {
-		fileName, uploadErr := storage.StoreFile(image)
+		fileName, uploadErr := cr.storageHelper.StoreFile(image)
 		if uploadErr != nil {
 			return controllers.FailureResponse(c, http.StatusUnprocessableEntity, uploadErr.Error())
 		}
@@ -80,7 +82,7 @@ func (cr *ReplyController) CreateForThread(c echo.Context) error {
 	newReply := request.Reply{}
 
 	if err != http.ErrMissingFile {
-		fileName, uploadErr := storage.StoreFile(image)
+		fileName, uploadErr := cr.storageHelper.StoreFile(image)
 		if uploadErr != nil {
 			return controllers.FailureResponse(c, http.StatusUnprocessableEntity, uploadErr.Error())
 		}
@@ -118,7 +120,7 @@ func (cr *ReplyController) UpdateReply(c echo.Context) error {
 	updatedReply := request.Reply{}
 
 	if err != http.ErrMissingFile {
-		fileName, uploadErr := storage.StoreFile(image)
+		fileName, uploadErr := cr.storageHelper.StoreFile(image)
 		if uploadErr != nil {
 			return controllers.FailureResponse(c, http.StatusUnprocessableEntity, uploadErr.Error())
 		}
