@@ -45,7 +45,21 @@ func (rp *persistenceThreadRepository) GetThreadByID(threadId int) (thread.Domai
 	thread := Thread{}
 
 	res := rp.Conn.Preload("Author").Preload("Topic").Take(&thread, threadId)
-	return *thread.toDomain(), res.Error
+
+	domain := *thread.toDomain()
+
+	var likeCount int64
+	var unlikeCount int64
+	var replyCount int64
+
+	rp.Conn.Table("liked_thread").Where("thread_id", domain.ID).Count(&likeCount)
+	domain.LikeCount = int(likeCount)
+	rp.Conn.Table("unliked_thread").Where("thread_id", domain.ID).Count(&unlikeCount)
+	domain.UnlikeCount = int(unlikeCount)
+	rp.Conn.Table("replies").Where("thread_id", domain.ID).Count(&replyCount)
+	domain.ReplyCount = int(replyCount)
+
+	return domain, res.Error
 }
 
 func (rp *persistenceThreadRepository) GetThreadByAuthorID(userId, limit, offset int) ([]thread.Domain, error) {
@@ -143,7 +157,20 @@ func (rp *persistenceThreadRepository) UpdateThread(data *thread.Domain, threadI
 		return thread.Domain{}, res.Error
 	}
 
-	return *existingThread.toDomain(), nil
+	domain := *existingThread.toDomain()
+
+	var likeCount int64
+	var unlikeCount int64
+	var replyCount int64
+
+	rp.Conn.Table("liked_thread").Where("thread_id", domain.ID).Count(&likeCount)
+	domain.LikeCount = int(likeCount)
+	rp.Conn.Table("unliked_thread").Where("thread_id", domain.ID).Count(&unlikeCount)
+	domain.UnlikeCount = int(unlikeCount)
+	rp.Conn.Table("replies").Where("thread_id", domain.ID).Count(&replyCount)
+	domain.ReplyCount = int(replyCount)
+
+	return domain, nil
 }
 
 func InitPersistenceThreadRepository(c *gorm.DB) thread.Repository {
