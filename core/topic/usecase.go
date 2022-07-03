@@ -18,7 +18,7 @@ func (uc *topicUsecase) GetTopicDetails(topicId int) (Domain, error) {
 		return Domain{}, err
 	}
 
-	format.FormatImageLink(topic.ProfileImage, uc.config)
+	format.FormatImageLink(uc.config, topic.ProfileImage)
 
 	return topic, nil
 }
@@ -51,7 +51,7 @@ func (uc *topicUsecase) GetTopics(limit, offset int, sort_by string) ([]Domain, 
 	}
 
 	for _, topic := range topics {
-		format.FormatImageLink(topic.ProfileImage, uc.config)
+		format.FormatImageLink(uc.config, topic.ProfileImage)
 	}
 
 	return topics, nil

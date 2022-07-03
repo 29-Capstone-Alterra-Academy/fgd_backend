@@ -19,10 +19,10 @@ func (uc *threadUsecase) CreateThread(data *Domain, userId int, topicId int) (Do
 	if err != nil {
 		return Domain{}, err
 	}
-	format.FormatImageLink(newThread.Topic.ProfileImage, uc.config)
 
 	format.FormatImageLink(
 		uc.config,
+		newThread.Topic.ProfileImage,
 		newThread.Image1,
 		newThread.Image2,
 		newThread.Image3,
@@ -43,13 +43,15 @@ func (uc *threadUsecase) GetThreadByID(threadId int) (Domain, error) {
 		return Domain{}, err
 	}
 
-	format.FormatImageLink(thread.Topic.ProfileImage, uc.config)
-
-	format.FormatImageLink(thread.Image1, uc.config)
-	format.FormatImageLink(thread.Image2, uc.config)
-	format.FormatImageLink(thread.Image3, uc.config)
-	format.FormatImageLink(thread.Image4, uc.config)
-	format.FormatImageLink(thread.Image5, uc.config)
+	format.FormatImageLink(
+		uc.config,
+		thread.Topic.ProfileImage,
+		thread.Image1,
+		thread.Image2,
+		thread.Image3,
+		thread.Image4,
+		thread.Image5,
+	)
 
 	return thread, nil
 }
@@ -61,13 +63,15 @@ func (uc *threadUsecase) GetThreadByAuthorID(userId, limit, offset int) ([]Domai
 	}
 
 	for _, thread := range threads {
-		format.FormatImageLink(thread.Topic.ProfileImage, uc.config)
-
-		format.FormatImageLink(thread.Image1, uc.config)
-		format.FormatImageLink(thread.Image2, uc.config)
-		format.FormatImageLink(thread.Image3, uc.config)
-		format.FormatImageLink(thread.Image4, uc.config)
-		format.FormatImageLink(thread.Image5, uc.config)
+		format.FormatImageLink(
+			uc.config,
+			thread.Topic.ProfileImage,
+			thread.Image1,
+			thread.Image2,
+			thread.Image3,
+			thread.Image4,
+			thread.Image5,
+		)
 	}
 
 	return threads, nil
@@ -80,13 +84,15 @@ func (uc *threadUsecase) GetThreadByTopicID(topicId, limit, offset int) ([]Domai
 	}
 
 	for _, thread := range threads {
-		format.FormatImageLink(thread.Topic.ProfileImage, uc.config)
-
-		format.FormatImageLink(thread.Image1, uc.config)
-		format.FormatImageLink(thread.Image2, uc.config)
-		format.FormatImageLink(thread.Image3, uc.config)
-		format.FormatImageLink(thread.Image4, uc.config)
-		format.FormatImageLink(thread.Image5, uc.config)
+		format.FormatImageLink(
+			uc.config,
+			thread.Topic.ProfileImage,
+			thread.Image1,
+			thread.Image2,
+			thread.Image3,
+			thread.Image4,
+			thread.Image5,
+		)
 	}
 
 	return threads, nil
@@ -113,10 +119,10 @@ func (uc *threadUsecase) UpdateThread(data *Domain, userId, threadId int) (Domai
 	if err != nil {
 		return Domain{}, err
 	}
-	format.FormatImageLink(updatedThread.Topic.ProfileImage, uc.config)
 
 	format.FormatImageLink(
 		uc.config,
+		updatedThread.Topic.ProfileImage,
 		updatedThread.Image1,
 		updatedThread.Image2,
 		updatedThread.Image3,
