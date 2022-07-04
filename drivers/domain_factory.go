@@ -3,12 +3,14 @@ package drivers
 import (
 	authDomain "fgd/core/auth"
 	replyDomain "fgd/core/reply"
+	reportDomain "fgd/core/report"
 	threadDomain "fgd/core/thread"
 	topicDomain "fgd/core/topic"
 	userDomain "fgd/core/user"
 	verifyDomain "fgd/core/verify"
 	"fgd/drivers/databases/auth"
 	"fgd/drivers/databases/reply"
+	"fgd/drivers/databases/report"
 	"fgd/drivers/databases/thread"
 	"fgd/drivers/databases/topic"
 	"fgd/drivers/databases/user"
@@ -19,6 +21,10 @@ import (
 
 func NewAuthRepository(c *gorm.DB) authDomain.Repository {
 	return auth.InitPersistenceAuthRepository(c)
+}
+
+func NewReportRepository(c *gorm.DB) reportDomain.Repository {
+	return report.InitPersistenceReportRepository(c)
 }
 
 func NewReplyRepository(c *gorm.DB) replyDomain.Repository {
