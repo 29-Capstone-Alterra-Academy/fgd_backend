@@ -12,6 +12,7 @@ import (
 	"time"
 
 	replyCtrl "fgd/controllers/reply"
+	reportCtrl "fgd/controllers/report"
 	threadCtrl "fgd/controllers/thread"
 	topicCtrl "fgd/controllers/topic"
 	userCtrl "fgd/controllers/user"
@@ -19,6 +20,7 @@ import (
 
 	authCore "fgd/core/auth"
 	replyCore "fgd/core/reply"
+	reportCore "fgd/core/report"
 	threadCore "fgd/core/thread"
 	topicCore "fgd/core/topic"
 	userCore "fgd/core/user"
@@ -27,6 +29,7 @@ import (
 	factory "fgd/drivers"
 	_authRepo "fgd/drivers/databases/auth"
 	_replyRepo "fgd/drivers/databases/reply"
+	_reportRepo "fgd/drivers/databases/report"
 	_threadRepo "fgd/drivers/databases/thread"
 	_topicRepo "fgd/drivers/databases/topic"
 	_userRepo "fgd/drivers/databases/user"
@@ -40,6 +43,11 @@ import (
 func migrate(c *gorm.DB) {
 	c.AutoMigrate(
 		&_authRepo.Auth{},
+		&_reportRepo.UserReport{},
+		&_reportRepo.TopicReport{},
+		&_reportRepo.ThreadReport{},
+		&_reportRepo.ReplyReport{},
+		&_reportRepo.ReportReason{},
 		&_replyRepo.Reply{},
 		&_threadRepo.Thread{},
 		&_topicRepo.Topic{},
@@ -84,6 +92,7 @@ func main() {
 	userRepo := factory.NewUserRepository(dbConn)
 	topicRepo := factory.NewTopicRepository(dbConn)
 	threadRepo := factory.NewThreadRepository(dbConn)
+	reportRepo := factory.NewReportRepository(dbConn)
 	replyRepo := factory.NewReplyRepository(dbConn)
 	verifyRepo := factory.NewVerifyRepository(dbConn)
 
@@ -91,9 +100,11 @@ func main() {
 	userUsecase := userCore.InitUserUsecase(authUsecase, userRepo, conf, &jwtConf)
 	topicUsecase := topicCore.InitTopicUsecase(topicRepo, userUsecase, conf)
 	threadUsecase := threadCore.InitThreadUsecase(threadRepo, topicUsecase, userUsecase, conf)
+	reportUsecae := reportCore.InitReportUsecase(reportRepo, conf)
 	replyUsecae := replyCore.InitReplyUsecase(replyRepo, userUsecase, conf)
 	verifyUsecase := verifyCore.InitVerifyUsecase(verifyRepo, *mailHelper)
 
+	reportController := reportCtrl.InitReportController(reportUsecae)
 	replyController := replyCtrl.InitReplyController(replyUsecae, storageHelper)
 	threadController := threadCtrl.InitThreadController(threadUsecase, storageHelper)
 	topicController := topicCtrl.InitTopicController(authUsecase, topicUsecase, userUsecase, storageHelper)
@@ -104,6 +115,7 @@ func main() {
 
 	routesConf := routes.Controllers{
 		JWTMiddleware:    jwtConf.Init(),
+		ReportController: *reportController,
 		ReplyController:  *replyController,
 		ThreadController: *threadController,
 		TopicController:  *topicController,
