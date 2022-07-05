@@ -116,16 +116,12 @@ func (cr *UserController) RefreshToken(c echo.Context) error {
 func (cr *UserController) CheckAvailibility(c echo.Context) error {
 	username := c.QueryParam("username")
 
-	exist, err := cr.userUsecase.CheckUserAvailibility(username)
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusBadRequest, "Error checking username availibility: "+err.Error())
-	}
+	exist := cr.userUsecase.CheckUserAvailibility(username)
 
 	if !exist {
 		return controllers.SuccessResponse(c, http.StatusOK, nil)
 	} else {
-		// TODO Is this right ?
-		return controllers.FailureResponse(c, http.StatusBadRequest, "")
+		return controllers.FailureResponse(c, http.StatusBadRequest, "error: username already used")
 	}
 }
 

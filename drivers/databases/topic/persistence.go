@@ -12,12 +12,12 @@ type persistenceTopicRepository struct {
 	Conn *gorm.DB
 }
 
-func (rp *persistenceTopicRepository) CheckTopicAvailibility(topicName string) (bool, error) {
+func (rp *persistenceTopicRepository) CheckTopicAvailibility(topicName string) bool {
 	topic := Topic{}
 
-	err := rp.Conn.Where("username = ?", topicName).First(&topic).Error
+	err := rp.Conn.Where("name = ?", topicName).Take(&topic).Error
 
-	return errors.Is(err, gorm.ErrRecordNotFound), err
+	return !errors.Is(err, gorm.ErrRecordNotFound)
 }
 
 func (rp *persistenceTopicRepository) CreateTopic(data *topic.Domain) (topic.Domain, error) {

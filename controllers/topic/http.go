@@ -109,16 +109,13 @@ func (cr *TopicController) UpdateTopic(c echo.Context) error {
 func (cr *TopicController) CheckAvailibility(c echo.Context) error {
 	topicName := c.QueryParam("topicname")
 
-	available, err := cr.topicUsecase.CheckTopicAvailibility(topicName)
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
-	}
+	exist := cr.topicUsecase.CheckTopicAvailibility(topicName)
 
-	if !available {
-		return controllers.FailureResponse(c, http.StatusBadRequest, "topic is already exist")
+	if !exist {
+		return controllers.SuccessResponse(c, http.StatusOK, nil)
+	} else {
+		return controllers.FailureResponse(c, http.StatusBadRequest, "error: topic already exist")
 	}
-
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
 }
 
 // func (cr *TopicController) GetModerators(c echo.Context) error {}

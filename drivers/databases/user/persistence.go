@@ -71,12 +71,12 @@ func (rp *persistenceUserRepository) GetModeratedTopic(userId int) (user.Domain,
 	return moderatedTopic.toDomain(), res.Error
 }
 
-func (rp *persistenceUserRepository) CheckUserAvailibility(username string) (bool, error) {
+func (rp *persistenceUserRepository) CheckUserAvailibility(username string) bool {
 	user := User{}
 
-	err := rp.Conn.Where("username = ?", username).First(&user).Error
+	err := rp.Conn.Where("username = ?", username).Take(&user).Error
 
-	return errors.Is(err, gorm.ErrRecordNotFound), err
+	return !errors.Is(err, gorm.ErrRecordNotFound)
 }
 
 func (rp *persistenceUserRepository) CreateUser(data *user.Domain) (user.Domain, error) {

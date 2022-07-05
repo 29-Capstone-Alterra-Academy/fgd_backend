@@ -27,7 +27,7 @@ type Domain struct {
 type Usecase interface {
 	CreateToken(username, email, password string) (middleware.CustomToken, error)
 	CreateUser(data *Domain) (Domain, error)
-	CheckUserAvailibility(username string) (bool, error)
+	CheckUserAvailibility(username string) bool
 	GetPersonalProfile(userId int) (Domain, error)
 	GetProfileByID(userId int) (Domain, error)
 	GetUsers(limit, offset int) ([]Domain, error)
@@ -41,7 +41,7 @@ type Usecase interface {
 
 type Repository interface {
 	CreateUser(data *Domain) (Domain, error)
-	CheckUserAvailibility(username string) (bool, error)
+	CheckUserAvailibility(username string) bool
 	GetPersonalProfile(userId int) (Domain, error)
 	GetProfileByID(userId int) (Domain, error)
 	GetUsers(limit, offset int) ([]Domain, error)
