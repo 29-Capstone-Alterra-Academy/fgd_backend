@@ -21,6 +21,8 @@ type Reply struct {
 
 	LikedBy   []*user.User `gorm:"many2many:liked_reply"`
 	UnlikedBy []*user.User `gorm:"many2many:unliked_reply"`
+
+	ReplyReports []*user.User `gorm:"many2many:reply_reports"`
 }
 
 func (rec *Reply) toDomain() reply.Domain {
