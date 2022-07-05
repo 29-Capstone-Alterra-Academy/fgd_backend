@@ -2,7 +2,7 @@ package user
 
 import (
 	"fgd/core/user"
-	"fgd/drivers/databases/notification"
+	// "fgd/drivers/databases/notification"
 	"time"
 
 	"gorm.io/gorm"
@@ -22,7 +22,9 @@ type User struct {
 
 	Following []*User `gorm:"many2many:user_follow"`
 
-	Notifications []notification.Notification
+	UserReports []*User `gorm:"many2many:user_reports;foreignKey:ID;joinForeignKey:SuspectID;references:ID"`
+
+	// Notifications []notification.Notification
 }
 
 type UserModeratedTopic struct {

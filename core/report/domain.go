@@ -3,6 +3,7 @@ package report
 import "time"
 
 type Domain struct {
+	ID                   uint
 	ReporterID           uint
 	ReporterName         string
 	ReporterProfileImage *string

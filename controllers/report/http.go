@@ -371,7 +371,7 @@ func (cr *ReportController) GetReasons(c echo.Context) error {
 	return controllers.SuccessResponse(c, http.StatusOK, response.FromDomains(&reasonDomains, "reason"))
 }
 
-func (cr *ReportController) DeleteReasons(c echo.Context) error {
+func (cr *ReportController) DeleteReason(c echo.Context) error {
 	reasonId, err := strconv.Atoi(c.Param("reasonId"))
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'reasonId' path parameter")

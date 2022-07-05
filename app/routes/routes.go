@@ -33,13 +33,14 @@ func (c *Controllers) Register(e *echo.Echo) {
 	e.POST("/register", c.UserController.Register)
 	e.POST("/reset", c.VerifyController.RequestForgetPassword)
 	e.GET("/user/check", c.UserController.CheckAvailibility)
+	e.POST("/refresh_token", c.UserController.RefreshToken)
 
 	e.GET("/profile/verify", c.VerifyController.RequestEmailVerification, jwtMiddleware)
 	e.POST("/profile/verify", c.VerifyController.SubmitEmailVerification, jwtMiddleware)
 	e.GET("/profile", c.UserController.GetProfile, jwtMiddleware)
 	e.PUT("/profile", c.UserController.UpdateProfile, jwtMiddleware)
 	e.GET("/user/:userId", c.UserController.GetPublicProfile)
-	e.POST("/user/:userId/report", c.ReportController.ReportUser)
+	e.POST("/user/:userId/report", c.ReportController.ReportUser, jwtMiddleware)
 	e.GET("/user/:userId/follow", c.UserController.Follow, jwtMiddleware)
 	e.GET("/user/:userId/unfollow", c.UserController.Unfollow, jwtMiddleware)
 
@@ -92,4 +93,8 @@ func (c *Controllers) Register(e *echo.Echo) {
 	e.GET("/moderation/reply/ban_request", c.ReportController.GetReplyReports, jwtMiddleware, middleware.AdminValidation)
 	e.PUT("/moderation/reply/ban_request/:id", c.ReportController.ApproveReplyReport, jwtMiddleware, middleware.AdminValidation)
 	e.DELETE("/moderation/reply/ban_request/:id", c.ReportController.RemoveReplyReport, jwtMiddleware, middleware.AdminValidation)
+
+	e.GET("/report/reason", c.ReportController.GetReasons, jwtMiddleware)
+	e.POST("/report/reason", c.ReportController.AddReason, jwtMiddleware, middleware.AdminValidation)
+	e.DELETE("/report/reason", c.ReportController.DeleteReason, jwtMiddleware, middleware.AdminValidation)
 }

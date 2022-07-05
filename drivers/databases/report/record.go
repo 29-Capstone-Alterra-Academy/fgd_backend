@@ -9,19 +9,26 @@ import (
 	"time"
 )
 
-type UserReport struct {
-	ID         uint `gorm:"primarykey"`
-	SuspectID  uint
-	Suspect    user.User `gorm:"ForeignKey:SuspectID"`
-	ReporterID uint
-	Reporter   user.User `gorm:"ForeignKey:ReporterID"`
-	Reason     ReportReason
-	Reviewed   bool
-	CreatedAt  time.Time
+type UserReportComplete struct {
+	ID        uint
+	Reporter  user.User
+	Suspect   user.User
+	Reason    ReportReason
+	CreatedAt time.Time
 }
 
-func (r *UserReport) toDomain() report.Domain {
+type UserReport struct {
+	ID        uint `gorm:"primarykey"`
+	UserID    uint `gorm:"primaryKey"`
+	SuspectID uint `gorm:"primaryKey"`
+	ReasonID  *uint
+	Reason    ReportReason `gorm:"foreignKey:ReasonID"`
+	CreatedAt time.Time
+}
+
+func (r *UserReportComplete) toDomain() report.Domain {
 	return report.Domain{
+		ID:                   r.ID,
 		ReporterID:           r.Reporter.ID,
 		ReporterName:         r.Reporter.Username,
 		ReporterProfileImage: r.Reporter.ProfileImage,
@@ -35,28 +42,32 @@ func (r *UserReport) toDomain() report.Domain {
 
 func userFromDomain(data *report.Domain) *UserReport {
 	return &UserReport{
-		SuspectID:  *data.SuspectID,
-		ReporterID: data.ReporterID,
-		Reason: ReportReason{
-			ID: data.ReasonID,
-		},
-		Reviewed: *data.Reviewed,
+		SuspectID: *data.SuspectID,
+		UserID:    data.ReporterID,
+		ReasonID:  &data.ReasonID,
 	}
 }
 
-type TopicReport struct {
-	ID         uint `gorm:"primarykey"`
-	TopicID    uint
-	Topic      topic.Topic
-	ReporterID uint
-	Reporter   user.User `gorm:"ForeignKey:ReporterID"`
-	ReasonID   uint
-	Reason     ReportReason
-	CreatedAt  time.Time
+type TopicReportComplete struct {
+	ID        uint
+	Topic     topic.Topic
+	Reporter  user.User
+	Reason    ReportReason
+	CreatedAt time.Time
 }
 
-func (r *TopicReport) toDomain() report.Domain {
+type TopicReport struct {
+	ID        uint `gorm:"primaryKey"`
+	TopicID   uint `gorm:"primaryKey"`
+	UserID    uint `gorm:"primaryKey"`
+	ReasonID  *uint
+	Reason    ReportReason `gorm:"foreignKey:ReasonID"`
+	CreatedAt time.Time
+}
+
+func (r *TopicReportComplete) toDomain() report.Domain {
 	return report.Domain{
+		ID:                   r.ID,
 		ReporterID:           r.Reporter.ID,
 		ReporterName:         r.Reporter.Username,
 		ReporterProfileImage: r.Reporter.ProfileImage,
@@ -70,29 +81,35 @@ func (r *TopicReport) toDomain() report.Domain {
 
 func topicFromDomain(data *report.Domain) *TopicReport {
 	return &TopicReport{
-		TopicID:    *data.TopicID,
-		ReporterID: data.ReporterID,
-		Reason: ReportReason{
-			ID: data.ReasonID,
-		},
+		TopicID:  *data.TopicID,
+		UserID:   data.ReporterID,
+		ReasonID: &data.ReasonID,
 	}
 }
 
-type ThreadReport struct {
-	ID         uint `gorm:"primarykey"`
-	TopicID    uint
-	Topic      topic.Topic
-	ThreadID   uint
-	Thread     thread.Thread
-	ReporterID uint
-	Reporter   user.User `gorm:"ForeignKey:ReporterID"`
-	Reason     ReportReason
-	Reviewed   bool
-	CreatedAt  time.Time
+type ThreadReportComplete struct {
+	ID        uint
+	Topic     topic.Topic
+	Thread    thread.Thread
+	Reporter  user.User
+	Reason    ReportReason
+	Reviewed  bool
+	CreatedAt time.Time
 }
 
-func (r *ThreadReport) toDomain() report.Domain {
+type ThreadReport struct {
+	ID        uint
+	ThreadID  uint `gorm:"primaryKey"`
+	UserID    uint `gorm:"primaryKey"`
+	ReasonID  *uint
+	Reason    ReportReason `gorm:"foreignKey:ReasonID"`
+	Reviewed  bool         `gorm:"default:false"`
+	CreatedAt time.Time
+}
+
+func (r *ThreadReportComplete) toDomain() report.Domain {
 	return report.Domain{
+		ID:                   r.ID,
 		ReporterID:           r.Reporter.ID,
 		ReporterName:         r.Reporter.Username,
 		ReporterProfileImage: r.Reporter.ProfileImage,
@@ -114,8 +131,8 @@ func (r *ThreadReport) toDomain() report.Domain {
 
 func threadFromDomain(data *report.Domain) *ThreadReport {
 	return &ThreadReport{
-		ThreadID:   *data.ThreadID,
-		ReporterID: data.ReporterID,
+		ThreadID: *data.ThreadID,
+		UserID:   data.ReporterID,
 		Reason: ReportReason{
 			ID: data.ReasonID,
 		},
@@ -123,21 +140,29 @@ func threadFromDomain(data *report.Domain) *ThreadReport {
 	}
 }
 
-type ReplyReport struct {
-	ID         uint `gorm:"primaryKey"`
-	TopicID    uint
-	Topic      topic.Topic
-	ReplyID    uint
-	Reply      reply.Reply
-	ReporterID uint
-	Reporter   user.User `gorm:"ForeignKey:ReporterID"`
-	Reason     ReportReason
-	Reviewed   bool
-	CreatedAt  time.Time
+type ReplyReportComplete struct {
+	ID        uint
+	Topic     topic.Topic
+	Reply     reply.Reply
+	Reporter  user.User
+	Reason    ReportReason
+	Reviewed  bool
+	CreatedAt time.Time
 }
 
-func (r *ReplyReport) toDomain() report.Domain {
+type ReplyReport struct {
+	ID        uint
+	ReplyID   uint `gorm:"primaryKey"`
+	UserID    uint `gorm:"primaryKey"`
+	ReasonID  *uint
+	Reason    ReportReason `gorm:"foreignKey:ReasonID"`
+	Reviewed  bool         `gorm:"default:false"`
+	CreatedAt time.Time
+}
+
+func (r *ReplyReportComplete) toDomain() report.Domain {
 	return report.Domain{
+		ID:                   r.ID,
 		ReporterID:           r.Reporter.ID,
 		ReporterName:         r.Reporter.Username,
 		ReporterProfileImage: r.Reporter.ProfileImage,
@@ -154,8 +179,8 @@ func (r *ReplyReport) toDomain() report.Domain {
 
 func replyFromDomain(data *report.Domain) *ReplyReport {
 	return &ReplyReport{
-		ReplyID:    *data.ReplyID,
-		ReporterID: data.ReporterID,
+		ReplyID: *data.ReplyID,
+		UserID:  data.ReporterID,
 		Reason: ReportReason{
 			ID: data.ReasonID,
 		},

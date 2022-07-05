@@ -6,6 +6,7 @@ import (
 	"fgd/drivers/databases/thread"
 	"fgd/drivers/databases/topic"
 	"fgd/drivers/databases/user"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -15,16 +16,34 @@ type persistenceReportRepository struct {
 }
 
 func (rp *persistenceReportRepository) GetTopicReplyReports(topicId int, limit int, offset int) ([]report.Domain, error) {
+	completeReports := []ReplyReportComplete{}
 	reports := []ReplyReport{}
-
-	fetchRes := rp.Conn.Preload("Reporter").Preload("Topic").Preload("Reply").Preload("Reason").Limit(limit).Offset(offset).Where("topic_id = ?", topicId).Find(&reports)
-	if fetchRes.Error != nil {
-		return []report.Domain{}, fetchRes.Error
-	}
-
 	domains := []report.Domain{}
 
+	fetchRes := rp.Conn.Preload("Reason").Limit(limit).Offset(offset).Find(&reports)
+	if fetchRes.Error != nil {
+		return domains, fetchRes.Error
+	}
+
 	for _, report := range reports {
+		completeReport := ReplyReportComplete{}
+		completeReport.ID = report.ID
+
+		_ = rp.Conn.Preload("Thread").Find(&completeReport.Reply, report.ReplyID)
+		_ = rp.Conn.Preload("Topic").Find(&completeReport.Reply.Thread)
+		if completeReport.Reply.Thread.Topic.ID != uint(topicId) {
+			continue
+		}
+		_ = rp.Conn.Find(&completeReport.Reporter, report.UserID)
+
+		completeReport.Topic = completeReport.Reply.Thread.Topic
+		completeReport.Reason = report.Reason
+		completeReport.Reviewed = report.Reviewed
+		completeReport.CreatedAt = report.CreatedAt
+		completeReports = append(completeReports, completeReport)
+	}
+
+	for _, report := range completeReports {
 		domains = append(domains, report.toDomain())
 	}
 
@@ -32,16 +51,30 @@ func (rp *persistenceReportRepository) GetTopicReplyReports(topicId int, limit i
 }
 
 func (rp *persistenceReportRepository) GetTopicThreadReports(topicId int, limit int, offset int) ([]report.Domain, error) {
+	completeReports := []ThreadReportComplete{}
 	reports := []ThreadReport{}
-
-	fetchRes := rp.Conn.Preload("Reporter").Preload("Topic").Preload("Thread").Preload("Reason").Limit(limit).Offset(offset).Where("topic_id = ?", topicId).Find(&reports)
-	if fetchRes.Error != nil {
-		return []report.Domain{}, fetchRes.Error
-	}
-
 	domains := []report.Domain{}
 
+	fetchRes := rp.Conn.Preload("Reason").Limit(limit).Offset(offset).Where("topic_id = ?", topicId).Find(&reports)
+	if fetchRes.Error != nil {
+		return domains, fetchRes.Error
+	}
+
 	for _, report := range reports {
+		completeReport := ThreadReportComplete{}
+		completeReport.ID = report.ID
+
+		_ = rp.Conn.Preload("Topic").Find(&completeReport.Thread, report.ThreadID)
+		_ = rp.Conn.Find(&completeReport.Reporter, report.UserID)
+
+		completeReport.Topic = completeReport.Thread.Topic
+		completeReport.Reason = report.Reason
+		completeReport.Reviewed = report.Reviewed
+		completeReport.CreatedAt = report.CreatedAt
+		completeReports = append(completeReports, completeReport)
+	}
+
+	for _, report := range completeReports {
 		domains = append(domains, report.toDomain())
 	}
 
@@ -49,16 +82,31 @@ func (rp *persistenceReportRepository) GetTopicThreadReports(topicId int, limit 
 }
 
 func (rp *persistenceReportRepository) GetReplyReports(limit, offset int) ([]report.Domain, error) {
+	completeReports := []ReplyReportComplete{}
 	reports := []ReplyReport{}
-
-	fetchRes := rp.Conn.Preload("Reporter").Preload("Topic").Preload("Reply").Preload("Reason").Limit(limit).Offset(offset).Find(&reports)
-	if fetchRes.Error != nil {
-		return []report.Domain{}, fetchRes.Error
-	}
-
 	domains := []report.Domain{}
 
+	fetchRes := rp.Conn.Preload("Reason").Limit(limit).Offset(offset).Find(&reports)
+	if fetchRes.Error != nil {
+		return domains, fetchRes.Error
+	}
+
 	for _, report := range reports {
+		completeReport := ReplyReportComplete{}
+		completeReport.ID = report.ID
+
+		_ = rp.Conn.Preload("Thread").Find(&completeReport.Reply, report.ReplyID)
+		_ = rp.Conn.Preload("Topic").Find(&completeReport.Reply.Thread)
+		_ = rp.Conn.Find(&completeReport.Reporter, report.UserID)
+
+		completeReport.Topic = completeReport.Reply.Thread.Topic
+		completeReport.Reason = report.Reason
+		completeReport.Reviewed = report.Reviewed
+		completeReport.CreatedAt = report.CreatedAt
+		completeReports = append(completeReports, completeReport)
+	}
+
+	for _, report := range completeReports {
 		domains = append(domains, report.toDomain())
 	}
 
@@ -66,16 +114,30 @@ func (rp *persistenceReportRepository) GetReplyReports(limit, offset int) ([]rep
 }
 
 func (rp *persistenceReportRepository) GetThreadReports(limit, offset int) ([]report.Domain, error) {
+	completeReports := []ThreadReportComplete{}
 	reports := []ThreadReport{}
-
-	fetchRes := rp.Conn.Preload("Reporter").Preload("Topic").Preload("Thread").Preload("Reason").Limit(limit).Offset(offset).Find(&reports)
-	if fetchRes.Error != nil {
-		return []report.Domain{}, fetchRes.Error
-	}
-
 	domains := []report.Domain{}
 
+	fetchRes := rp.Conn.Preload("Reason").Limit(limit).Offset(offset).Find(&reports)
+	if fetchRes.Error != nil {
+		return domains, fetchRes.Error
+	}
+
 	for _, report := range reports {
+		completeReport := ThreadReportComplete{}
+		completeReport.ID = report.ID
+
+		_ = rp.Conn.Preload("Topic").Find(&completeReport.Thread, report.ThreadID)
+		_ = rp.Conn.Find(&completeReport.Reporter, report.UserID)
+
+		completeReport.Topic = completeReport.Thread.Topic
+		completeReport.Reason = report.Reason
+		completeReport.Reviewed = report.Reviewed
+		completeReport.CreatedAt = report.CreatedAt
+		completeReports = append(completeReports, completeReport)
+	}
+
+	for _, report := range completeReports {
 		domains = append(domains, report.toDomain())
 	}
 
@@ -83,16 +145,28 @@ func (rp *persistenceReportRepository) GetThreadReports(limit, offset int) ([]re
 }
 
 func (rp *persistenceReportRepository) GetTopicReports(limit, offset int) ([]report.Domain, error) {
+	completeReports := []TopicReportComplete{}
 	reports := []TopicReport{}
+	domains := []report.Domain{}
 
-	fetchRes := rp.Conn.Preload("Reporter").Preload("Topic").Preload("Reason").Limit(limit).Offset(offset).Find(&reports)
+	fetchRes := rp.Conn.Preload("Reason").Limit(limit).Offset(offset).Find(&reports)
 	if fetchRes.Error != nil {
 		return []report.Domain{}, fetchRes.Error
 	}
 
-	domains := []report.Domain{}
-
 	for _, report := range reports {
+		completeReport := TopicReportComplete{}
+		completeReport.ID = report.ID
+
+		_ = rp.Conn.Find(&completeReport.Topic, report.TopicID)
+		_ = rp.Conn.Find(&completeReport.Reporter, report.UserID)
+
+		completeReport.Reason = report.Reason
+		completeReport.CreatedAt = report.CreatedAt
+		completeReports = append(completeReports, completeReport)
+	}
+
+	for _, report := range completeReports {
 		domains = append(domains, report.toDomain())
 	}
 
@@ -100,16 +174,28 @@ func (rp *persistenceReportRepository) GetTopicReports(limit, offset int) ([]rep
 }
 
 func (rp *persistenceReportRepository) GetUserReports(limit, offset int) ([]report.Domain, error) {
+	completeReports := []UserReportComplete{}
 	reports := []UserReport{}
+	domains := []report.Domain{}
 
-	fetchRes := rp.Conn.Preload("Reporter").Preload("Suspect").Preload("Reason").Limit(limit).Offset(offset).Find(&reports)
+	fetchRes := rp.Conn.Preload("Reason").Limit(limit).Offset(offset).Find(&reports)
 	if fetchRes.Error != nil {
 		return []report.Domain{}, fetchRes.Error
 	}
 
-	domains := []report.Domain{}
-
 	for _, report := range reports {
+		completeReport := UserReportComplete{}
+		completeReport.ID = report.ID
+
+		_ = rp.Conn.Find(&completeReport.Suspect, report.SuspectID)
+		_ = rp.Conn.Find(&completeReport.Reporter, report.UserID)
+
+		completeReport.Reason = report.Reason
+		completeReport.CreatedAt = report.CreatedAt
+		completeReports = append(completeReports, completeReport)
+	}
+
+	for _, report := range completeReports {
 		domains = append(domains, report.toDomain())
 	}
 
@@ -128,32 +214,32 @@ func (rp *persistenceReportRepository) AddReason(data *report.Domain) error {
 
 func (rp *persistenceReportRepository) ApproveReplyReport(replyReportId uint) error {
 	report := ReplyReport{}
-	fetchRes := rp.Conn.Preload("Reply").Take(&report, replyReportId)
+	fetchRes := rp.Conn.Take(&report, replyReportId)
 	if fetchRes.Error != nil {
 		return fetchRes.Error
 	}
 
-	return rp.Conn.Delete(report.Reply).Error
+	return rp.Conn.Delete(&reply.Reply{}, report.ReplyID).Error
 }
 
 func (rp *persistenceReportRepository) ApproveThreadReport(threadReportId uint) error {
 	report := ThreadReport{}
-	fetchRes := rp.Conn.Preload("Thread").Take(&report, threadReportId)
+	fetchRes := rp.Conn.Take(&report, threadReportId)
 	if fetchRes.Error != nil {
 		return fetchRes.Error
 	}
 
-	return rp.Conn.Delete(report.Thread).Error
+	return rp.Conn.Delete(&thread.Thread{}, report.ThreadID).Error
 }
 
 func (rp *persistenceReportRepository) ApproveTopicReport(topicReportId uint) error {
 	report := TopicReport{}
-	fetchRes := rp.Conn.Preload("Topic").Take(&report, topicReportId)
+	fetchRes := rp.Conn.Take(&report, topicReportId)
 	if fetchRes.Error != nil {
 		return fetchRes.Error
 	}
 
-	return rp.Conn.Delete(report.Topic).Error
+	return rp.Conn.Delete(&topic.Topic{}, report.TopicID).Error
 }
 
 func (rp *persistenceReportRepository) ApproveUserReport(userReportId uint) error {
@@ -231,6 +317,14 @@ func (rp *persistenceReportRepository) RemoveUserReport(userReportId uint) error
 
 func (rp *persistenceReportRepository) ReportReply(reporterId, replyId, reasonId uint) (report.Domain, error) {
 	reply := reply.Reply{Model: gorm.Model{ID: replyId}}
+	reporter := user.User{Model: gorm.Model{ID: reporterId}}
+	reason := ReportReason{ID: reasonId}
+
+	appendErr := rp.Conn.Model(&reply).Association("ReplyReports").Append(&reporter)
+	if appendErr != nil {
+		return report.Domain{}, appendErr
+	}
+
 	fetchReplyRes := rp.Conn.Preload("Thread").Take(&reply)
 	if fetchReplyRes.Error != nil {
 		return report.Domain{}, fetchReplyRes.Error
@@ -243,58 +337,131 @@ func (rp *persistenceReportRepository) ReportReply(reporterId, replyId, reasonId
 	}
 
 	report := ReplyReport{
-		Reporter: user.User{Model: gorm.Model{ID: reporterId}},
-		Reply:    reply,
-		Topic:    thread.Topic,
-		Reason:   ReportReason{ID: reasonId},
+		ID:        reporterId,
+		ReplyID:   replyId,
+		UserID:    reporterId,
+		Reason:    reason,
+		CreatedAt: time.Now(),
 	}
 
 	res := rp.Conn.Create(&report)
 
-	return report.toDomain(), res.Error
+	completeReport := ReplyReportComplete{
+		ID:        report.ID,
+		Topic:     thread.Topic,
+		Reply:     reply,
+		Reporter:  reporter,
+		Reason:    reason,
+		Reviewed:  report.Reviewed,
+		CreatedAt: report.CreatedAt,
+	}
+
+	return completeReport.toDomain(), res.Error
 }
 
 func (rp *persistenceReportRepository) ReportThread(reporterId, threadId, reasonId uint) (report.Domain, error) {
 	thread := thread.Thread{Model: gorm.Model{ID: threadId}}
+	reporter := user.User{Model: gorm.Model{ID: reporterId}}
+	reason := ReportReason{ID: reasonId}
+
+	appendErr := rp.Conn.Model(&thread).Association("ThreadReports").Append(&reporter)
+	if appendErr != nil {
+		return report.Domain{}, appendErr
+	}
+
 	fetchRes := rp.Conn.Preload("Topic").Take(&thread)
 	if fetchRes.Error != nil {
 		return report.Domain{}, fetchRes.Error
 	}
 
 	report := ThreadReport{
-		Reporter: user.User{Model: gorm.Model{ID: reporterId}},
-		Thread:   thread,
-		Topic:    thread.Topic,
-		Reason:   ReportReason{ID: reasonId},
+		ThreadID:  thread.ID,
+		UserID:    reporter.ID,
+		Reason:    reason,
+		CreatedAt: time.Now(),
 	}
 
 	res := rp.Conn.Create(&report)
 
-	return report.toDomain(), res.Error
+	completeReport := ThreadReportComplete{
+		ID:        report.ID,
+		Topic:     thread.Topic,
+		Thread:    thread,
+		Reporter:  reporter,
+		Reason:    reason,
+		Reviewed:  report.Reviewed,
+		CreatedAt: report.CreatedAt,
+	}
+
+	return completeReport.toDomain(), res.Error
 }
 
 func (rp *persistenceReportRepository) ReportTopic(reporterId, topicId, reasonId uint) (report.Domain, error) {
+	topic := topic.Topic{Model: gorm.Model{ID: topicId}}
+	reporter := user.User{Model: gorm.Model{ID: reporterId}}
+	reason := ReportReason{ID: reasonId}
+
+	if reasonErr := rp.Conn.Take(&reason).Error; reasonErr != nil {
+		return report.Domain{}, reasonErr
+	}
+
+	appendErr := rp.Conn.Model(&topic).Association("TopicReports").Append(&reporter)
+	if appendErr != nil {
+		return report.Domain{}, appendErr
+	}
+
 	report := TopicReport{
-		Reporter: user.User{Model: gorm.Model{ID: reporterId}},
-		Topic:    topic.Topic{Model: gorm.Model{ID: topicId}},
-		Reason:   ReportReason{ID: reasonId},
+		UserID:    reporter.ID,
+		TopicID:   topic.ID,
+		Reason:    reason,
+		CreatedAt: time.Now(),
 	}
 
 	res := rp.Conn.Create(&report)
 
-	return report.toDomain(), res.Error
+	completeReport := TopicReportComplete{
+		ID:        report.ID,
+		Topic:     topic,
+		Reporter:  reporter,
+		Reason:    reason,
+		CreatedAt: report.CreatedAt,
+	}
+
+	return completeReport.toDomain(), res.Error
 }
 
 func (rp *persistenceReportRepository) ReportUser(reporterId, suspectId, reasonId uint) (report.Domain, error) {
+	suspect := user.User{Model: gorm.Model{ID: suspectId}}
+	reporter := user.User{Model: gorm.Model{ID: reporterId}}
+	reason := ReportReason{ID: reasonId}
+
+	if reasonErr := rp.Conn.Take(&reason).Error; reasonErr != nil {
+		return report.Domain{}, reasonErr
+	}
+
+	appendErr := rp.Conn.Model(&suspect).Association("UserReports").Append(&reporter)
+	if appendErr != nil {
+		return report.Domain{}, appendErr
+	}
+
 	report := UserReport{
-		Reporter: user.User{Model: gorm.Model{ID: reporterId}},
-		Suspect:  user.User{Model: gorm.Model{ID: suspectId}},
-		Reason:   ReportReason{ID: reasonId},
+		UserID:    reporter.ID,
+		SuspectID: suspect.ID,
+		Reason:    reason,
+		CreatedAt: time.Now(),
 	}
 
 	res := rp.Conn.Create(&report)
 
-	return report.toDomain(), res.Error
+	completeReport := UserReportComplete{
+		ID:        reporterId,
+		Reporter:  reporter,
+		Suspect:   suspect,
+		Reason:    reason,
+		CreatedAt: report.CreatedAt,
+	}
+
+	return completeReport.toDomain(), res.Error
 }
 
 func InitPersistenceReportRepository(c *gorm.DB) report.Repository {
