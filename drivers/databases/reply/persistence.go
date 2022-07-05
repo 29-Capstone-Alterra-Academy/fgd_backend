@@ -64,6 +64,11 @@ func (rp *persistenceReplyRepository) EditReply(data *reply.Domain, userId, repl
 }
 
 func (rp *persistenceReplyRepository) Like(userId, replyId int) error {
+	undoErr := rp.UndoUnlike(userId, replyId)
+	if undoErr != nil && !errors.Is(undoErr, gorm.ErrRecordNotFound) {
+		return undoErr
+	}
+
 	reply := Reply{Model: gorm.Model{ID: uint(replyId)}}
 	return rp.Conn.Model(&reply).Association("LikedBy").Append(&user.User{Model: gorm.Model{ID: uint(userId)}})
 }
@@ -79,6 +84,11 @@ func (rp *persistenceReplyRepository) UndoUnlike(userId, replyId int) error {
 }
 
 func (rp *persistenceReplyRepository) Unlike(userId, replyId int) error {
+	undoErr := rp.UndoLike(userId, replyId)
+	if undoErr != nil && !errors.Is(undoErr, gorm.ErrRecordNotFound) {
+		return undoErr
+	}
+
 	reply := Reply{Model: gorm.Model{ID: uint(replyId)}}
 	return rp.Conn.Model(&reply).Association("UnlikedBy").Append(&user.User{Model: gorm.Model{ID: uint(userId)}})
 }
