@@ -117,6 +117,11 @@ func (rp *persistenceThreadRepository) GetThreadByTopicID(topicId, limit, offset
 }
 
 func (rp *persistenceThreadRepository) Like(userId int, threadId int) error {
+	undoErr := rp.UndoUnlike(userId, threadId)
+	if undoErr != nil && !errors.Is(undoErr, gorm.ErrRecordNotFound) {
+		return undoErr
+	}
+
 	thread := Thread{Model: gorm.Model{ID: uint(threadId)}}
 	return rp.Conn.Model(&thread).Association("LikedBy").Append(&user.User{Model: gorm.Model{ID: uint(userId)}})
 }
@@ -132,6 +137,11 @@ func (rp *persistenceThreadRepository) UndoUnlike(userId, threadId int) error {
 }
 
 func (rp *persistenceThreadRepository) Unlike(userId int, threadId int) error {
+	undoErr := rp.UndoLike(userId, threadId)
+	if undoErr != nil && !errors.Is(undoErr, gorm.ErrRecordNotFound) {
+		return undoErr
+	}
+
 	thread := Thread{Model: gorm.Model{ID: uint(threadId)}}
 	return rp.Conn.Model(&thread).Association("UnlikedBy").Append(&user.User{Model: gorm.Model{ID: uint(userId)}})
 }
