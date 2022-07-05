@@ -23,7 +23,7 @@ func (uc *topicUsecase) GetTopicDetails(topicId int) (Domain, error) {
 	return topic, nil
 }
 
-func (uc *topicUsecase) CheckTopicAvailibility(topicName string) (bool, error) {
+func (uc *topicUsecase) CheckTopicAvailibility(topicName string) bool {
 	return uc.topicRepository.CheckTopicAvailibility(topicName)
 }
 

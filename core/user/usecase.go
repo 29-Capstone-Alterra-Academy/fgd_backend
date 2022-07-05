@@ -58,7 +58,7 @@ func (uc *userUsecase) CreateToken(username string, email string, password strin
 	return token, err
 }
 
-func (uc *userUsecase) CheckUserAvailibility(username string) (bool, error) {
+func (uc *userUsecase) CheckUserAvailibility(username string) bool {
 	return uc.userRepository.CheckUserAvailibility(username)
 }
 

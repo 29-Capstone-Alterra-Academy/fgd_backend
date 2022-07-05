@@ -46,7 +46,7 @@ func (c *Controllers) Register(e *echo.Echo) {
 
 	e.GET("/topic", c.TopicController.GetTopics)
 	e.POST("/topic", c.TopicController.CreateTopic, jwtMiddleware)
-	e.POST("/topic/check", c.TopicController.CheckAvailibility, jwtMiddleware)
+	e.GET("/topic/check", c.TopicController.CheckAvailibility, jwtMiddleware)
 	e.GET("/topic/:topicId", c.TopicController.GetTopicDetails, jwtMiddleware)
 	e.PUT("/topic/:topicId", c.TopicController.UpdateTopic, jwtMiddleware, middleware.ModeratorValidation)
 	// e.GET("/topic/:topicId/moderator", c.TopicController.GetModerators, jwtMiddleware)
