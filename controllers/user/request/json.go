@@ -20,7 +20,7 @@ type UserProfile struct {
 }
 
 type TokenRequest struct {
-	RefreshToken string `JSON:"refresh_token"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 func (r *UserAuth) ToDomain() *user.Domain {
