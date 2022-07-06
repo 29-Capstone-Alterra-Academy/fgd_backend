@@ -1,6 +1,7 @@
 package thread
 
 import (
+	"errors"
 	"fgd/core/thread"
 	"fgd/drivers/databases/topic"
 	"fgd/drivers/databases/user"

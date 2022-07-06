@@ -1,6 +1,7 @@
 package reply
 
 import (
+	"errors"
 	"fgd/core/reply"
 	"fgd/drivers/databases/thread"
 	"fgd/drivers/databases/user"
