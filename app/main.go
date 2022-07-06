@@ -8,7 +8,6 @@ import (
 	"fgd/helper/storage"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	replyCtrl "fgd/controllers/reply"
@@ -43,13 +42,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func migrate(c *gorm.DB) {
+func migrate(c *gorm.DB) error {
 	c.AutoMigrate(
 		&_authRepo.Auth{},
-		&_reportRepo.UserReport{},
-		&_reportRepo.TopicReport{},
-		&_reportRepo.ThreadReport{},
-		&_reportRepo.ReplyReport{},
 		&_reportRepo.ReportReason{},
 		&_replyRepo.Reply{},
 		&_searchRepo.SearchHistory{},
@@ -58,6 +53,25 @@ func migrate(c *gorm.DB) {
 		&_userRepo.User{},
 		&_verifyRepo.Verify{},
 	)
+
+	err := c.SetupJoinTable(&_userRepo.User{}, "UserReports", &_reportRepo.UserReport{})
+	if err != nil {
+		return err
+	}
+	err = c.SetupJoinTable(&_topicRepo.Topic{}, "TopicReports", &_reportRepo.TopicReport{})
+	if err != nil {
+		return err
+	}
+	err = c.SetupJoinTable(&_threadRepo.Thread{}, "ThreadReports", &_reportRepo.ThreadReport{})
+	if err != nil {
+		return err
+	}
+	err = c.SetupJoinTable(&_replyRepo.Reply{}, "ReplyReports", &_reportRepo.ReplyReport{})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func main() {
@@ -86,11 +100,14 @@ func main() {
 	mailHelper, err := mail.NewMailHelper(conf.MAIL_AT, conf.MAIL_RT, conf.MAIL_CLIENT, conf.MAIL_SECRET, conf.MAIL_REDIRECT)
 	if err != nil {
 		// TODO Handle this better
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
 	dbConn := dbConf.InitPersistenceDB()
-	migrate(dbConn)
+	migrateErr := migrate(dbConn)
+	if migrateErr != nil {
+		log.Fatal(migrateErr)
+	}
 
 	authRepo := factory.NewAuthRepository(dbConn)
 	userRepo := factory.NewUserRepository(dbConn)

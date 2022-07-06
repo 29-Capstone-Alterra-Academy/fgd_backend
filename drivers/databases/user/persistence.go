@@ -13,7 +13,7 @@ type persistenceUserRepository struct {
 
 func (rp *persistenceUserRepository) GetFollowers(userId int) ([]user.Domain, error) {
 	followers := []User{}
-	res := rp.Conn.Table("user_follow").Where("following_id", userId).Select("ID", "Username", "ProfileImage").Find(&followers)
+	res := rp.Conn.Table("user_follow").Where("following_id = ?", userId).Select("ID", "Username", "ProfileImage").Find(&followers)
 	if res.Error != nil {
 		return []user.Domain{}, res.Error
 	}
