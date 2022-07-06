@@ -32,7 +32,7 @@ type UserModeratedTopic struct {
 }
 
 func (rec *User) toDomain() user.Domain {
-	return user.Domain{
+	user := user.Domain{
 		ID:             int(rec.ID),
 		Role:           rec.Role,
 		Username:       rec.Username,
@@ -45,8 +45,13 @@ func (rec *User) toDomain() user.Domain {
 		IsVerified:     rec.IsVerified,
 		CreatedAt:      rec.CreatedAt,
 		UpdatedAt:      rec.UpdatedAt,
-		DeletedAt:      rec.DeletedAt.Time,
 	}
+
+	if rec.DeletedAt.Valid {
+		user.DeletedAt = &rec.DeletedAt.Time
+	}
+
+	return user
 }
 
 func (rec *UserModeratedTopic) toDomain() user.Domain {
@@ -58,12 +63,7 @@ func (rec *UserModeratedTopic) toDomain() user.Domain {
 func fromDomain(userDomain user.Domain) *User {
 	return &User{
 		Model: gorm.Model{
-			ID:        uint(userDomain.ID),
-			CreatedAt: userDomain.CreatedAt,
-			UpdatedAt: userDomain.UpdatedAt,
-			DeletedAt: gorm.DeletedAt{
-				Time: userDomain.DeletedAt,
-			},
+			ID: uint(userDomain.ID),
 		},
 		Role:         userDomain.Role,
 		Username:     userDomain.Username,

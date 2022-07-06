@@ -26,7 +26,7 @@ type Reply struct {
 }
 
 func (rec *Reply) toDomain() reply.Domain {
-	return reply.Domain{
+	reply := reply.Domain{
 		ID: int(rec.ID),
 		Author: reply.DomainAuthor{
 			ID:           int(rec.Author.ID),
@@ -37,8 +37,13 @@ func (rec *Reply) toDomain() reply.Domain {
 		Content:   rec.Content,
 		CreatedAt: rec.CreatedAt,
 		UpdatedAt: rec.UpdatedAt,
-		DeletedAt: rec.DeletedAt.Time,
 	}
+
+	if rec.DeletedAt.Valid {
+		reply.DeletedAt = &rec.DeletedAt.Time
+	}
+
+	return reply
 }
 
 func fromDomain(data *reply.Domain) *Reply {

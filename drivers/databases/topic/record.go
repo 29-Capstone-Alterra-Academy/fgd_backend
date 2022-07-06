@@ -17,11 +17,11 @@ type Topic struct {
 	ModeratedBy  []*user.User `gorm:"many2many:topic_moderator"`
 	SubscribedBy []*user.User `gorm:"many2many:subscribed_topic"`
 
-  TopicReports []*user.User `gorm:"many2many:topic_reports"`
+	TopicReports []*user.User `gorm:"many2many:topic_reports"`
 }
 
 func (r *Topic) toDomain() topic.Domain {
-	return topic.Domain{
+	topic := topic.Domain{
 		ID:           int(r.ID),
 		Name:         r.Name,
 		ProfileImage: r.ProfileImage,
@@ -30,6 +30,12 @@ func (r *Topic) toDomain() topic.Domain {
 		CreatedAt:    r.CreatedAt,
 		UpdatedAt:    r.UpdatedAt,
 	}
+
+	if r.DeletedAt.Valid {
+		topic.DeletedAt = &r.DeletedAt.Time
+	}
+
+	return topic
 }
 
 func fromDomain(topicDomain topic.Domain) *Topic {

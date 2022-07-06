@@ -29,7 +29,7 @@ type Thread struct {
 }
 
 func (r *Thread) toDomain() *thread.Domain {
-	return &thread.Domain{
+	domain := &thread.Domain{
 		ID: int(r.ID),
 		Author: thread.DomainAuthor{
 			ID:       int(r.Author.ID),
@@ -52,8 +52,13 @@ func (r *Thread) toDomain() *thread.Domain {
 		ReplyCount:  0,
 		CreatedAt:   r.CreatedAt,
 		UpdatedAt:   r.UpdatedAt,
-		DeletedAt:   r.DeletedAt.Time,
 	}
+
+	if r.DeletedAt.Valid {
+		domain.DeletedAt = &r.DeletedAt.Time
+	}
+
+	return domain
 }
 
 func fromDomain(threadDomain thread.Domain) *Thread {
