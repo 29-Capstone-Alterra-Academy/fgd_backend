@@ -65,7 +65,7 @@ func (rp *persistenceThreadRepository) GetThreadByID(threadId int) (thread.Domai
 
 func (rp *persistenceThreadRepository) GetThreadByAuthorID(userId, limit, offset int) ([]thread.Domain, error) {
 	threads := []Thread{}
-	fetchResult := rp.Conn.Limit(limit).Offset(offset).Where("author_id = ?", userId).Find(&threads)
+	fetchResult := rp.Conn.Preload("Author").Preload("Topic").Limit(limit).Offset(offset).Where("author_id = ?", userId).Find(&threads)
 	if fetchResult.Error != nil {
 		return []thread.Domain{}, fetchResult.Error
 	}
@@ -176,7 +176,7 @@ func (rp *persistenceThreadRepository) Unlike(userId int, threadId int) error {
 
 func (rp *persistenceThreadRepository) UpdateThread(data *thread.Domain, threadId, userId int) (thread.Domain, error) {
 	existingThread := Thread{}
-	fetchResult := rp.Conn.Where("author_id = ?", userId).Take(&existingThread, threadId)
+	fetchResult := rp.Conn.Preload("Author").Preload("Topic").Where("author_id = ?", userId).Take(&existingThread, threadId)
 	if fetchResult.Error != nil {
 		return thread.Domain{}, fetchResult.Error
 	}
