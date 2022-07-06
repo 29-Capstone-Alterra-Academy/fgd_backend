@@ -4,6 +4,7 @@ import (
 	"fgd/app/middleware"
 	"fgd/controllers/reply"
 	"fgd/controllers/report"
+	"fgd/controllers/search"
 	"fgd/controllers/thread"
 	"fgd/controllers/topic"
 	"fgd/controllers/user"
@@ -17,6 +18,7 @@ type Controllers struct {
 	JWTMiddleware    echoMiddleware.JWTConfig
 	ReportController report.ReportController
 	ReplyController  reply.ReplyController
+	SearchController search.SearchController
 	ThreadController thread.ThreadController
 	TopicController  topic.TopicController
 	UserController   user.UserController
@@ -97,4 +99,6 @@ func (c *Controllers) Register(e *echo.Echo) {
 	e.GET("/report/reason", c.ReportController.GetReasons, jwtMiddleware)
 	e.POST("/report/reason", c.ReportController.AddReason, jwtMiddleware, middleware.AdminValidation)
 	e.DELETE("/report/reason", c.ReportController.DeleteReason, jwtMiddleware, middleware.AdminValidation)
+
+	e.GET("/search", c.SearchController.Search, jwtMiddleware)
 }
