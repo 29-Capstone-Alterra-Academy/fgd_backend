@@ -57,6 +57,19 @@ func (uc *topicUsecase) GetTopics(limit, offset int, sort_by string) ([]Domain, 
 	return topics, nil
 }
 
+func (uc *topicUsecase) GetTopicsByKeyword(keyword string, limit, offset int) ([]Domain, error) {
+	topics, err := uc.topicRepository.GetTopicsByKeyword(keyword, limit, offset)
+	if err != nil {
+		return []Domain{}, err
+	}
+
+	for _, topic := range topics {
+		format.FormatImageLink(uc.config, topic.ProfileImage)
+	}
+
+	return topics, nil
+}
+
 func (uc *topicUsecase) Subscribe(userId, topicId int) error {
 	return uc.topicRepository.Subscribe(userId, topicId)
 }

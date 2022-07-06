@@ -98,6 +98,27 @@ func (uc *threadUsecase) GetThreadByTopicID(topicId, limit, offset int) ([]Domai
 	return threads, nil
 }
 
+func (uc *threadUsecase) GetThreadByKeyword(keyword string, limit, offset int) ([]Domain, error) {
+	threads, err := uc.threadRepository.GetThreadByKeyword(keyword, limit, offset)
+	if err != nil {
+		return []Domain{}, err
+	}
+
+	for _, thread := range threads {
+		format.FormatImageLink(
+			uc.config,
+			thread.Topic.ProfileImage,
+			thread.Image1,
+			thread.Image2,
+			thread.Image3,
+			thread.Image4,
+			thread.Image5,
+		)
+	}
+
+	return threads, nil
+}
+
 func (uc *threadUsecase) Like(userId int, threadId int) error {
 	return uc.threadRepository.Like(userId, threadId)
 }

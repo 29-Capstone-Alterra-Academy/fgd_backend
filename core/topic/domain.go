@@ -19,6 +19,7 @@ type Usecase interface {
 	CreateTopic(data *Domain, userId int) (Domain, error)
 	CheckTopicAvailibility(topicName string) bool
 	GetTopics(limit, offset int, sort_by string) ([]Domain, error)
+	GetTopicsByKeyword(keyword string, limit, offset int) ([]Domain, error)
 	GetTopicDetails(topicId int) (Domain, error)
 	GetModerators(topicId int) ([]Domain, error) // TODO
 	UpdateTopic(data *Domain, topicId int) (Domain, error)
@@ -30,6 +31,7 @@ type Repository interface {
 	CreateTopic(data *Domain) (Domain, error)
 	CheckTopicAvailibility(topicName string) bool
 	GetTopics(limit, offset int, sort_by string) ([]Domain, error)
+	GetTopicsByKeyword(keyword string, limit, offset int) ([]Domain, error)
 	GetTopicDetails(topicId int) (Domain, error)
 	GetModerators(topicId int)
 	UpdateTopic(data *Domain, topicId int) (Domain, error)

@@ -73,6 +73,29 @@ func (rp *persistenceTopicRepository) GetTopics(limit, offset int, sort_by strin
 	return topicDomains, nil
 }
 
+func (rp *persistenceTopicRepository) GetTopicsByKeyword(keyword string, limit, offset int) ([]topic.Domain, error) {
+	topics := []Topic{}
+
+	res := rp.Conn.Limit(limit).Offset(offset).Select("ID", "Name", "ProfileImage").Where("name LIKE ?", keyword+"%").Find(&topics)
+
+	if res.Error != nil {
+		return []topic.Domain{}, res.Error
+	}
+
+	topicDomains := []topic.Domain{}
+	for _, topic := range topics {
+		topicDomain := topic.toDomain()
+		var threadCount int64
+
+		rp.Conn.Table("threads").Where("topic_id = ?", topicDomain.ID).Count(&threadCount)
+		topicDomain.ActivityCount = int(threadCount)
+
+		topicDomains = append(topicDomains, topicDomain)
+	}
+
+	return topicDomains, nil
+}
+
 func (rp *persistenceTopicRepository) Subscribe(userId int, topicId int) error {
 	topic := Topic{Model: gorm.Model{ID: uint(topicId)}}
 	err := rp.Conn.
