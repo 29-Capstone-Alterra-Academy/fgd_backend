@@ -118,6 +118,19 @@ func (uc *userUsecase) GetUsers(limit int, offset int) ([]Domain, error) {
 	return users, nil
 }
 
+func (uc *userUsecase) GetUsersByKeyword(keyword string, limit int, offset int) ([]Domain, error) {
+	users, err := uc.userRepository.GetUsersByKeyword(keyword, limit, offset)
+	if err != nil {
+		return []Domain{}, err
+	}
+
+	for _, user := range users {
+		format.FormatImageLink(uc.config, user.ProfileImage)
+	}
+
+	return users, nil
+}
+
 func (uc *userUsecase) UnfollowUser(userId, targetId int) error {
 	return uc.userRepository.UnfollowUser(userId, targetId)
 }

@@ -137,6 +137,29 @@ func (rp *persistenceUserRepository) GetUsers(limit int, offset int) ([]user.Dom
 	return userDomains, nil
 }
 
+func (rp *persistenceUserRepository) GetUsersByKeyword(keyword string, limit int, offset int) ([]user.Domain, error) {
+	users := []User{}
+
+	res := rp.Conn.Limit(limit).Offset(offset).Omit("Following", "Notifications").Where("username LIKE ?", keyword+"%").Find(&users)
+
+	if res.Error != nil {
+		return []user.Domain{}, res.Error
+	}
+
+	userDomains := []user.Domain{}
+	for _, user := range users {
+		userDomain := user.toDomain()
+		var followerCount int64
+
+		rp.Conn.Table("user_follow").Where("following_id = ?", userDomain.ID).Count(&followerCount)
+		userDomain.FollowersCount = int(followerCount)
+
+		userDomains = append(userDomains, userDomain)
+	}
+
+	return userDomains, nil
+}
+
 func (rp *persistenceUserRepository) UnfollowUser(userId int, targetId int) error {
 	user := User{Model: gorm.Model{ID: uint(userId)}}
 	targetUser := User{Model: gorm.Model{ID: uint(targetId)}}
