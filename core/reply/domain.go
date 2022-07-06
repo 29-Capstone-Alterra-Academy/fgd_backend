@@ -12,13 +12,14 @@ type Domain struct {
 	ReplyCount   int
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
-	DeletedAt    time.Time
+	DeletedAt    *time.Time
 }
 
 type DomainAuthor struct {
 	ID           int
 	Username     string
 	ProfileImage *string
+	DeletedAt    *time.Time
 }
 
 type Usecase interface {

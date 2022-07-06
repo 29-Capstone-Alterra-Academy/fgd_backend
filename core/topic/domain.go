@@ -13,6 +13,7 @@ type Domain struct {
 	ModeratorCount   int
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
+	DeletedAt        *time.Time
 }
 
 type Usecase interface {

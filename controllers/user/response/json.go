@@ -6,14 +6,16 @@ import (
 )
 
 type UserProfile struct {
-	ID           int       `json:"id"`
-	Username     string    `json:"username"`
-	Email        string    `json:"email"`
-	Gender       *string   `json:"gender"`
-	ProfileImage *string   `json:"profile_image"`
-	IsVerified   bool      `json:"is_verified"`
-	BirthDate    *string   `json:"birth_date"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	ID           int        `json:"id"`
+	Username     string     `json:"username"`
+	Email        string     `json:"email"`
+	Gender       *string    `json:"gender"`
+	ProfileImage *string    `json:"profile_image"`
+	IsVerified   bool       `json:"is_verified"`
+	BirthDate    *string    `json:"birth_date"`
+	CreatedAt    time.Time  `json:"created_at"`
+	UpdatedAt    time.Time  `json:"updated_at"`
+	DeletedAt    *time.Time `json:"deleted_at"`
 }
 
 type UserPublicProfile struct {
@@ -23,6 +25,9 @@ type UserPublicProfile struct {
 	ThreadCount    int
 	FollowingCount int
 	FollowersCount int
+	CreatedAt      time.Time  `json:"created_at"`
+	UpdatedAt      time.Time  `json:"updated_at"`
+	DeletedAt      *time.Time `json:"deleted_at"`
 }
 
 func FromDomain(userDomain *user.Domain, scope string) interface{} {
@@ -34,7 +39,9 @@ func FromDomain(userDomain *user.Domain, scope string) interface{} {
 			Gender:       userDomain.Gender,
 			ProfileImage: userDomain.ProfileImage,
 			IsVerified:   userDomain.IsVerified,
+			CreatedAt:    userDomain.CreatedAt,
 			UpdatedAt:    userDomain.UpdatedAt,
+			DeletedAt:    userDomain.DeletedAt,
 		}
 		if userDomain.BirthDate != nil {
 			*userProfile.BirthDate = userDomain.BirthDate.Format("2006-01-02")
@@ -48,6 +55,9 @@ func FromDomain(userDomain *user.Domain, scope string) interface{} {
 			ThreadCount:    userDomain.ThreadCount,
 			FollowingCount: userDomain.FollowingCount,
 			FollowersCount: userDomain.FollowersCount,
+			CreatedAt:      userDomain.CreatedAt,
+			UpdatedAt:      userDomain.UpdatedAt,
+			DeletedAt:      userDomain.DeletedAt,
 		}
 	}
 }

@@ -18,17 +18,18 @@ type Domain struct {
 	ReplyCount  int
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
-	DeletedAt   time.Time
+	DeletedAt   *time.Time
 }
 
 type DomainAuthor struct {
-	ID           int
-	Username     string
+	ID        int
+	Username  string
+	DeletedAt *time.Time
 }
 
 type DomainTopic struct {
-	ID   int
-	Name string
+	ID           int
+	Name         string
 	ProfileImage *string
 }
 

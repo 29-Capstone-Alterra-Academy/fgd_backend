@@ -21,7 +21,7 @@ type Domain struct {
 	BirthDate      *time.Time
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
-	DeletedAt      time.Time
+	DeletedAt      *time.Time
 }
 
 type Usecase interface {

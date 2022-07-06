@@ -6,16 +6,17 @@ import (
 )
 
 type Topic struct {
-	ID               int       `json:"id"`
-	Name             string    `json:"name"`
-	ProfileImage     *string   `json:"profile_image"`
-	Description      string    `json:"description"`
-	Rules            *string   `json:"rules"`
-	ActivityCount    int       `json:"activity_count"`
-	ContributorCount int       `json:"contributor_count"`
-	ModeratorCount   int       `json:"moderator_count"`
-	CreatedAt        time.Time `json:"created_at"`
-	UpdatedAt        time.Time `json:"updated_at"`
+	ID               int        `json:"id"`
+	Name             string     `json:"name"`
+	ProfileImage     *string    `json:"profile_image"`
+	Description      string     `json:"description"`
+	Rules            *string    `json:"rules"`
+	ActivityCount    int        `json:"activity_count"`
+	ContributorCount int        `json:"contributor_count"`
+	ModeratorCount   int        `json:"moderator_count"`
+	CreatedAt        time.Time  `json:"created_at"`
+	UpdatedAt        time.Time  `json:"updated_at"`
+	DeletedAt        *time.Time `json:"deleted_at"`
 }
 
 func FromDomain(domain topic.Domain) Topic {
@@ -30,5 +31,6 @@ func FromDomain(domain topic.Domain) Topic {
 		ModeratorCount:   domain.ModeratorCount,
 		CreatedAt:        domain.CreatedAt,
 		UpdatedAt:        domain.UpdatedAt,
+		DeletedAt:        domain.DeletedAt,
 	}
 }

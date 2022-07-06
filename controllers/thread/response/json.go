@@ -19,7 +19,9 @@ type Thread struct {
 	LikedCount   int          `json:"liked_count"`
 	UnlikedCount int          `json:"unliked_count"`
 	ReplyCount   int          `json:"reply_count"`
+	CreatedAt    time.Time    `json:"created_at"`
 	UpdatedAt    time.Time    `json:"updated_at"`
+	DeletedAt    *time.Time   `json:"deleted_at"`
 }
 
 type ThreadTopic struct {
@@ -29,8 +31,9 @@ type ThreadTopic struct {
 }
 
 type ThreadAuthor struct {
-	ID       int    `json:"id"`
-	Username string `json:"username"`
+	ID        int        `json:"id"`
+	Username  string     `json:"username"`
+	DeletedAt *time.Time `json:"deleted_at"`
 }
 
 func FromDomain(data *thread.Domain) Thread {
@@ -55,7 +58,9 @@ func FromDomain(data *thread.Domain) Thread {
 		LikedCount:   data.LikeCount,
 		UnlikedCount: data.UnlikeCount,
 		ReplyCount:   data.ReplyCount,
+		CreatedAt:    data.CreatedAt,
 		UpdatedAt:    data.UpdatedAt,
+		DeletedAt:    data.DeletedAt,
 	}
 }
 
@@ -66,8 +71,9 @@ func FromDomains(data *[]thread.Domain) []Thread {
 		threads = append(threads, Thread{
 			ID: domain.ID,
 			Author: ThreadAuthor{
-				ID:       domain.Author.ID,
-				Username: domain.Author.Username,
+				ID:        domain.Author.ID,
+				Username:  domain.Author.Username,
+				DeletedAt: domain.Author.DeletedAt,
 			},
 			Topic: ThreadTopic{
 				ID:           domain.Topic.ID,
@@ -84,7 +90,9 @@ func FromDomains(data *[]thread.Domain) []Thread {
 			LikedCount:   domain.LikeCount,
 			UnlikedCount: domain.UnlikeCount,
 			ReplyCount:   domain.ReplyCount,
+			CreatedAt:    domain.CreatedAt,
 			UpdatedAt:    domain.UpdatedAt,
+			DeletedAt:    domain.DeletedAt,
 		})
 	}
 
