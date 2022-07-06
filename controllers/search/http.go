@@ -91,7 +91,7 @@ func (cr *SearchController) StoreSearchHistory(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
+	return controllers.SuccessResponse(c, http.StatusCreated, nil)
 }
 
 func (cr *SearchController) GetSearchHistory(c echo.Context) error {

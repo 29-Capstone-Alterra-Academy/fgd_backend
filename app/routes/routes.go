@@ -100,5 +100,7 @@ func (c *Controllers) Register(e *echo.Echo) {
 	e.POST("/report/reason", c.ReportController.AddReason, jwtMiddleware, middleware.AdminValidation)
 	e.DELETE("/report/reason", c.ReportController.DeleteReason, jwtMiddleware, middleware.AdminValidation)
 
-	e.GET("/search", c.SearchController.Search, jwtMiddleware)
+	e.GET("/search", c.SearchController.Search)
+	e.GET("/search/history", c.SearchController.GetSearchHistory)
+	e.POST("/search/history", c.SearchController.StoreSearchHistory, jwtMiddleware)
 }
