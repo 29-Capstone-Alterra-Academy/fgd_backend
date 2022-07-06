@@ -13,6 +13,7 @@ import (
 
 	replyCtrl "fgd/controllers/reply"
 	reportCtrl "fgd/controllers/report"
+	searchCtrl "fgd/controllers/search"
 	threadCtrl "fgd/controllers/thread"
 	topicCtrl "fgd/controllers/topic"
 	userCtrl "fgd/controllers/user"
@@ -21,6 +22,7 @@ import (
 	authCore "fgd/core/auth"
 	replyCore "fgd/core/reply"
 	reportCore "fgd/core/report"
+	searchCore "fgd/core/search"
 	threadCore "fgd/core/thread"
 	topicCore "fgd/core/topic"
 	userCore "fgd/core/user"
@@ -30,6 +32,7 @@ import (
 	_authRepo "fgd/drivers/databases/auth"
 	_replyRepo "fgd/drivers/databases/reply"
 	_reportRepo "fgd/drivers/databases/report"
+	_searchRepo "fgd/drivers/databases/search"
 	_threadRepo "fgd/drivers/databases/thread"
 	_topicRepo "fgd/drivers/databases/topic"
 	_userRepo "fgd/drivers/databases/user"
@@ -49,6 +52,7 @@ func migrate(c *gorm.DB) {
 		&_reportRepo.ReplyReport{},
 		&_reportRepo.ReportReason{},
 		&_replyRepo.Reply{},
+		&_searchRepo.SearchHistory{},
 		&_threadRepo.Thread{},
 		&_topicRepo.Topic{},
 		&_userRepo.User{},
@@ -94,6 +98,7 @@ func main() {
 	threadRepo := factory.NewThreadRepository(dbConn)
 	reportRepo := factory.NewReportRepository(dbConn)
 	replyRepo := factory.NewReplyRepository(dbConn)
+	searchRepo := factory.NewSearchRepository(dbConn)
 	verifyRepo := factory.NewVerifyRepository(dbConn)
 
 	authUsecase := authCore.InitAuthUsecase(authRepo)
@@ -102,10 +107,12 @@ func main() {
 	threadUsecase := threadCore.InitThreadUsecase(threadRepo, topicUsecase, userUsecase, conf)
 	reportUsecae := reportCore.InitReportUsecase(reportRepo, conf)
 	replyUsecae := replyCore.InitReplyUsecase(replyRepo, userUsecase, conf)
+	searchUsecase := searchCore.InitSearchUsecase(searchRepo)
 	verifyUsecase := verifyCore.InitVerifyUsecase(verifyRepo, *mailHelper)
 
 	reportController := reportCtrl.InitReportController(reportUsecae)
 	replyController := replyCtrl.InitReplyController(replyUsecae, storageHelper)
+	searchController := searchCtrl.InitSearchController(searchUsecase, threadUsecase, topicUsecase, userUsecase)
 	threadController := threadCtrl.InitThreadController(threadUsecase, storageHelper)
 	topicController := topicCtrl.InitTopicController(authUsecase, topicUsecase, userUsecase, storageHelper)
 	userController := userCtrl.InitUserController(authUsecase, userUsecase, verifyUsecase, conf, storageHelper)
@@ -117,6 +124,7 @@ func main() {
 		JWTMiddleware:    jwtConf.Init(),
 		ReportController: *reportController,
 		ReplyController:  *replyController,
+		SearchController: *searchController,
 		ThreadController: *threadController,
 		TopicController:  *topicController,
 		UserController:   *userController,
