@@ -4,6 +4,7 @@ import (
 	authDomain "fgd/core/auth"
 	replyDomain "fgd/core/reply"
 	reportDomain "fgd/core/report"
+	searchDomain "fgd/core/search"
 	threadDomain "fgd/core/thread"
 	topicDomain "fgd/core/topic"
 	userDomain "fgd/core/user"
@@ -11,6 +12,7 @@ import (
 	"fgd/drivers/databases/auth"
 	"fgd/drivers/databases/reply"
 	"fgd/drivers/databases/report"
+	"fgd/drivers/databases/search"
 	"fgd/drivers/databases/thread"
 	"fgd/drivers/databases/topic"
 	"fgd/drivers/databases/user"
@@ -29,6 +31,10 @@ func NewReportRepository(c *gorm.DB) reportDomain.Repository {
 
 func NewReplyRepository(c *gorm.DB) replyDomain.Repository {
 	return reply.InitPersistenceReplyRepository(c)
+}
+
+func NewSearchRepository(c *gorm.DB) searchDomain.Repository {
+	return search.InitPersistenceSearchRepository(c)
 }
 
 func NewThreadRepository(c *gorm.DB) threadDomain.Repository {
