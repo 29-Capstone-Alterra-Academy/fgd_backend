@@ -15,6 +15,7 @@ type UserProfile struct {
 	Username     string
 	Email        string
 	Gender       *string
+	Bio          *string
 	BirthDate    *time.Time
 	ProfileImage *string
 }
@@ -36,6 +37,7 @@ func (r *UserProfile) ToDomain() *user.Domain {
 		Username:     r.Username,
 		Email:        r.Email,
 		Gender:       r.Gender,
+		Bio:          r.Bio,
 		BirthDate:    r.BirthDate,
 		ProfileImage: r.ProfileImage,
 	}

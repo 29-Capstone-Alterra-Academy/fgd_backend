@@ -159,6 +159,7 @@ func (uc *userUsecase) UpdatePersonalProfile(data *Domain, userId int) (Domain, 
 
 func InitUserUsecase(ac auth.Usecase, r Repository, conf config.Config, jwtConf *middleware.JWTConfig) Usecase {
 	return &userUsecase{
+		config:         conf,
 		userRepository: r,
 		authUsecase:    ac,
 		jwtAuth:        jwtConf,
