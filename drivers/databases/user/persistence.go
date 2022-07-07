@@ -184,6 +184,9 @@ func (rp *persistenceUserRepository) UpdatePersonalProfile(data *user.Domain, us
 
 	updatedUser := fromDomain(*data)
 
+	if updatedUser.Username != "" {
+		existingUser.Username = updatedUser.Username
+	}
 	existingUser.Bio = updatedUser.Bio
 	existingUser.BirthDate = updatedUser.BirthDate
 	existingUser.Gender = updatedUser.Gender
@@ -191,7 +194,7 @@ func (rp *persistenceUserRepository) UpdatePersonalProfile(data *user.Domain, us
 
 	res := rp.Conn.Save(&existingUser)
 
-	return updatedUser.toDomain(), res.Error
+	return existingUser.toDomain(), res.Error
 }
 
 func InitPersistenceUserRepository(c *gorm.DB) user.Repository {

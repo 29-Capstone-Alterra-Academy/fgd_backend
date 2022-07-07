@@ -192,6 +192,7 @@ func (cr *UserController) UpdateProfile(c echo.Context) error {
 
 	username := c.FormValue("username")
 	email := c.FormValue("email")
+	bio := c.FormValue("bio")
 	gender := c.FormValue("gender")
 	birthDateStr := c.FormValue("birth_date")
 
@@ -218,6 +219,7 @@ func (cr *UserController) UpdateProfile(c echo.Context) error {
 		Username:     username,
 		Email:        email,
 		Gender:       &gender,
+		Bio:          &bio,
 		BirthDate:    &birthDate,
 		ProfileImage: &profileImageFilename,
 	}

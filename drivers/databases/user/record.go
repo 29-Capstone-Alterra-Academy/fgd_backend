@@ -17,7 +17,7 @@ type User struct {
 	ProfileImage *string
 	Gender       *string
 	BirthDate    *time.Time
-	Bio          string
+	Bio          *string
 	IsVerified   bool `gorm:"default:false"`
 
 	Following []*User `gorm:"many2many:user_follow"`
@@ -33,18 +33,18 @@ type UserModeratedTopic struct {
 
 func (rec *User) toDomain() user.Domain {
 	user := user.Domain{
-		ID:             int(rec.ID),
-		Role:           rec.Role,
-		Username:       rec.Username,
-		Email:          rec.Email,
-		Password:       rec.Password,
-		ProfileImage:   rec.ProfileImage,
-		Gender:         rec.Gender,
-		ModeratedTopic: &[]int{},
-		BirthDate:      rec.BirthDate,
-		IsVerified:     rec.IsVerified,
-		CreatedAt:      rec.CreatedAt,
-		UpdatedAt:      rec.UpdatedAt,
+		ID:           int(rec.ID),
+		Role:         rec.Role,
+		Username:     rec.Username,
+		Email:        rec.Email,
+		Password:     rec.Password,
+		Bio:          rec.Bio,
+		ProfileImage: rec.ProfileImage,
+		Gender:       rec.Gender,
+		IsVerified:   rec.IsVerified,
+		BirthDate:    rec.BirthDate,
+		CreatedAt:    rec.CreatedAt,
+		UpdatedAt:    rec.UpdatedAt,
 	}
 
 	if rec.DeletedAt.Valid {
@@ -62,9 +62,7 @@ func (rec *UserModeratedTopic) toDomain() user.Domain {
 
 func fromDomain(userDomain user.Domain) *User {
 	return &User{
-		Model: gorm.Model{
-			ID: uint(userDomain.ID),
-		},
+		Model:        gorm.Model{ID: uint(userDomain.ID)},
 		Role:         userDomain.Role,
 		Username:     userDomain.Username,
 		Email:        userDomain.Email,
@@ -72,6 +70,7 @@ func fromDomain(userDomain user.Domain) *User {
 		ProfileImage: userDomain.ProfileImage,
 		Gender:       userDomain.Gender,
 		BirthDate:    userDomain.BirthDate,
+		Bio:          userDomain.Bio,
 		IsVerified:   userDomain.IsVerified,
 	}
 }
