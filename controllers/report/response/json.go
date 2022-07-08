@@ -41,14 +41,14 @@ type Reply struct {
 
 type Response struct {
 	ID        uint      `json:"id"`
-	Reporter  User      `json:"reporter"`
-	Reason    Reason    `json:"reason"`
+	Reporter  User      `json:"reporter,omitempty"`
+	Reason    Reason    `json:"reason,omitempty"`
 	Suspect   *User     `json:"suspect,omitempty"`
 	Topic     *Topic    `json:"topic,omitempty"`
 	Thread    *Thread   `json:"thread,omitempty"`
 	Reply     *Reply    `json:"reply,omitempty"`
 	Reviewed  *bool     `json:"reviewed,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
+	CreatedAt time.Time `json:"created_at,omitempty"`
 }
 
 func FromDomain(reportDomain *report.Domain, scope string) interface{} {
@@ -245,16 +245,20 @@ func FromDomains(reportDomains *[]report.Domain, scope string) interface{} {
 				CreatedAt: reportDomain.CreatedAt,
 			})
 		}
-	} else if scope == "reason" {
-		for _, reportDomain := range *reportDomains {
-			responses = append(responses, Response{
-				Reason: Reason{
-					ID:     reportDomain.ReasonID,
-					Detail: reportDomain.ReasonDetail,
-				},
-			})
-		}
 	}
 
 	return responses
+}
+
+func FromDomainsReason(reportDomain *[]report.Domain) []Reason {
+	results := []Reason{}
+
+	for _, domain := range *reportDomain {
+		results = append(results, Reason{
+			ID:     domain.ReasonID,
+			Detail: domain.ReasonDetail,
+		})
+	}
+
+	return results
 }

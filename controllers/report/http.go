@@ -359,7 +359,7 @@ func (cr *ReportController) AddReason(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
+	return controllers.SuccessResponse(c, http.StatusCreated, nil)
 }
 
 func (cr *ReportController) GetReasons(c echo.Context) error {
@@ -368,11 +368,11 @@ func (cr *ReportController) GetReasons(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusOK, response.FromDomains(&reasonDomains, "reason"))
+	return controllers.SuccessResponse(c, http.StatusOK, response.FromDomainsReason(&reasonDomains))
 }
 
 func (cr *ReportController) DeleteReason(c echo.Context) error {
-	reasonId, err := strconv.Atoi(c.Param("reasonId"))
+	reasonId, err := strconv.Atoi(c.QueryParam("reasonId"))
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'reasonId' path parameter")
 	}
