@@ -1,5 +1,7 @@
 package config
 
+import "os"
+
 type Config struct {
 	DOMAIN        string
 	HOST          string
@@ -24,7 +26,7 @@ func InitializeConfig() Config {
 		HOST:          os.Getenv("HOST"),
 		PORT:          os.Getenv("PORT"),
 		DB_USERNAME:   os.Getenv("DB_USERNAME"),
-		DB_PASSWORD:   os.Getenv("DB_PASSWoRD"),
+		DB_PASSWORD:   os.Getenv("DB_PASSWORD"),
 		DB_PORT:       os.Getenv("DB_PORT"),
 		DB_HOST:       os.Getenv("DB_HOST"),
 		DB_NAME:       os.Getenv("DB_NAME"),
@@ -34,5 +36,7 @@ func InitializeConfig() Config {
 		MAIL_CLIENT:   os.Getenv("MAIL_CLIENT"),
 		MAIL_SECRET:   os.Getenv("MAIL_SECRET"),
 		MAIL_REDIRECT: os.Getenv("MAIL_REDIRECT"),
+		STATIC_ROOT:   os.Getenv("STATIC_ROOT"),
+		STATIC_PATH:   os.Getenv("STATIC_PATH"),
 	}
 }
