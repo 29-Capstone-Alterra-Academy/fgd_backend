@@ -70,11 +70,11 @@ func (cr *UserController) Register(c echo.Context) error {
 	}
 
 	if user.Username != "" && len(user.Username) < 6 {
-		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
+		return controllers.FailureResponse(c, http.StatusBadRequest, "error: username should be at least 6 character")
 	}
 
 	if len(user.Password) < 8 {
-		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
+		return controllers.FailureResponse(c, http.StatusBadRequest, "error: password should be at least 8 character")
 	}
 
 	userDomain, err := cr.userUsecase.CreateUser(user.ToDomain())
