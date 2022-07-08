@@ -69,6 +69,14 @@ func (cr *UserController) Register(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
 	}
 
+	if user.Username != "" && len(user.Username) < 6 {
+		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	if len(user.Password) < 8 {
+		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
+	}
+
 	userDomain, err := cr.userUsecase.CreateUser(user.ToDomain())
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
