@@ -1,0 +1,4 @@
+name: SonarQube - Static Analysis
+
+- name: SonarQube Scan
+  uses: kitabisa/sonarqube-action@v1.2.0
