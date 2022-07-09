@@ -5,6 +5,7 @@ import (
 	"fgd/core/user"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type persistenceUserRepository struct {
@@ -94,7 +95,7 @@ func (rp *persistenceUserRepository) FollowUser(userId int, targetId int) error 
 	return rp.Conn.
 		Model(&user).
 		Association("Following").
-		Append(targetUser)
+		Append(&targetUser)
 }
 
 func (rp *persistenceUserRepository) GetPersonalProfile(userId int) (user.Domain, error) {
@@ -106,9 +107,25 @@ func (rp *persistenceUserRepository) GetPersonalProfile(userId int) (user.Domain
 
 func (rp *persistenceUserRepository) GetProfileByID(userId int) (user.Domain, error) {
 	user := User{}
-	res := rp.Conn.Find(&user, userId)
+	err := rp.Conn.Preload(clause.Associations).Take(&user, userId).Error
+	if err != nil {
+		return user.toDomain(), err
+	}
 
-	return user.toDomain(), res.Error
+	userDomain := user.toDomain()
+
+	var threadCount int64
+	var followerCount int64
+	var followingCount int64
+
+	_ = rp.Conn.Table("threads").Where("author_id = ?", userDomain.ID).Count(&threadCount)
+	userDomain.ThreadCount = int(threadCount)
+	_ = rp.Conn.Table("user_follow").Where("following_id = ?", userDomain.ID).Count(&followerCount)
+	userDomain.FollowersCount = int(followerCount)
+	_ = rp.Conn.Table("user_follow").Where("user_id = ?", userDomain.ID).Count(&followingCount)
+	userDomain.FollowingCount = int(followingCount)
+
+	return userDomain, nil
 }
 
 func (rp *persistenceUserRepository) GetUsers(limit int, offset int) ([]user.Domain, error) {
@@ -166,7 +183,7 @@ func (rp *persistenceUserRepository) UnfollowUser(userId int, targetId int) erro
 	return rp.Conn.
 		Model(&user).
 		Association("Following").
-		Delete(targetUser)
+		Delete(&targetUser)
 }
 
 func (rp *persistenceUserRepository) UpdatePassword(hashedPassword string, userId int) error {

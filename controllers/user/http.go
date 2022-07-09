@@ -140,9 +140,8 @@ func (cr *UserController) Follow(c echo.Context) error {
 	}
 
 	claims := middleware.ExtractUserClaims(c)
-	userId := claims.UserID
 
-	err = cr.userUsecase.FollowUser(userId, targetId)
+	err = cr.userUsecase.FollowUser(claims.UserID, targetId)
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusBadRequest, "Error following user")
 	}
@@ -156,11 +155,9 @@ func (cr *UserController) Unfollow(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusBadRequest, "Error getting 'userId' path parameter")
 	}
 
-	user := c.Get("user").(*jwt.Token)
-	userClaims := user.Claims.(*middleware.JWTCustomClaims)
-	userId := userClaims.UserID
+	claims := middleware.ExtractUserClaims(c)
 
-	err = cr.userUsecase.FollowUser(userId, targetId)
+	err = cr.userUsecase.UnfollowUser(claims.UserID, targetId)
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusBadRequest, "Error unfollowing user")
 	}
