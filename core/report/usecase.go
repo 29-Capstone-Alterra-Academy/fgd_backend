@@ -128,60 +128,60 @@ func (uc *reportUsecase) AddReason(data *Domain) error {
 	return uc.reportRepository.AddReason(data)
 }
 
-func (uc *reportUsecase) ApproveReplyReport(replyReportId uint) error {
-	return uc.reportRepository.ApproveReplyReport(replyReportId)
+func (uc *reportUsecase) ApproveReplyReport(reporterId, replyId uint) error {
+	return uc.reportRepository.ApproveReplyReport(reporterId, replyId)
 }
 
-func (uc *reportUsecase) ApproveThreadReport(threadReportId uint) error {
-	return uc.reportRepository.ApproveThreadReport(threadReportId)
+func (uc *reportUsecase) ApproveThreadReport(reporterId, threadId uint) error {
+	return uc.reportRepository.ApproveThreadReport(reporterId, threadId)
 }
 
-func (uc *reportUsecase) ApproveTopicReport(topicReportId uint) error {
-	return uc.reportRepository.ApproveTopicReport(topicReportId)
+func (uc *reportUsecase) ApproveTopicReport(reporterId, topicId uint) error {
+	return uc.reportRepository.ApproveTopicReport(reporterId, topicId)
 }
 
-func (uc *reportUsecase) ApproveUserReport(userReportId uint) error {
-	return uc.reportRepository.ApproveUserReport(userReportId)
+func (uc *reportUsecase) ApproveUserReport(reporterId, suspectId uint) error {
+	return uc.reportRepository.ApproveUserReport(reporterId, suspectId)
 }
 
 func (uc *reportUsecase) DeleteReason(reasonId uint) error {
 	return uc.reportRepository.DeleteReason(reasonId)
 }
 
-func (uc *reportUsecase) ForwardReplyReport(replyReportId uint) error {
-	return uc.reportRepository.ForwardReplyReport(replyReportId)
+func (uc *reportUsecase) ForwardReplyReport(reporterId, replyId uint) error {
+	return uc.reportRepository.ForwardReplyReport(reporterId, replyId)
 }
 
-func (uc *reportUsecase) ForwardThreadReport(threadReportId uint) error {
-	return uc.reportRepository.ForwardThreadReport(threadReportId)
+func (uc *reportUsecase) ForwardThreadReport(reporterId, threadId uint) error {
+	return uc.reportRepository.ForwardThreadReport(reporterId, threadId)
 }
 
-func (uc *reportUsecase) IgnoreReplyReport(replyReportId uint) error {
-	return uc.reportRepository.RemoveReplyReport(replyReportId)
+func (uc *reportUsecase) IgnoreReplyReport(reporterId, replyId uint) error {
+	return uc.reportRepository.RemoveReplyReport(reporterId, replyId)
 }
 
-func (uc *reportUsecase) IgnoreThreadReport(threadReportId uint) error {
-	return uc.reportRepository.RemoveThreadReport(threadReportId)
+func (uc *reportUsecase) IgnoreThreadReport(reporterId, threadId uint) error {
+	return uc.reportRepository.RemoveThreadReport(reporterId, threadId)
 }
 
 func (uc *reportUsecase) GetReasons() ([]Domain, error) {
 	return uc.reportRepository.GetReasons()
 }
 
-func (uc *reportUsecase) RemoveReplyReport(replyReportId uint) error {
-	return uc.reportRepository.RemoveReplyReport(replyReportId)
+func (uc *reportUsecase) RemoveReplyReport(reporterId, replyId uint) error {
+	return uc.reportRepository.RemoveReplyReport(reporterId, replyId)
 }
 
-func (uc *reportUsecase) RemoveThreadReport(threadReportId uint) error {
-	return uc.reportRepository.RemoveThreadReport(threadReportId)
+func (uc *reportUsecase) RemoveThreadReport(reporterId, threadId uint) error {
+	return uc.reportRepository.RemoveThreadReport(reporterId, threadId)
 }
 
-func (uc *reportUsecase) RemoveTopicReport(topicReportId uint) error {
-	return uc.reportRepository.RemoveTopicReport(topicReportId)
+func (uc *reportUsecase) RemoveTopicReport(reporterId, topicId uint) error {
+	return uc.reportRepository.RemoveTopicReport(reporterId, topicId)
 }
 
-func (uc *reportUsecase) RemoveUserReport(userReportId uint) error {
-	return uc.reportRepository.RemoveUserReport(userReportId)
+func (uc *reportUsecase) RemoveUserReport(reporterId, suspectId uint) error {
+	return uc.reportRepository.RemoveUserReport(reporterId, suspectId)
 }
 
 func (uc *reportUsecase) ReportReply(reporterId, replyId, reasonId uint) (Domain, error) {

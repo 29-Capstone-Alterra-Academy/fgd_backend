@@ -10,7 +10,6 @@ import (
 )
 
 type UserReportComplete struct {
-	ID        uint
 	Reporter  user.User
 	Suspect   user.User
 	Reason    ReportReason
@@ -18,7 +17,6 @@ type UserReportComplete struct {
 }
 
 type UserReport struct {
-	ID        uint `gorm:"primarykey"`
 	UserID    uint `gorm:"primaryKey"`
 	SuspectID uint `gorm:"primaryKey"`
 	ReasonID  *uint
@@ -28,7 +26,6 @@ type UserReport struct {
 
 func (r *UserReportComplete) toDomain() report.Domain {
 	return report.Domain{
-		ID:                   r.ID,
 		ReporterID:           r.Reporter.ID,
 		ReporterName:         r.Reporter.Username,
 		ReporterProfileImage: r.Reporter.ProfileImage,
@@ -37,6 +34,7 @@ func (r *UserReportComplete) toDomain() report.Domain {
 		SuspectID:            &r.Suspect.ID,
 		SuspectUsername:      &r.Suspect.Username,
 		SuspectProfileImage:  r.Suspect.ProfileImage,
+		CreatedAt:            r.CreatedAt,
 	}
 }
 
@@ -49,7 +47,6 @@ func userFromDomain(data *report.Domain) *UserReport {
 }
 
 type TopicReportComplete struct {
-	ID        uint
 	Topic     topic.Topic
 	Reporter  user.User
 	Reason    ReportReason
@@ -57,7 +54,6 @@ type TopicReportComplete struct {
 }
 
 type TopicReport struct {
-	ID        uint `gorm:"primaryKey"`
 	TopicID   uint `gorm:"primaryKey"`
 	UserID    uint `gorm:"primaryKey"`
 	ReasonID  *uint
@@ -67,7 +63,6 @@ type TopicReport struct {
 
 func (r *TopicReportComplete) toDomain() report.Domain {
 	return report.Domain{
-		ID:                   r.ID,
 		ReporterID:           r.Reporter.ID,
 		ReporterName:         r.Reporter.Username,
 		ReporterProfileImage: r.Reporter.ProfileImage,
@@ -76,6 +71,7 @@ func (r *TopicReportComplete) toDomain() report.Domain {
 		TopicID:              &r.Topic.ID,
 		TopicName:            &r.Topic.Name,
 		TopicProfileImage:    r.Topic.ProfileImage,
+		CreatedAt:            r.CreatedAt,
 	}
 }
 
@@ -88,7 +84,6 @@ func topicFromDomain(data *report.Domain) *TopicReport {
 }
 
 type ThreadReportComplete struct {
-	ID        uint
 	Topic     topic.Topic
 	Thread    thread.Thread
 	Reporter  user.User
@@ -98,7 +93,7 @@ type ThreadReportComplete struct {
 }
 
 type ThreadReport struct {
-	ID        uint
+	TopicID   uint `gorm:"primaryKey"`
 	ThreadID  uint `gorm:"primaryKey"`
 	UserID    uint `gorm:"primaryKey"`
 	ReasonID  *uint
@@ -109,7 +104,6 @@ type ThreadReport struct {
 
 func (r *ThreadReportComplete) toDomain() report.Domain {
 	return report.Domain{
-		ID:                   r.ID,
 		ReporterID:           r.Reporter.ID,
 		ReporterName:         r.Reporter.Username,
 		ReporterProfileImage: r.Reporter.ProfileImage,
@@ -126,11 +120,13 @@ func (r *ThreadReportComplete) toDomain() report.Domain {
 		ThreadImage3:         r.Thread.Image3,
 		ThreadImage4:         r.Thread.Image4,
 		ThreadImage5:         r.Thread.Image5,
+		CreatedAt:            r.CreatedAt,
 	}
 }
 
 func threadFromDomain(data *report.Domain) *ThreadReport {
 	return &ThreadReport{
+		TopicID:  *data.TopicID,
 		ThreadID: *data.ThreadID,
 		UserID:   data.ReporterID,
 		Reason: ReportReason{
@@ -141,7 +137,6 @@ func threadFromDomain(data *report.Domain) *ThreadReport {
 }
 
 type ReplyReportComplete struct {
-	ID        uint
 	Topic     topic.Topic
 	Reply     reply.Reply
 	Reporter  user.User
@@ -151,7 +146,7 @@ type ReplyReportComplete struct {
 }
 
 type ReplyReport struct {
-	ID        uint
+	TopicID   uint `gorm:"primaryKey"`
 	ReplyID   uint `gorm:"primaryKey"`
 	UserID    uint `gorm:"primaryKey"`
 	ReasonID  *uint
@@ -162,7 +157,6 @@ type ReplyReport struct {
 
 func (r *ReplyReportComplete) toDomain() report.Domain {
 	return report.Domain{
-		ID:                   r.ID,
 		ReporterID:           r.Reporter.ID,
 		ReporterName:         r.Reporter.Username,
 		ReporterProfileImage: r.Reporter.ProfileImage,
@@ -174,11 +168,13 @@ func (r *ReplyReportComplete) toDomain() report.Domain {
 		ReplyID:              &r.Reply.ID,
 		ReplyContent:         &r.Reply.Content,
 		ReplyImage:           r.Reply.Image,
+		CreatedAt:            r.CreatedAt,
 	}
 }
 
 func replyFromDomain(data *report.Domain) *ReplyReport {
 	return &ReplyReport{
+		TopicID: *data.TopicID,
 		ReplyID: *data.ReplyID,
 		UserID:  data.ReporterID,
 		Reason: ReportReason{
