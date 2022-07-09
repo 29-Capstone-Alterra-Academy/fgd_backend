@@ -94,10 +94,16 @@ func (cr *UserController) RefreshToken(c echo.Context) error {
 	tokenReq := request.TokenRequest{}
 	c.Bind(&tokenReq)
 
-	token, err := jwt.Parse(tokenReq.RefreshToken, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+	customClaims := middleware.JWTCustomClaims{}
+	token, err := jwt.ParseWithClaims(tokenReq.RefreshToken, &customClaims, func(token *jwt.Token) (interface{}, error) {
+		if token.Method.Alg() != "HS256" {
 			return middleware.CustomToken{}, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
+
+		if eqIss := token.Claims.(*middleware.JWTCustomClaims).VerifyIssuer("nomizo", false); !eqIss {
+			return middleware.CustomToken{}, fmt.Errorf("error parsing token: invalid issuer")
+		}
+
 		return []byte(cr.config.JWT_SECRET), nil
 	})
 	if err != nil {
@@ -105,8 +111,8 @@ func (cr *UserController) RefreshToken(c echo.Context) error {
 	}
 
 	var newToken middleware.CustomToken
-	if claims, ok := token.Claims.(middleware.JWTCustomClaims); ok && token.Valid {
-
+	claims, ok := token.Claims.(*middleware.JWTCustomClaims)
+	if ok && token.Valid {
 		user, err := cr.userUsecase.GetPersonalProfile(claims.UserID)
 		if err != nil {
 			return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
@@ -116,9 +122,10 @@ func (cr *UserController) RefreshToken(c echo.Context) error {
 		if err != nil {
 			return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 		}
+		return controllers.SuccessResponse(c, http.StatusOK, newToken)
+	} else {
+		return controllers.FailureResponse(c, http.StatusInternalServerError, "error: failed to extract token claims")
 	}
-
-	return controllers.SuccessResponse(c, http.StatusOK, newToken)
 }
 
 func (cr *UserController) CheckAvailibility(c echo.Context) error {
@@ -140,9 +147,8 @@ func (cr *UserController) Follow(c echo.Context) error {
 	}
 
 	claims := middleware.ExtractUserClaims(c)
-	userId := claims.UserID
 
-	err = cr.userUsecase.FollowUser(userId, targetId)
+	err = cr.userUsecase.FollowUser(claims.UserID, targetId)
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusBadRequest, "Error following user")
 	}
@@ -156,11 +162,9 @@ func (cr *UserController) Unfollow(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusBadRequest, "Error getting 'userId' path parameter")
 	}
 
-	user := c.Get("user").(*jwt.Token)
-	userClaims := user.Claims.(*middleware.JWTCustomClaims)
-	userId := userClaims.UserID
+	claims := middleware.ExtractUserClaims(c)
 
-	err = cr.userUsecase.FollowUser(userId, targetId)
+	err = cr.userUsecase.UnfollowUser(claims.UserID, targetId)
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusBadRequest, "Error unfollowing user")
 	}
