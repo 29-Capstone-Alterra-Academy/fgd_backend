@@ -40,12 +40,13 @@ func (rp *persistenceTopicRepository) GetTopicDetails(topicId int) (topic.Domain
 
 	topicDomain := existingTopic.toDomain()
 	var threadCount int64
-	// var replyCount int64
+	var replyCount int64
 	var contributorCount int64
 	var moderatorCount int64
 
 	rp.Conn.Table("threads").Where("topic_id = ?", topicDomain.ID).Count(&threadCount)
-	// TODO Check reply in topic
+	rp.Conn.Table("replies").Where("topic_id = ?", topicDomain.ID).Count(&replyCount)
+	topicDomain.ActivityCount = int(threadCount + replyCount)
 	rp.Conn.Table("threads").Where("topic_id = ?", topicDomain.ID).Distinct("author_id").Count(&contributorCount)
 	topicDomain.ContributorCount = int(contributorCount)
 	rp.Conn.Table("topic_moderator").Where("user_id = ?", topicDomain.ID).Count(&moderatorCount)
