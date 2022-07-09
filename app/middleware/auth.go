@@ -58,10 +58,13 @@ func (c *JWTConfig) GenerateToken(userId int, isAdmin bool, moderatedTopic []int
 	}
 	token.AccessUUID = uuid.New().String()
 
-	refreshClaims := jwt.StandardClaims{
-		ExpiresAt: time.Now().Local().Add(c.RefreshExpiry).Unix(),
-		IssuedAt:  time.Now().Local().Unix(),
-		Issuer:    "nomizo",
+	refreshClaims := JWTCustomClaims{
+		UserID:     userId,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Local().Add(c.RefreshExpiry).Unix(),
+			IssuedAt:  time.Now().Local().Unix(),
+			Issuer:    "nomizo",
+		},
 	}
 
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims)
