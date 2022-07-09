@@ -15,7 +15,7 @@ type persistenceThreadRepository struct {
 
 func (rp *persistenceThreadRepository) CreateThread(data *thread.Domain, userId, topicId int) (thread.Domain, error) {
 	topic := topic.Topic{}
-	fetchTopic := rp.Conn.Take(&topic, topicId)
+	fetchTopic := rp.Conn.Unscoped().Take(&topic, topicId)
 	if fetchTopic.Error != nil {
 		return thread.Domain{}, fetchTopic.Error
 	}
@@ -92,7 +92,7 @@ func (rp *persistenceThreadRepository) GetThreadByAuthorID(userId, limit, offset
 
 func (rp *persistenceThreadRepository) GetThreadByTopicID(topicId, limit, offset int) ([]thread.Domain, error) {
 	threads := []Thread{}
-	fetchResult := rp.Conn.Preload("Author").Preload("Topic").Limit(limit).Offset(offset).Where("topic_id = ?", topicId).Find(&threads)
+	fetchResult := rp.Conn.Unscoped().Preload("Author").Preload("Topic").Limit(limit).Offset(offset).Where("topic_id = ?", topicId).Find(&threads)
 	if fetchResult.Error != nil {
 		return []thread.Domain{}, fetchResult.Error
 	}
@@ -119,7 +119,7 @@ func (rp *persistenceThreadRepository) GetThreadByTopicID(topicId, limit, offset
 
 func (rp *persistenceThreadRepository) GetThreadByKeyword(keyword string, limit, offset int) ([]thread.Domain, error) {
 	threads := []Thread{}
-	fetchResult := rp.Conn.Preload("Author").Preload("Topic").Limit(limit).Offset(offset).Where("title LIKE ?", keyword+"%").Find(&threads)
+	fetchResult := rp.Conn.Unscoped().Preload("Author").Preload("Topic").Limit(limit).Offset(offset).Where("title LIKE ?", keyword+"%").Find(&threads)
 	if fetchResult.Error != nil {
 		return []thread.Domain{}, fetchResult.Error
 	}

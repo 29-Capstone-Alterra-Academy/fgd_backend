@@ -40,8 +40,9 @@ func FromDomain(data *thread.Domain) Thread {
 	return Thread{
 		ID: data.ID,
 		Author: ThreadAuthor{
-			ID:       data.Author.ID,
-			Username: data.Author.Username,
+			ID:        data.Author.ID,
+			Username:  data.Author.Username,
+			DeletedAt: data.Author.DeletedAt,
 		},
 		Topic: ThreadTopic{
 			ID:           data.Topic.ID,
