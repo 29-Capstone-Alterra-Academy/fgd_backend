@@ -52,6 +52,10 @@ func migrate(c *gorm.DB) error {
 		&_topicRepo.Topic{},
 		&_userRepo.User{},
 		&_verifyRepo.Verify{},
+		&_reportRepo.UserReport{},
+		&_reportRepo.TopicReport{},
+		&_reportRepo.ThreadReport{},
+		&_reportRepo.ReplyReport{},
 	)
 
 	err := c.SetupJoinTable(&_userRepo.User{}, "UserReports", &_reportRepo.UserReport{})

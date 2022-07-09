@@ -78,23 +78,11 @@ func (c *Controllers) Register(e *echo.Echo) {
 	e.POST("/reply/:replyId/unlike", c.ReplyController.UnlikeReply, jwtMiddleware)
 	e.DELETE("/reply/:replyId/unlike", c.ReplyController.UndoUnlikeReply, jwtMiddleware)
 
-	e.GET("/topic/:topicId/reports", c.ReportController.GetTopicScopeReports, jwtMiddleware, middleware.ModeratorValidation)
+	e.GET("/topic/:topicId/report", c.ReportController.GetTopicScopeReports, jwtMiddleware, middleware.ModeratorValidation)
+	e.PUT("/topic/:topicId/report", c.ReportController.ActionTopicScopeReport, jwtMiddleware, middleware.ModeratorValidation)
 
-	e.GET("/moderation/user/ban_request", c.ReportController.GetUserReports, jwtMiddleware, middleware.AdminValidation)
-	e.PUT("/moderation/user/ban_request/:id", c.ReportController.ApproveUserReport, jwtMiddleware, middleware.AdminValidation)
-	e.DELETE("/moderation/user/ban_request/:id", c.ReportController.RemoveUserReport, jwtMiddleware, middleware.AdminValidation)
-
-	e.GET("/moderation/topic/ban_request", c.ReportController.GetTopicReports, jwtMiddleware, middleware.AdminValidation)
-	e.PUT("/moderation/topic/ban_request/:id", c.ReportController.ApproveTopicReport, jwtMiddleware, middleware.AdminValidation)
-	e.DELETE("/moderation/topic/ban_request/:id", c.ReportController.RemoveTopicReport, jwtMiddleware, middleware.AdminValidation)
-
-	e.GET("/moderation/thread/ban_request", c.ReportController.GetThreadReports, jwtMiddleware, middleware.AdminValidation)
-	e.PUT("/moderation/thread/ban_request/:id", c.ReportController.ApproveThreadReport, jwtMiddleware, middleware.AdminValidation)
-	e.DELETE("/moderation/thread/ban_request/:id", c.ReportController.RemoveThreadReport, jwtMiddleware, middleware.AdminValidation)
-
-	e.GET("/moderation/reply/ban_request", c.ReportController.GetReplyReports, jwtMiddleware, middleware.AdminValidation)
-	e.PUT("/moderation/reply/ban_request/:id", c.ReportController.ApproveReplyReport, jwtMiddleware, middleware.AdminValidation)
-	e.DELETE("/moderation/reply/ban_request/:id", c.ReportController.RemoveReplyReport, jwtMiddleware, middleware.AdminValidation)
+	e.GET("/report", c.ReportController.GetReports, jwtMiddleware, middleware.AdminValidation)
+	e.PUT("/report", c.ReportController.ActionReport, jwtMiddleware, middleware.AdminValidation)
 
 	e.GET("/report/reason", c.ReportController.GetReasons, jwtMiddleware)
 	e.POST("/report/reason", c.ReportController.AddReason, jwtMiddleware, middleware.AdminValidation)

@@ -40,7 +40,6 @@ type Reply struct {
 }
 
 type Response struct {
-	ID        uint      `json:"id"`
 	Reporter  User      `json:"reporter,omitempty"`
 	Reason    Reason    `json:"reason,omitempty"`
 	Suspect   *User     `json:"suspect,omitempty"`

@@ -27,12 +27,12 @@ func (cr *ReportController) ReportUser(c echo.Context) error {
 
 	suspectId, err := strconv.Atoi(c.Param("userId"))
 	if err != nil {
-		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing userId param")
+		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing 'userId' param")
 	}
 
 	reasonId, err := strconv.Atoi(c.QueryParam("reasonId"))
 	if err != nil {
-		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing reasonId query param")
+		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing 'reasonId' query param")
 	}
 
 	reportDomain, err := cr.reportUsecase.ReportUser(uint(claims.UserID), uint(suspectId), uint(reasonId))
@@ -178,174 +178,6 @@ func (cr *ReportController) GetReplyReports(c echo.Context) error {
 	return controllers.SuccessResponse(c, http.StatusOK, response.FromDomains(&reportDomains, "reply"))
 }
 
-func (cr *ReportController) ApproveUserReport(c echo.Context) error {
-	reportId, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'id' path parameter")
-	}
-
-	err = cr.reportUsecase.ApproveUserReport(uint(reportId))
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
-	}
-
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
-}
-
-func (cr *ReportController) ApproveTopicReport(c echo.Context) error {
-	reportId, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'id' path parameter")
-	}
-
-	err = cr.reportUsecase.ApproveTopicReport(uint(reportId))
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
-	}
-
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
-}
-
-func (cr *ReportController) ApproveThreadReport(c echo.Context) error {
-	reportId, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'id' path parameter")
-	}
-
-	err = cr.reportUsecase.ApproveThreadReport(uint(reportId))
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
-	}
-
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
-}
-
-func (cr *ReportController) ApproveReplyReport(c echo.Context) error {
-	reportId, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'id' path parameter")
-	}
-
-	err = cr.reportUsecase.ApproveReplyReport(uint(reportId))
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
-	}
-
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
-}
-
-func (cr *ReportController) ForwardThreadReport(c echo.Context) error {
-	reportId, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'id' path parameter")
-	}
-
-	err = cr.reportUsecase.ForwardThreadReport(uint(reportId))
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
-	}
-
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
-}
-
-func (cr *ReportController) ForwardReplyReport(c echo.Context) error {
-	reportId, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'id' path parameter")
-	}
-
-	err = cr.reportUsecase.ForwardReplyReport(uint(reportId))
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
-	}
-
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
-}
-
-func (cr *ReportController) IgnoreThreadReport(c echo.Context) error {
-	reportId, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'id' path parameter")
-	}
-
-	err = cr.reportUsecase.IgnoreThreadReport(uint(reportId))
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
-	}
-
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
-}
-
-func (cr *ReportController) IgnoreReplyReport(c echo.Context) error {
-	reportId, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'id' path parameter")
-	}
-
-	err = cr.reportUsecase.IgnoreReplyReport(uint(reportId))
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
-	}
-
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
-}
-
-func (cr *ReportController) RemoveUserReport(c echo.Context) error {
-	reportId, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'id' path parameter")
-	}
-
-	err = cr.reportUsecase.RemoveUserReport(uint(reportId))
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
-	}
-
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
-}
-
-func (cr *ReportController) RemoveTopicReport(c echo.Context) error {
-	reportId, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'id' path parameter")
-	}
-
-	err = cr.reportUsecase.RemoveTopicReport(uint(reportId))
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
-	}
-
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
-}
-
-func (cr *ReportController) RemoveThreadReport(c echo.Context) error {
-	reportId, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'id' path parameter")
-	}
-
-	err = cr.reportUsecase.RemoveThreadReport(uint(reportId))
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
-	}
-
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
-}
-
-func (cr *ReportController) RemoveReplyReport(c echo.Context) error {
-	reportId, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'id' path parameter")
-	}
-
-	err = cr.reportUsecase.RemoveReplyReport(uint(reportId))
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
-	}
-
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
-}
-
 func (cr *ReportController) AddReason(c echo.Context) error {
 	newReason := request.Reason{}
 
@@ -418,4 +250,224 @@ func (cr *ReportController) GetTopicScopeReports(c echo.Context) error {
 		return controllers.SuccessResponse(c, http.StatusOK, response.FromDomains(&replyDomains, "reply"))
 	}
 	return controllers.FailureResponse(c, http.StatusBadRequest, "")
+}
+
+func (cr *ReportController) ActionTopicScopeReport(c echo.Context) error {
+	scope := c.QueryParam("scope")
+	if scope == "" {
+		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'scope' in query param")
+	}
+
+	reporterId, err := strconv.Atoi(c.QueryParam("reporterId"))
+	if err != nil {
+		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'reporterId' query param")
+	}
+
+	action := c.QueryParam("action")
+	if action == "" {
+		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'action' in query param")
+	}
+
+	if scope == "thread" {
+		threadId, err := strconv.Atoi(c.QueryParam("threadId"))
+		if err != nil {
+			return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing 'threadId' query param")
+		}
+		if action == "forward" {
+			err = cr.reportUsecase.ForwardThreadReport(uint(reporterId), uint(threadId))
+			if err != nil {
+				return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+			}
+
+			return controllers.SuccessResponse(c, http.StatusOK, nil)
+
+		} else if action == "ignore" {
+			err = cr.reportUsecase.IgnoreThreadReport(uint(reporterId), uint(threadId))
+			if err != nil {
+				return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+			}
+
+			return controllers.SuccessResponse(c, http.StatusOK, nil)
+		}
+
+	} else if scope == "reply" {
+		replyId, err := strconv.Atoi(c.QueryParam("replyId"))
+		if err != nil {
+			return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing 'replyId' query param")
+		}
+		if action == "forward" {
+			err = cr.reportUsecase.ForwardReplyReport(uint(reporterId), uint(replyId))
+			if err != nil {
+				return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+			}
+
+			return controllers.SuccessResponse(c, http.StatusOK, nil)
+
+		} else if action == "ignore" {
+			err = cr.reportUsecase.IgnoreReplyReport(uint(reporterId), uint(replyId))
+			if err != nil {
+				return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+			}
+
+			return controllers.SuccessResponse(c, http.StatusOK, nil)
+
+		}
+	}
+	return controllers.FailureResponse(c, http.StatusBadRequest, "")
+}
+
+func (cr *ReportController) GetReports(c echo.Context) error {
+	scope := c.QueryParam("scope")
+	if scope == "" {
+		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'scope' query param")
+	}
+	limit, err := strconv.Atoi(c.QueryParam("limit"))
+	if err != nil {
+		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'limit' in query param")
+	}
+	offset, err := strconv.Atoi(c.QueryParam("offset"))
+	if err != nil {
+		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'offset' in query param")
+	}
+
+	if scope == "user" {
+		reportDomains, err := cr.reportUsecase.GetUserReports(limit, offset)
+		if err != nil {
+			return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+		}
+
+		return controllers.SuccessResponse(c, http.StatusOK, response.FromDomains(&reportDomains, "user"))
+	} else if scope == "topic" {
+		reportDomains, err := cr.reportUsecase.GetTopicReports(limit, offset)
+		if err != nil {
+			return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+		}
+
+		return controllers.SuccessResponse(c, http.StatusOK, response.FromDomains(&reportDomains, "topic"))
+	} else if scope == "thread" {
+		reportDomains, err := cr.reportUsecase.GetThreadReports(limit, offset)
+		if err != nil {
+			return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+		}
+
+		return controllers.SuccessResponse(c, http.StatusOK, response.FromDomains(&reportDomains, "thread"))
+	} else if scope == "reply" {
+		reportDomains, err := cr.reportUsecase.GetReplyReports(limit, offset)
+		if err != nil {
+			return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+		}
+
+		return controllers.SuccessResponse(c, http.StatusOK, response.FromDomains(&reportDomains, "reply"))
+	}
+
+	return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing some requirement in request")
+}
+
+func (cr *ReportController) ActionReport(c echo.Context) error {
+	scope := c.QueryParam("scope")
+	if scope == "" {
+		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'scope' query param")
+	}
+
+	action := c.QueryParam("action")
+	if action == "" {
+		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'action' query param")
+	}
+
+	reporterId, err := strconv.Atoi(c.QueryParam("reporterId"))
+	if err != nil {
+		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'reporterId' query param")
+	}
+
+	if scope == "user" {
+		suspectId, err := strconv.Atoi(c.QueryParam("suspectId"))
+		if err != nil {
+			return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing 'suspectId' query param")
+		}
+		if action == "approve" {
+			err = cr.reportUsecase.ApproveUserReport(uint(reporterId), uint(suspectId))
+			if err != nil {
+				return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+			}
+
+			return controllers.SuccessResponse(c, http.StatusOK, nil)
+
+		} else if action == "remove" {
+			err = cr.reportUsecase.RemoveUserReport(uint(reporterId), uint(suspectId))
+			if err != nil {
+				return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+			}
+
+			return controllers.SuccessResponse(c, http.StatusOK, nil)
+
+		}
+	} else if scope == "topic" {
+		topicId, err := strconv.Atoi(c.QueryParam("topicId"))
+		if err != nil {
+			return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing 'topicId' query param")
+		}
+		if action == "approve" {
+			err = cr.reportUsecase.ApproveTopicReport(uint(reporterId), uint(topicId))
+			if err != nil {
+				return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+			}
+
+			return controllers.SuccessResponse(c, http.StatusOK, nil)
+
+		} else if action == "remove" {
+			err = cr.reportUsecase.RemoveTopicReport(uint(reporterId), uint(topicId))
+			if err != nil {
+				return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+			}
+
+			return controllers.SuccessResponse(c, http.StatusOK, nil)
+
+		}
+	} else if scope == "thread" {
+		threadId, err := strconv.Atoi(c.QueryParam("threadId"))
+		if err != nil {
+			return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing 'threadId' query param")
+		}
+		if action == "approve" {
+			err = cr.reportUsecase.ApproveThreadReport(uint(reporterId), uint(threadId))
+			if err != nil {
+				return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+			}
+
+			return controllers.SuccessResponse(c, http.StatusOK, nil)
+
+		} else if action == "remove" {
+			err = cr.reportUsecase.RemoveThreadReport(uint(reporterId), uint(threadId))
+			if err != nil {
+				return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+			}
+
+			return controllers.SuccessResponse(c, http.StatusOK, nil)
+
+		}
+	} else if scope == "reply" {
+		replyId, err := strconv.Atoi(c.QueryParam("replyId"))
+		if err != nil {
+			return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing 'replyId' query param")
+		}
+		if action == "approve" {
+			err = cr.reportUsecase.ApproveReplyReport(uint(reporterId), uint(replyId))
+			if err != nil {
+				return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+			}
+
+			return controllers.SuccessResponse(c, http.StatusOK, nil)
+
+		} else if action == "remove" {
+			err = cr.reportUsecase.RemoveReplyReport(uint(reporterId), uint(replyId))
+			if err != nil {
+				return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+			}
+
+			return controllers.SuccessResponse(c, http.StatusOK, nil)
+
+		}
+	}
+
+	return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing some requirement in request")
 }

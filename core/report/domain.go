@@ -3,7 +3,6 @@ package report
 import "time"
 
 type Domain struct {
-	ID                   uint
 	ReporterID           uint
 	ReporterName         string
 	ReporterProfileImage *string
@@ -39,29 +38,29 @@ type Domain struct {
 type Usecase interface {
 	ReportUser(reporterId, suspectId, reasonId uint) (Domain, error)
 	GetUserReports(limit, offset int) ([]Domain, error)
-	ApproveUserReport(userReportId uint) error
-	RemoveUserReport(userReportId uint) error
+	ApproveUserReport(reporterId, suspectId uint) error
+	RemoveUserReport(reporterId, suspectId uint) error
 
 	ReportThread(reporterId, threadId, reasonId uint) (Domain, error)
-	ForwardThreadReport(threadReportId uint) error
+	ForwardThreadReport(reporterId, threadId uint) error
 	GetTopicThreadReports(topicId, limit, offset int) ([]Domain, error)
 	GetThreadReports(limit, offset int) ([]Domain, error)
-	IgnoreThreadReport(threadReportId uint) error
-	ApproveThreadReport(threadReportId uint) error
-	RemoveThreadReport(threadReportId uint) error
+	IgnoreThreadReport(reporterId, threadId uint) error
+	ApproveThreadReport(reporterId, threadId uint) error
+	RemoveThreadReport(reporterId, threadId uint) error
 
 	ReportReply(reporterId, replyId, reasonId uint) (Domain, error)
-	ForwardReplyReport(replyReportId uint) error
+	ForwardReplyReport(reporterId, replyId uint) error
 	GetTopicReplyReports(topicId, limit, offset int) ([]Domain, error)
 	GetReplyReports(limit, offset int) ([]Domain, error)
-	IgnoreReplyReport(replyReportId uint) error
-	ApproveReplyReport(replyReportId uint) error
-	RemoveReplyReport(replyReportId uint) error
+	IgnoreReplyReport(reporterId, replyId uint) error
+	ApproveReplyReport(reporterId, replyId uint) error
+	RemoveReplyReport(reporterId, replyId uint) error
 
 	ReportTopic(reporterId, topicId, reasonId uint) (Domain, error)
 	GetTopicReports(limit, offset int) ([]Domain, error)
-	ApproveTopicReport(topicReportId uint) error
-	RemoveTopicReport(topicReportId uint) error
+	ApproveTopicReport(reporterId, topicId uint) error
+	RemoveTopicReport(reporterId, topicId uint) error
 
 	AddReason(data *Domain) error
 	GetReasons() ([]Domain, error)
@@ -71,27 +70,27 @@ type Usecase interface {
 type Repository interface {
 	ReportUser(reporterId, suspectId, reasonId uint) (Domain, error)
 	GetUserReports(limit, offset int) ([]Domain, error)
-	ApproveUserReport(userReportId uint) error
-	RemoveUserReport(userReportId uint) error
+	ApproveUserReport(reporterId, suspectId uint) error
+	RemoveUserReport(reporterId, suspectId uint) error
 
 	ReportThread(reporterId, threadId, reasonId uint) (Domain, error)
-	ForwardThreadReport(threadReportId uint) error
+	ForwardThreadReport(reporterId, threadId uint) error
 	GetTopicThreadReports(topicId, limit, offset int) ([]Domain, error)
 	GetThreadReports(limit, offset int) ([]Domain, error)
-	ApproveThreadReport(threadReportId uint) error
-	RemoveThreadReport(threadReportId uint) error
+	ApproveThreadReport(reporterId, threadId uint) error
+	RemoveThreadReport(reporterId, threadId uint) error
 
 	ReportReply(reporterId, replyId, reasonId uint) (Domain, error)
-	ForwardReplyReport(replyReportId uint) error
-	ApproveReplyReport(replyReportId uint) error
+	ForwardReplyReport(reporterId, replyId uint) error
+	ApproveReplyReport(reporterId, replyId uint) error
 	GetTopicReplyReports(topicId, limit, offset int) ([]Domain, error)
 	GetReplyReports(limit, offset int) ([]Domain, error)
-	RemoveReplyReport(replyReportId uint) error
+	RemoveReplyReport(reporterId, replyId uint) error
 
 	ReportTopic(reporterId, topicId, reasonId uint) (Domain, error)
 	GetTopicReports(limit, offset int) ([]Domain, error)
-	ApproveTopicReport(topicReportId uint) error
-	RemoveTopicReport(topicReportId uint) error
+	ApproveTopicReport(reporterId, replyId uint) error
+	RemoveTopicReport(reporterId, replyId uint) error
 
 	AddReason(data *Domain) error
 	GetReasons() ([]Domain, error)
