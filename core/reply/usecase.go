@@ -12,6 +12,49 @@ type replyUsecase struct {
 	userUsecase     user.Usecase
 }
 
+func (uc *replyUsecase) GetReplyByThreadID(threadId, limit, offset int) ([]Domain, error) {
+	replies, err := uc.replyRepository.GetReplyByThreadID(threadId, limit, offset)
+	if err != nil {
+		return []Domain{}, err
+	}
+
+	for _, reply := range replies {
+		format.FormatImageLink(uc.config, reply.Author.ProfileImage, reply.Image)
+	}
+
+	return replies, nil
+}
+
+func (uc *replyUsecase) GetReplyByID(replyId int, limit int) (Domain, error) {
+	reply, err := uc.replyRepository.GetReplyByID(replyId, limit)
+	if err != nil {
+		return Domain{}, nil
+	}
+
+	format.FormatImageLink(uc.config, reply.Author.ProfileImage, reply.Image)
+
+	if reply.Child != nil {
+		for _, childReply := range *reply.Child {
+			format.FormatImageLink(uc.config, childReply.Author.ProfileImage, childReply.Image)
+		}
+	}
+
+	return reply, nil
+}
+
+func (uc *replyUsecase) GetReplyChilds(replyId, limit, offset int) ([]Domain, error) {
+	replyChilds, err := uc.replyRepository.GetReplyChilds(replyId, limit, offset)
+	if err != nil {
+		return []Domain{}, err
+	}
+
+	for _, child := range replyChilds {
+		format.FormatImageLink(uc.config, child.Author.ProfileImage, child.Image)
+	}
+
+	return replyChilds, nil
+}
+
 func (uc *replyUsecase) CreateReplyReply(data *Domain, userId int, replyId int) (Domain, error) {
 	newReply, err := uc.replyRepository.CreateReplyReply(data, userId, replyId)
 	if err != nil {

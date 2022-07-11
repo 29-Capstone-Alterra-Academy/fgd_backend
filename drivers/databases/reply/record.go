@@ -3,6 +3,7 @@ package reply
 import (
 	"fgd/core/reply"
 	"fgd/drivers/databases/thread"
+	"fgd/drivers/databases/topic"
 	"fgd/drivers/databases/user"
 
 	"gorm.io/gorm"
@@ -10,6 +11,8 @@ import (
 
 type Reply struct {
 	gorm.Model
+	TopicID  uint
+	Topic    topic.Topic
 	ThreadID uint
 	Thread   thread.Thread
 	ParentID *uint

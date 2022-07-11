@@ -101,6 +101,69 @@ func (cr *ReplyController) CreateForThread(c echo.Context) error {
 	return controllers.SuccessResponse(c, http.StatusCreated, response.FromDomain(&replyDomain))
 }
 
+func (cr *ReplyController) GetReply(c echo.Context) error {
+	limit, err := strconv.Atoi(c.QueryParam("limit"))
+	if err != nil {
+		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'limit' in query param")
+	}
+	offset, err := strconv.Atoi(c.QueryParam("offset"))
+	if err != nil {
+		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'offset' query parameter")
+	}
+	scope := c.QueryParam("scope")
+
+	if scope == "thread" {
+		threadId, err := strconv.Atoi(c.QueryParam("threadId"))
+		if err != nil {
+			return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'threadId' in path param")
+		}
+
+		domains, err := cr.replyUsecase.GetReplyByThreadID(threadId, limit, offset)
+		if err != nil {
+			return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+		}
+
+		return controllers.SuccessResponse(c, http.StatusOK, response.FromDomains(&domains))
+	} else if scope == "reply" {
+		replyId, err := strconv.Atoi(c.QueryParam("replyId"))
+		if err != nil {
+			return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'replyId' in path param")
+		}
+		domains, err := cr.replyUsecase.GetReplyByThreadID(replyId, limit, offset)
+		if err != nil {
+			return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+		}
+
+		return controllers.SuccessResponse(c, http.StatusOK, response.FromDomains(&domains))
+	} else {
+		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'scope' in query param")
+	}
+}
+
+func (cr *ReplyController) GetReplyChilds(c echo.Context) error {
+	replyId, err := strconv.Atoi(c.Param("replyId"))
+	if err != nil {
+		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'replyId' in path param")
+	}
+
+	limit, err := strconv.Atoi(c.QueryParam("limit"))
+	if err != nil {
+		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'limit' in query param")
+	}
+
+	offset, err := strconv.Atoi(c.QueryParam("offset"))
+	if err != nil {
+		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'offset' query parameter")
+	}
+
+	domains, err := cr.replyUsecase.GetReplyChilds(replyId, limit, offset)
+	if err != nil {
+		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	return controllers.SuccessResponse(c, http.StatusOK, response.FromDomains(&domains))
+}
+
 func (cr *ReplyController) UpdateReply(c echo.Context) error {
 	replyId, err := strconv.Atoi(c.Param("replyId"))
 	if err != nil {
