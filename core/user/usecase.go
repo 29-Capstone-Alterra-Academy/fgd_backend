@@ -62,6 +62,10 @@ func (uc *userUsecase) CheckUserAvailibility(username string) bool {
 	return uc.userRepository.CheckUserAvailibility(username)
 }
 
+func (uc *userUsecase) CheckEmailAvailibility(email string) bool {
+	return uc.userRepository.CheckEmailAvailibility(email)
+}
+
 func (uc *userUsecase) CreateUser(data *Domain) (Domain, error) {
 	var err error
 
