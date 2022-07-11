@@ -2,6 +2,7 @@ package routes
 
 import (
 	"fgd/app/middleware"
+	"fgd/controllers/moderator"
 	"fgd/controllers/reply"
 	"fgd/controllers/report"
 	"fgd/controllers/search"
@@ -15,14 +16,15 @@ import (
 )
 
 type Controllers struct {
-	JWTMiddleware    echoMiddleware.JWTConfig
-	ReportController report.ReportController
-	ReplyController  reply.ReplyController
-	SearchController search.SearchController
-	ThreadController thread.ThreadController
-	TopicController  topic.TopicController
-	UserController   user.UserController
-	VerifyController verify.VerifyController
+	JWTMiddleware       echoMiddleware.JWTConfig
+	ModeratorController moderator.ModeratorController
+	ReportController    report.ReportController
+	ReplyController     reply.ReplyController
+	SearchController    search.SearchController
+	ThreadController    thread.ThreadController
+	TopicController     topic.TopicController
+	UserController      user.UserController
+	VerifyController    verify.VerifyController
 }
 
 func (c *Controllers) Register(e *echo.Echo) {
@@ -52,8 +54,10 @@ func (c *Controllers) Register(e *echo.Echo) {
 	e.GET("/topic/:topicId", c.TopicController.GetTopicDetails, jwtMiddleware)
 	e.PUT("/topic/:topicId", c.TopicController.UpdateTopic, jwtMiddleware, middleware.ModeratorValidation)
 	// e.GET("/topic/:topicId/moderator", c.TopicController.GetModerators, jwtMiddleware)
+	e.PATCH("/topic/:topicId/moderator", c.ModeratorController.RemoveModerator, jwtMiddleware)
+	e.POST("/topic/:topicId/modrequest", c.ModeratorController.RequestPromotion, jwtMiddleware)
+	e.GET("/topic/:topicId/report", c.ReportController.GetTopicScopeReports, jwtMiddleware)
 	e.POST("/topic/:topicId/report", c.ReportController.ReportTopic, jwtMiddleware)
-	e.POST("/topic/:topicId/modrequest", c.TopicController.RequestPromotion, jwtMiddleware)
 	e.GET("/topic/:topicId/subscribe", c.TopicController.Subscribe, jwtMiddleware)
 	e.GET("/topic/:topicId/subscribe", c.TopicController.Unsubscribe, jwtMiddleware)
 	e.POST("/topic/:topicId/thread", c.ThreadController.CreateThread, jwtMiddleware)
@@ -88,6 +92,9 @@ func (c *Controllers) Register(e *echo.Echo) {
 	e.GET("/report/reason", c.ReportController.GetReasons, jwtMiddleware)
 	e.POST("/report/reason", c.ReportController.AddReason, jwtMiddleware, middleware.AdminValidation)
 	e.DELETE("/report/reason", c.ReportController.DeleteReason, jwtMiddleware, middleware.AdminValidation)
+
+	e.GET("/modrequest", c.ModeratorController.GetPromotionRequests, jwtMiddleware, middleware.AdminValidation)
+	e.PUT("/modrequest", c.ModeratorController.ActionPromotion, jwtMiddleware, middleware.AdminValidation)
 
 	e.GET("/search", c.SearchController.Search)
 	e.GET("/search/history", c.SearchController.GetSearchHistory)

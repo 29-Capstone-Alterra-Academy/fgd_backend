@@ -10,6 +10,7 @@ import (
 	"log"
 	"time"
 
+	moderatorCtrl "fgd/controllers/moderator"
 	replyCtrl "fgd/controllers/reply"
 	reportCtrl "fgd/controllers/report"
 	searchCtrl "fgd/controllers/search"
@@ -19,6 +20,7 @@ import (
 	verifyCtrl "fgd/controllers/verify"
 
 	authCore "fgd/core/auth"
+	moderatorCore "fgd/core/moderator"
 	replyCore "fgd/core/reply"
 	reportCore "fgd/core/report"
 	searchCore "fgd/core/search"
@@ -29,6 +31,7 @@ import (
 
 	factory "fgd/drivers"
 	_authRepo "fgd/drivers/databases/auth"
+	_moderatorRepo "fgd/drivers/databases/moderator"
 	_replyRepo "fgd/drivers/databases/reply"
 	_reportRepo "fgd/drivers/databases/report"
 	_searchRepo "fgd/drivers/databases/search"
@@ -45,6 +48,7 @@ import (
 func migrate(c *gorm.DB) error {
 	c.AutoMigrate(
 		&_authRepo.Auth{},
+		&_moderatorRepo.ModeratorRequest{},
 		&_reportRepo.ReportReason{},
 		&_replyRepo.Reply{},
 		&_searchRepo.SearchHistory{},
@@ -119,6 +123,7 @@ func main() {
 	threadRepo := factory.NewThreadRepository(dbConn)
 	reportRepo := factory.NewReportRepository(dbConn)
 	replyRepo := factory.NewReplyRepository(dbConn)
+	moderatorRepo := factory.NewModeratorRepository(dbConn)
 	searchRepo := factory.NewSearchRepository(dbConn)
 	verifyRepo := factory.NewVerifyRepository(dbConn)
 
@@ -128,9 +133,11 @@ func main() {
 	threadUsecase := threadCore.InitThreadUsecase(threadRepo, topicUsecase, userUsecase, conf)
 	reportUsecae := reportCore.InitReportUsecase(reportRepo, conf)
 	replyUsecae := replyCore.InitReplyUsecase(replyRepo, userUsecase, conf)
+	moderatorUsecase := moderatorCore.InitModeratorUsecase(moderatorRepo, conf)
 	searchUsecase := searchCore.InitSearchUsecase(searchRepo)
 	verifyUsecase := verifyCore.InitVerifyUsecase(verifyRepo, *mailHelper)
 
+	moderatorController := moderatorCtrl.InitModeratorController(moderatorUsecase)
 	reportController := reportCtrl.InitReportController(reportUsecae)
 	replyController := replyCtrl.InitReplyController(replyUsecae, storageHelper)
 	searchController := searchCtrl.InitSearchController(searchUsecase, threadUsecase, topicUsecase, userUsecase)
@@ -142,14 +149,15 @@ func main() {
 	e := echo.New()
 
 	routesConf := routes.Controllers{
-		JWTMiddleware:    jwtConf.Init(),
-		ReportController: *reportController,
-		ReplyController:  *replyController,
-		SearchController: *searchController,
-		ThreadController: *threadController,
-		TopicController:  *topicController,
-		UserController:   *userController,
-		VerifyController: *verifyController,
+		JWTMiddleware:       jwtConf.Init(),
+		ModeratorController: *moderatorController,
+		ReportController:    *reportController,
+		ReplyController:     *replyController,
+		SearchController:    *searchController,
+		ThreadController:    *threadController,
+		TopicController:     *topicController,
+		UserController:      *userController,
+		VerifyController:    *verifyController,
 	}
 
 	routesConf.Register(e)

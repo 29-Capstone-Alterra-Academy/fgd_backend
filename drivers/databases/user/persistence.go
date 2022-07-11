@@ -75,7 +75,6 @@ func (rp *persistenceUserRepository) GetModeratedTopic(userId int) (user.Domain,
 	for _, topic := range topics {
 		moderatedTopic.TopicID = append(moderatedTopic.TopicID, int(topic.TopicID))
 	}
-	fmt.Printf("%v", moderatedTopic.TopicID)
 
 	return moderatedTopic.toDomain(), res.Error
 }

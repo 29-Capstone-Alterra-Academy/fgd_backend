@@ -28,7 +28,7 @@ type User struct {
 }
 
 type UserModeratedTopic struct {
-	ID []int
+	TopicID []int
 }
 
 func (rec *User) toDomain() user.Domain {
@@ -56,7 +56,7 @@ func (rec *User) toDomain() user.Domain {
 
 func (rec *UserModeratedTopic) toDomain() user.Domain {
 	return user.Domain{
-		ModeratedTopic: &rec.ID,
+		ModeratedTopic: &rec.TopicID,
 	}
 }
 

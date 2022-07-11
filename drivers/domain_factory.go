@@ -2,6 +2,7 @@ package drivers
 
 import (
 	authDomain "fgd/core/auth"
+	moderatorDomain "fgd/core/moderator"
 	replyDomain "fgd/core/reply"
 	reportDomain "fgd/core/report"
 	searchDomain "fgd/core/search"
@@ -10,6 +11,7 @@ import (
 	userDomain "fgd/core/user"
 	verifyDomain "fgd/core/verify"
 	"fgd/drivers/databases/auth"
+	"fgd/drivers/databases/moderator"
 	"fgd/drivers/databases/reply"
 	"fgd/drivers/databases/report"
 	"fgd/drivers/databases/search"
@@ -23,6 +25,10 @@ import (
 
 func NewAuthRepository(c *gorm.DB) authDomain.Repository {
 	return auth.InitPersistenceAuthRepository(c)
+}
+
+func NewModeratorRepository(c *gorm.DB) moderatorDomain.Repository {
+	return moderator.InitPersistenceModeratorRepository(c)
 }
 
 func NewReportRepository(c *gorm.DB) reportDomain.Repository {
