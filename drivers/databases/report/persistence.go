@@ -502,11 +502,6 @@ func (rp *persistenceReportRepository) ReportReply(reporterId, replyId, reasonId
 		return completeReport.toDomain(), err
 	}
 
-	takeErr := rp.Conn.Preload(clause.Associations).Take(&report).Error
-	if takeErr != nil {
-		return completeReport.toDomain(), takeErr
-	}
-
 	fetchReplyErr := rp.Conn.Take(&reply).Error
 	if fetchReplyErr != nil {
 		return completeReport.toDomain(), fetchReplyErr
@@ -554,11 +549,6 @@ func (rp *persistenceReportRepository) ReportThread(reporterId, threadId, reason
 	err := rp.Conn.Save(&report).Error
 	if err != nil {
 		return completeReport.toDomain(), err
-	}
-
-	takeErr := rp.Conn.Preload(clause.Associations).Take(&report).Error
-	if takeErr != nil {
-		return completeReport.toDomain(), takeErr
 	}
 
 	fetchThreadErr := rp.Conn.Take(&thread).Error
