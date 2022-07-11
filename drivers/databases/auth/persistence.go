@@ -24,7 +24,7 @@ func (rp *persistenceAuthRepository) FetchAuth(userId int) (auth.Domain, error) 
 func (rp *persistenceAuthRepository) StoreAuth(userId int, auth middleware.CustomToken) error {
 	authStore := Auth{
 		UserID:      uint(userId),
-		AccessUUID:  auth.AccessToken,
+		AccessUUID:  auth.AccessUUID,
 		RefreshUUID: auth.RefreshUUID,
 	}
 
