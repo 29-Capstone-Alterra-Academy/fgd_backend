@@ -11,9 +11,10 @@ import (
 
 type JWTCustomClaims struct {
 	jwt.StandardClaims
-	UserID     int   `json:"user_id"`
-	IsAdmin    bool  `json:"is_admin"`
-	Moderating []int `json:"moderating"`
+	UserID     int
+	UUID       string
+	IsAdmin    bool
+	Moderating []int
 }
 
 type JWTConfig struct {
@@ -23,10 +24,12 @@ type JWTConfig struct {
 }
 
 type CustomToken struct {
-	AccessToken  string `json:"access_token"`
-	AccessUUID   string `json:"-"`
-	RefreshToken string `json:"refresh_token"`
-	RefreshUUID  string `json:"-"`
+	AccessExpiry  time.Duration `json:"-"`
+	AccessToken   string        `json:"access_token"`
+	AccessUUID    string        `json:"-"`
+	RefreshExpiry time.Duration `json:"-"`
+	RefreshToken  string        `json:"refresh_token"`
+	RefreshUUID   string        `json:"-"`
 }
 
 func (c *JWTConfig) Init() middleware.JWTConfig {
@@ -40,10 +43,14 @@ func (c *JWTConfig) GenerateToken(userId int, isAdmin bool, moderatedTopic []int
 	var token CustomToken
 	var err error
 
+	token.AccessExpiry = c.AccessExpiry
+	token.AccessUUID = uuid.New().String()
 	accessClaims := JWTCustomClaims{
 		UserID:     userId,
+		UUID:       token.AccessUUID,
 		Moderating: moderatedTopic,
 		IsAdmin:    isAdmin,
+
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Local().Add(c.AccessExpiry).Unix(),
 			IssuedAt:  time.Now().Local().Unix(),
@@ -56,10 +63,12 @@ func (c *JWTConfig) GenerateToken(userId int, isAdmin bool, moderatedTopic []int
 	if err != nil {
 		return token, err
 	}
-	token.AccessUUID = uuid.New().String()
 
+	token.RefreshExpiry = c.RefreshExpiry
+	token.RefreshUUID = uuid.New().String()
 	refreshClaims := JWTCustomClaims{
-		UserID:     userId,
+		UserID: userId,
+		UUID:   token.RefreshUUID,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Local().Add(c.RefreshExpiry).Unix(),
 			IssuedAt:  time.Now().Local().Unix(),
@@ -72,7 +81,6 @@ func (c *JWTConfig) GenerateToken(userId int, isAdmin bool, moderatedTopic []int
 	if err != nil {
 		return CustomToken{}, err
 	}
-	token.RefreshUUID = uuid.New().String()
 
 	return token, nil
 }
