@@ -67,7 +67,15 @@ func (rp *persistenceUserRepository) CheckIsAdmin(userId int) (bool, error) {
 
 func (rp *persistenceUserRepository) GetModeratedTopic(userId int) (user.Domain, error) {
 	moderatedTopic := UserModeratedTopic{}
-	res := rp.Conn.Raw("SELECT topic_id FROM topic_moderator WHERE user_id = ?", userId).Scan(&moderatedTopic)
+	topics := []struct {
+		TopicID uint
+	}{}
+	res := rp.Conn.Table("topic_moderator").Where("user_id = ?", userId).Raw("SELECT topic_id FROM topic_moderator WHERE user_id = ?", userId).Scan(&topics)
+
+	for _, topic := range topics {
+		moderatedTopic.TopicID = append(moderatedTopic.TopicID, int(topic.TopicID))
+	}
+	fmt.Printf("%v", moderatedTopic.TopicID)
 
 	return moderatedTopic.toDomain(), res.Error
 }
