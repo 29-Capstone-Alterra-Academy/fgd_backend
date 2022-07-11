@@ -33,8 +33,8 @@ func FromDomain(data *reply.Domain) Reply {
 			Username:     data.Author.Username,
 			ProfileImage: data.Author.ProfileImage,
 		},
-		LikedCount:   data.LikedCount,
-		UnlikedCount: data.UnlikedCount,
+		LikedCount:   data.LikeCount,
+		UnlikedCount: data.UnlikeCount,
 		ReplyCount:   data.ReplyCount,
 		Content:      data.Content,
 		Image:        data.Image,
@@ -42,4 +42,29 @@ func FromDomain(data *reply.Domain) Reply {
 		UpdatedAt:    data.UpdatedAt,
 		DeletedAt:    data.DeletedAt,
 	}
+}
+
+func FromDomains(datas *[]reply.Domain) []Reply {
+	replies := []Reply{}
+
+	for _, data := range *datas {
+		replies = append(replies, Reply{
+			ID: data.ID,
+			Author: ReplyAuthor{
+				ID:           data.Author.ID,
+				Username:     data.Author.Username,
+				ProfileImage: data.Author.ProfileImage,
+			},
+			LikedCount:   data.LikeCount,
+			UnlikedCount: data.UnlikeCount,
+			ReplyCount:   data.ReplyCount,
+			Content:      data.Content,
+			Image:        data.Image,
+			CreatedAt:    data.CreatedAt,
+			UpdatedAt:    data.UpdatedAt,
+			DeletedAt:    data.DeletedAt,
+		})
+	}
+
+	return replies
 }

@@ -69,8 +69,9 @@ func (c *Controllers) Register(e *echo.Echo) {
 	e.DELETE("/thread/:threadId/like", c.ThreadController.UndoLikeThread, jwtMiddleware)
 
 	e.POST("/thread/:threadId/reply", c.ReplyController.CreateForThread, jwtMiddleware)
-	e.GET("/reply/:replyId/reply", c.ReplyController.CreateForReply, jwtMiddleware)
-	// e.GET("/reply/:replyId", c.ReplyController.GetChilds, jwtMiddleware)
+	e.POST("/reply/:replyId/reply", c.ReplyController.CreateForReply, jwtMiddleware)
+	e.GET("/reply", c.ReplyController.GetReply)
+	e.GET("/reply/:replyId/childs", c.ReplyController.GetReplyChilds)
 	e.PUT("/reply/:replyId", c.ReplyController.UpdateReply, jwtMiddleware)
 	e.POST("/reply/:replyId/report", c.ReportController.ReportReply, jwtMiddleware)
 	e.POST("/reply/:replyId/like", c.ReplyController.LikeReply, jwtMiddleware)
