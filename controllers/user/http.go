@@ -130,13 +130,21 @@ func (cr *UserController) RefreshToken(c echo.Context) error {
 
 func (cr *UserController) CheckAvailibility(c echo.Context) error {
 	username := c.QueryParam("username")
+	email := c.QueryParam("email")
 
-	exist := cr.userUsecase.CheckUserAvailibility(username)
+	var exist bool
+	if username != "" {
+		exist = cr.userUsecase.CheckUserAvailibility(username)
+	} else if email != "" {
+		exist = cr.userUsecase.CheckEmailAvailibility(email)
+	} else {
+		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required query param of either 'username' or 'email'")
+	}
 
 	if !exist {
 		return controllers.SuccessResponse(c, http.StatusOK, nil)
 	} else {
-		return controllers.FailureResponse(c, http.StatusBadRequest, "error: username already used")
+		return controllers.FailureResponse(c, http.StatusBadRequest, "error: username/email already used")
 	}
 }
 

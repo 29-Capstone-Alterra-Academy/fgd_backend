@@ -80,6 +80,14 @@ func (rp *persistenceUserRepository) CheckUserAvailibility(username string) bool
 	return !errors.Is(err, gorm.ErrRecordNotFound)
 }
 
+func (rp *persistenceUserRepository) CheckEmailAvailibility(email string) bool {
+	user := User{}
+
+	err := rp.Conn.Where("email = ?", email).Take(&user).Error
+
+	return !errors.Is(err, gorm.ErrRecordNotFound)
+}
+
 func (rp *persistenceUserRepository) CreateUser(data *user.Domain) (user.Domain, error) {
 	newUser := fromDomain(*data)
 
