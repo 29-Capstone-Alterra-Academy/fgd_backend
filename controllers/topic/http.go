@@ -114,7 +114,9 @@ func (cr *TopicController) CheckAvailibility(c echo.Context) error {
 	exist := cr.topicUsecase.CheckTopicAvailibility(topicName)
 
 	if !exist {
-		return controllers.SuccessResponse(c, http.StatusOK, nil)
+		return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+			"message": "Topic name is available to use",
+		})
 	} else {
 		return controllers.FailureResponse(c, http.StatusBadRequest, "error: topic already exist")
 	}
@@ -180,7 +182,9 @@ func (cr *TopicController) Subscribe(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
+	return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+		"message": "Success subscribing to topic",
+	})
 }
 
 func (cr *TopicController) Unsubscribe(c echo.Context) error {
@@ -200,5 +204,7 @@ func (cr *TopicController) Unsubscribe(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
+	return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+		"message": "Success unsubscribing to topic",
+	})
 }

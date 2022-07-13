@@ -50,13 +50,17 @@ func (cr *ModeratorController) ActionPromotion(c echo.Context) error {
 		if err != nil {
 			return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 		}
-		return controllers.SuccessResponse(c, http.StatusOK, nil)
+		return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+			"message": "Success approving user promotion",
+		})
 	} else if action == "reject" {
 		err := cr.moderatorUsecase.RejectPromotion(uint(promotionId))
 		if err != nil {
 			return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 		}
-		return controllers.SuccessResponse(c, http.StatusOK, nil)
+		return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+			"message": "Success rejecting user promotion",
+		})
 	} else {
 		return controllers.FailureResponse(c, http.StatusBadRequest, "error: missing required 'action' query param")
 	}
@@ -83,7 +87,9 @@ func (cr *ModeratorController) StepDown(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
+	return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+		"message": "Success stepping down from moderator role",
+	})
 }
 
 func (cr *ModeratorController) RemoveModerator(c echo.Context) error {
@@ -102,5 +108,7 @@ func (cr *ModeratorController) RemoveModerator(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
+	return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+		"message": "Success removing user from moderator role",
+	})
 }

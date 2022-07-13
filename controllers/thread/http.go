@@ -251,7 +251,9 @@ func (cr *ThreadController) DeleteThread(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
+	return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+		"message": "Success deleting thread",
+	})
 }
 
 func (cr *ThreadController) GetThread(c echo.Context) error {
@@ -323,7 +325,9 @@ func (cr *ThreadController) LikeThread(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
+	return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+		"message": "Success liking thread",
+	})
 }
 
 func (cr *ThreadController) UndoLikeThread(c echo.Context) error {
@@ -342,7 +346,9 @@ func (cr *ThreadController) UndoLikeThread(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
+	return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+		"message": "Success undoing like from thread",
+	})
 }
 
 func (cr *ThreadController) UnlikeThread(c echo.Context) error {
@@ -361,7 +367,9 @@ func (cr *ThreadController) UnlikeThread(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
+	return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+		"message": "Success unliking thread",
+	})
 }
 
 func (cr *ThreadController) UndoUnlikeThread(c echo.Context) error {
@@ -380,5 +388,7 @@ func (cr *ThreadController) UndoUnlikeThread(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
+	return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+		"message": "Success undoing unlike from thread",
+	})
 }

@@ -238,7 +238,9 @@ func (cr *ReplyController) DeleteReply(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
+	return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+		"message": "Success deleting reply",
+	})
 }
 
 func (cr *ReplyController) LikeReply(c echo.Context) error {
@@ -257,7 +259,9 @@ func (cr *ReplyController) LikeReply(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
+	return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+		"message": "Success liking reply",
+	})
 }
 
 func (cr *ReplyController) UndoLikeReply(c echo.Context) error {
@@ -276,7 +280,9 @@ func (cr *ReplyController) UndoLikeReply(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
+	return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+		"message": "Success undoing like from reply",
+	})
 }
 
 func (cr *ReplyController) UnlikeReply(c echo.Context) error {
@@ -295,7 +301,9 @@ func (cr *ReplyController) UnlikeReply(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
+	return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+		"message": "Success unliking reply",
+	})
 }
 
 func (cr *ReplyController) UndoUnlikeReply(c echo.Context) error {
@@ -314,5 +322,7 @@ func (cr *ReplyController) UndoUnlikeReply(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
+	return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+		"message": "Success deleting unlike from reply",
+	})
 }

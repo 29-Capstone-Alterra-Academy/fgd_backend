@@ -214,7 +214,9 @@ func (cr *ReportController) DeleteReason(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
+	return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+		"message": "Success deleting report reason",
+	})
 }
 
 func (cr *ReportController) GetTopicScopeReports(c echo.Context) error {
@@ -279,7 +281,9 @@ func (cr *ReportController) ActionTopicScopeReport(c echo.Context) error {
 				return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 			}
 
-			return controllers.SuccessResponse(c, http.StatusOK, nil)
+			return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+				"message": "Success forwarding thread report to admin",
+			})
 
 		} else if action == "ignore" {
 			err = cr.reportUsecase.IgnoreThreadReport(uint(reporterId), uint(threadId))
@@ -287,7 +291,9 @@ func (cr *ReportController) ActionTopicScopeReport(c echo.Context) error {
 				return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 			}
 
-			return controllers.SuccessResponse(c, http.StatusOK, nil)
+			return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+				"message": "Success deleting thread report",
+			})
 		}
 
 	} else if scope == "reply" {
@@ -301,7 +307,9 @@ func (cr *ReportController) ActionTopicScopeReport(c echo.Context) error {
 				return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 			}
 
-			return controllers.SuccessResponse(c, http.StatusOK, nil)
+			return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+				"message": "Success forwarding reply report to admin",
+			})
 
 		} else if action == "ignore" {
 			err = cr.reportUsecase.IgnoreReplyReport(uint(reporterId), uint(replyId))
@@ -309,7 +317,9 @@ func (cr *ReportController) ActionTopicScopeReport(c echo.Context) error {
 				return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 			}
 
-			return controllers.SuccessResponse(c, http.StatusOK, nil)
+			return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+				"message": "Success deleting reply report",
+			})
 
 		}
 	}
@@ -390,7 +400,9 @@ func (cr *ReportController) ActionReport(c echo.Context) error {
 				return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 			}
 
-			return controllers.SuccessResponse(c, http.StatusOK, nil)
+			return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+				"message": "Success approving user report",
+			})
 
 		} else if action == "remove" {
 			err = cr.reportUsecase.RemoveUserReport(uint(reporterId), uint(suspectId))
@@ -398,7 +410,9 @@ func (cr *ReportController) ActionReport(c echo.Context) error {
 				return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 			}
 
-			return controllers.SuccessResponse(c, http.StatusOK, nil)
+			return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+				"message": "Success removing user report",
+			})
 
 		}
 	} else if scope == "topic" {
@@ -412,7 +426,9 @@ func (cr *ReportController) ActionReport(c echo.Context) error {
 				return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 			}
 
-			return controllers.SuccessResponse(c, http.StatusOK, nil)
+			return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+				"message": "Success approving topic report",
+			})
 
 		} else if action == "remove" {
 			err = cr.reportUsecase.RemoveTopicReport(uint(reporterId), uint(topicId))
@@ -420,7 +436,9 @@ func (cr *ReportController) ActionReport(c echo.Context) error {
 				return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 			}
 
-			return controllers.SuccessResponse(c, http.StatusOK, nil)
+			return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+				"message": "Success removing topic report",
+			})
 
 		}
 	} else if scope == "thread" {
@@ -434,7 +452,9 @@ func (cr *ReportController) ActionReport(c echo.Context) error {
 				return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 			}
 
-			return controllers.SuccessResponse(c, http.StatusOK, nil)
+			return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+				"message": "Success approving thread report",
+			})
 
 		} else if action == "remove" {
 			err = cr.reportUsecase.RemoveThreadReport(uint(reporterId), uint(threadId))
@@ -442,7 +462,9 @@ func (cr *ReportController) ActionReport(c echo.Context) error {
 				return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 			}
 
-			return controllers.SuccessResponse(c, http.StatusOK, nil)
+			return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+				"message": "Success removing thread report",
+			})
 
 		}
 	} else if scope == "reply" {
@@ -456,7 +478,9 @@ func (cr *ReportController) ActionReport(c echo.Context) error {
 				return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 			}
 
-			return controllers.SuccessResponse(c, http.StatusOK, nil)
+			return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+				"message": "Success approving reply report",
+			})
 
 		} else if action == "remove" {
 			err = cr.reportUsecase.RemoveReplyReport(uint(reporterId), uint(replyId))
@@ -464,7 +488,9 @@ func (cr *ReportController) ActionReport(c echo.Context) error {
 				return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 			}
 
-			return controllers.SuccessResponse(c, http.StatusOK, nil)
+			return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+				"message": "Success removing reply report",
+			})
 
 		}
 	}
