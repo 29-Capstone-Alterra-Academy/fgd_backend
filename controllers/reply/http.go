@@ -1,6 +1,7 @@
 package reply
 
 import (
+	"errors"
 	"fgd/app/middleware"
 	"fgd/controllers"
 	"fgd/controllers/reply/request"
@@ -11,6 +12,7 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 type ReplyController struct {
@@ -57,6 +59,9 @@ func (cr *ReplyController) CreateForReply(c echo.Context) error {
 
 	replyDomain, err := cr.replyUsecase.CreateReplyReply(newReply.ToDomain(), claims.UserID, replyId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return controllers.FailureResponse(c, http.StatusNotFound, err.Error())
+		}
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
@@ -95,6 +100,9 @@ func (cr *ReplyController) CreateForThread(c echo.Context) error {
 
 	replyDomain, err := cr.replyUsecase.CreateReplyThread(newReply.ToDomain(), claims.UserID, threadId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return controllers.FailureResponse(c, http.StatusNotFound, err.Error())
+		}
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
@@ -120,6 +128,9 @@ func (cr *ReplyController) GetReply(c echo.Context) error {
 
 		domains, err := cr.replyUsecase.GetReplyByThreadID(threadId, limit, offset)
 		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return controllers.FailureResponse(c, http.StatusNotFound, err.Error())
+			}
 			return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 		}
 
@@ -131,6 +142,9 @@ func (cr *ReplyController) GetReply(c echo.Context) error {
 		}
 		domains, err := cr.replyUsecase.GetReplyByThreadID(replyId, limit, offset)
 		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return controllers.FailureResponse(c, http.StatusNotFound, err.Error())
+			}
 			return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 		}
 
@@ -158,6 +172,9 @@ func (cr *ReplyController) GetReplyChilds(c echo.Context) error {
 
 	domains, err := cr.replyUsecase.GetReplyChilds(replyId, limit, offset)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return controllers.FailureResponse(c, http.StatusNotFound, err.Error())
+		}
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
 	}
 
@@ -196,6 +213,9 @@ func (cr *ReplyController) UpdateReply(c echo.Context) error {
 
 	replyDomain, err := cr.replyUsecase.EditReply(updatedReply.ToDomain(), claims.UserID, replyId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return controllers.FailureResponse(c, http.StatusNotFound, err.Error())
+		}
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
@@ -212,10 +232,15 @@ func (cr *ReplyController) DeleteReply(c echo.Context) error {
 
 	err = cr.replyUsecase.DeleteReply(claims.UserID, replyId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return controllers.FailureResponse(c, http.StatusNotFound, err.Error())
+		}
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
+	return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+		"message": "Success deleting reply",
+	})
 }
 
 func (cr *ReplyController) LikeReply(c echo.Context) error {
@@ -228,10 +253,15 @@ func (cr *ReplyController) LikeReply(c echo.Context) error {
 
 	err = cr.replyUsecase.Like(claims.UserID, replyId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return controllers.FailureResponse(c, http.StatusNotFound, err.Error())
+		}
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
+	return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+		"message": "Success liking reply",
+	})
 }
 
 func (cr *ReplyController) UndoLikeReply(c echo.Context) error {
@@ -244,10 +274,15 @@ func (cr *ReplyController) UndoLikeReply(c echo.Context) error {
 
 	err = cr.replyUsecase.UndoLike(claims.UserID, replyId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return controllers.FailureResponse(c, http.StatusNotFound, err.Error())
+		}
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
+	return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+		"message": "Success undoing like from reply",
+	})
 }
 
 func (cr *ReplyController) UnlikeReply(c echo.Context) error {
@@ -260,10 +295,15 @@ func (cr *ReplyController) UnlikeReply(c echo.Context) error {
 
 	err = cr.replyUsecase.Unlike(claims.UserID, replyId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return controllers.FailureResponse(c, http.StatusNotFound, err.Error())
+		}
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
+	return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+		"message": "Success unliking reply",
+	})
 }
 
 func (cr *ReplyController) UndoUnlikeReply(c echo.Context) error {
@@ -276,8 +316,13 @@ func (cr *ReplyController) UndoUnlikeReply(c echo.Context) error {
 
 	err = cr.replyUsecase.UndoUnlike(claims.UserID, replyId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return controllers.FailureResponse(c, http.StatusNotFound, err.Error())
+		}
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
+	return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+		"message": "Success deleting unlike from reply",
+	})
 }
