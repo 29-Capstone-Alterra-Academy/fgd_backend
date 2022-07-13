@@ -99,9 +99,16 @@ func (rp *persistenceUserRepository) CreateUser(data *user.Domain) (user.Domain,
 	newUser := fromDomain(*data)
 
 	newUser.Role = "user"
-	res := rp.Conn.Create(&newUser)
 
-	return newUser.toDomain(), res.Error
+	tx := rp.Conn.Begin()
+
+	err := tx.Create(&newUser).Error
+	if err != nil {
+		tx.Rollback()
+		return newUser.toDomain(), err
+	}
+
+	return newUser.toDomain(), tx.Commit().Error
 }
 
 func (rp *persistenceUserRepository) FollowUser(userId int, targetId int) error {
