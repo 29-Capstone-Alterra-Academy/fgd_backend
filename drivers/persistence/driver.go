@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
@@ -19,7 +19,7 @@ type PersistenceConfig struct {
 }
 
 func (c *PersistenceConfig) InitPersistenceDB() *gorm.DB {
-	connString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=True",
+	connString := fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s sslmode=disable TimeZone=Asia/Jakarta",
 		c.Username,
 		c.Password,
 		c.Host,
@@ -27,10 +27,10 @@ func (c *PersistenceConfig) InitPersistenceDB() *gorm.DB {
 		c.Database,
 	)
 
-  dialect := mysql.Open(connString)
+	dialect := postgres.Open(connString)
 
-  // Wait for one minute before errors out
-  db, err := waitloop.WaitPersistence(dialect, 1*time.Minute)
+	// Wait for one minute before errors out
+	db, err := waitloop.WaitPersistence(dialect, 1*time.Minute)
 	if err != nil {
 		log.Fatal(err)
 	}
