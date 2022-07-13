@@ -151,14 +151,14 @@ func (cr *UserController) CheckAvailibility(c echo.Context) error {
 func (cr *UserController) Follow(c echo.Context) error {
 	targetId, err := strconv.Atoi(c.Param("userId"))
 	if err != nil {
-		return controllers.FailureResponse(c, http.StatusBadRequest, "Error getting 'userId' path parameter")
+		return controllers.FailureResponse(c, http.StatusBadRequest, "error getting 'userId' path parameter")
 	}
 
 	claims := middleware.ExtractUserClaims(c)
 
 	err = cr.userUsecase.FollowUser(claims.UserID, targetId)
 	if err != nil {
-		return controllers.FailureResponse(c, http.StatusBadRequest, "Error following user")
+		return controllers.FailureResponse(c, http.StatusBadRequest, "error following user")
 	}
 
 	return c.NoContent(http.StatusOK)
@@ -167,14 +167,14 @@ func (cr *UserController) Follow(c echo.Context) error {
 func (cr *UserController) Unfollow(c echo.Context) error {
 	targetId, err := strconv.Atoi(c.Param("userId"))
 	if err != nil {
-		return controllers.FailureResponse(c, http.StatusBadRequest, "Error getting 'userId' path parameter")
+		return controllers.FailureResponse(c, http.StatusBadRequest, "error getting 'userId' path parameter")
 	}
 
 	claims := middleware.ExtractUserClaims(c)
 
 	err = cr.userUsecase.UnfollowUser(claims.UserID, targetId)
 	if err != nil {
-		return controllers.FailureResponse(c, http.StatusBadRequest, "Error unfollowing user")
+		return controllers.FailureResponse(c, http.StatusBadRequest, "error unfollowing user")
 	}
 
 	return c.NoContent(http.StatusOK)

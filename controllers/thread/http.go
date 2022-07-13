@@ -1,6 +1,7 @@
 package thread
 
 import (
+	"errors"
 	"fgd/app/middleware"
 	"fgd/controllers"
 	"fgd/controllers/thread/request"
@@ -11,6 +12,7 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 type ThreadController struct {
@@ -224,6 +226,9 @@ func (cr *ThreadController) UpdateThread(c echo.Context) error {
 
 	threadDomain, err := cr.threadUsecase.UpdateThread(updatedThread.ToDomain(), claims.UserID, threadId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return controllers.FailureResponse(c, http.StatusNotFound, err.Error())
+		}
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
@@ -240,6 +245,9 @@ func (cr *ThreadController) DeleteThread(c echo.Context) error {
 
 	err = cr.threadUsecase.DeleteThread(claims.UserID, threadId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return controllers.FailureResponse(c, http.StatusNotFound, err.Error())
+		}
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
@@ -254,6 +262,9 @@ func (cr *ThreadController) GetThread(c echo.Context) error {
 
 	threadDomain, err := cr.threadUsecase.GetThreadByID(threadId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return controllers.FailureResponse(c, http.StatusNotFound, err.Error())
+		}
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
@@ -306,6 +317,9 @@ func (cr *ThreadController) LikeThread(c echo.Context) error {
 
 	err = cr.threadUsecase.Like(claims.UserID, threadId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return controllers.FailureResponse(c, http.StatusNotFound, err.Error())
+		}
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
@@ -322,6 +336,9 @@ func (cr *ThreadController) UndoLikeThread(c echo.Context) error {
 
 	err = cr.threadUsecase.UndoLike(claims.UserID, threadId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return controllers.FailureResponse(c, http.StatusNotFound, err.Error())
+		}
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
@@ -338,6 +355,9 @@ func (cr *ThreadController) UnlikeThread(c echo.Context) error {
 
 	err = cr.threadUsecase.Unlike(claims.UserID, threadId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return controllers.FailureResponse(c, http.StatusNotFound, err.Error())
+		}
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
@@ -354,6 +374,9 @@ func (cr *ThreadController) UndoUnlikeThread(c echo.Context) error {
 
 	err = cr.threadUsecase.UndoUnlike(claims.UserID, threadId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return controllers.FailureResponse(c, http.StatusNotFound, err.Error())
+		}
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 

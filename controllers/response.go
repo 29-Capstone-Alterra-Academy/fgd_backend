@@ -1,6 +1,8 @@
 package controllers
 
-import "github.com/labstack/echo/v4"
+import (
+	"github.com/labstack/echo/v4"
+)
 
 type Response struct {
 	Message string      `json:"message,omitempty"`
@@ -15,8 +17,7 @@ func SuccessResponse(c echo.Context, status int, data interface{}) error {
 }
 
 func FailureResponse(c echo.Context, status int, errmsg string) error {
-	r := Response{}
-	r.Message = errmsg
-
-	return c.JSON(status, r.Message)
+	return c.JSON(status, map[string]interface{}{
+		"message": errmsg,
+	})
 }

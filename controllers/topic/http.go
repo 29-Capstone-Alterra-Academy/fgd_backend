@@ -1,6 +1,7 @@
 package topic
 
 import (
+	"errors"
 	"fgd/app/middleware"
 	"fgd/controllers"
 	"fgd/controllers/topic/request"
@@ -13,6 +14,7 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 type TopicController struct {
@@ -120,24 +122,6 @@ func (cr *TopicController) CheckAvailibility(c echo.Context) error {
 
 // func (cr *TopicController) GetModerators(c echo.Context) error {}
 
-func (cr *TopicController) RequestPromotion(c echo.Context) error {
-	topicId, err := strconv.Atoi(c.Param("topicId"))
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusBadRequest, "Error getting 'userId' path parameter")
-	}
-
-	claims := middleware.ExtractUserClaims(c)
-	userId := claims.UserID
-
-	// TODO Should be promote
-	err = cr.topicUsecase.Subscribe(userId, topicId)
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
-	}
-
-	return controllers.SuccessResponse(c, http.StatusCreated, nil)
-}
-
 func (cr *TopicController) GetTopics(c echo.Context) error {
 	limit, err := strconv.Atoi(c.QueryParam("limit"))
 	if err != nil {
@@ -170,6 +154,9 @@ func (cr *TopicController) GetTopicDetails(c echo.Context) error {
 
 	topicDetailDomain, err := cr.topicUsecase.GetTopicDetails(topicId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return controllers.FailureResponse(c, http.StatusNotFound, err.Error())
+		}
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
@@ -187,6 +174,9 @@ func (cr *TopicController) Subscribe(c echo.Context) error {
 
 	err = cr.topicUsecase.Subscribe(userId, topicId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return controllers.FailureResponse(c, http.StatusNotFound, err.Error())
+		}
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
@@ -204,6 +194,9 @@ func (cr *TopicController) Unsubscribe(c echo.Context) error {
 
 	err = cr.topicUsecase.Unsubscribe(userId, topicId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return controllers.FailureResponse(c, http.StatusNotFound, err.Error())
+		}
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
