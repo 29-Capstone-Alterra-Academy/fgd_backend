@@ -10,7 +10,6 @@ import (
 	"fgd/core/user"
 	"fgd/core/verify"
 	"fgd/helper/storage"
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -21,15 +20,17 @@ import (
 
 type UserController struct {
 	config        config.Config
+	jwtConfig     middleware.JWTConfig
 	authUsecase   auth.Usecase
 	userUsecase   user.Usecase
 	verifyUsecase verify.Usecase
 	storageHelper *storage.StorageHelper
 }
 
-func InitUserController(ac auth.Usecase, uc user.Usecase, vc verify.Usecase, conf config.Config, sh *storage.StorageHelper) *UserController {
+func InitUserController(ac auth.Usecase, uc user.Usecase, vc verify.Usecase, conf config.Config, jConf middleware.JWTConfig, sh *storage.StorageHelper) *UserController {
 	return &UserController{
 		config:        conf,
+		jwtConfig:     jConf,
 		authUsecase:   ac,
 		userUsecase:   uc,
 		verifyUsecase: vc,
@@ -95,17 +96,7 @@ func (cr *UserController) RefreshToken(c echo.Context) error {
 	c.Bind(&tokenReq)
 
 	customClaims := middleware.JWTCustomClaims{}
-	token, err := jwt.ParseWithClaims(tokenReq.RefreshToken, &customClaims, func(token *jwt.Token) (interface{}, error) {
-		if token.Method.Alg() != "HS256" {
-			return middleware.CustomToken{}, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-
-		if eqIss := token.Claims.(*middleware.JWTCustomClaims).VerifyIssuer("nomizo", false); !eqIss {
-			return middleware.CustomToken{}, fmt.Errorf("error parsing token: invalid issuer")
-		}
-
-		return []byte(cr.config.JWT_SECRET), nil
-	})
+	token, err := jwt.ParseWithClaims(tokenReq.RefreshToken, &customClaims, cr.jwtConfig.CustomKeyFunc)
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusUnauthorized, err.Error())
 	}

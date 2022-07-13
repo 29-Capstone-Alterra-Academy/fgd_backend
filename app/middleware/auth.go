@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -50,7 +51,6 @@ func (c *JWTConfig) GenerateToken(userId int, isAdmin bool, moderatedTopic []int
 		UUID:       token.AccessUUID,
 		Moderating: moderatedTopic,
 		IsAdmin:    isAdmin,
-
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Local().Add(c.AccessExpiry).Unix(),
 			IssuedAt:  time.Now().Local().Unix(),
@@ -83,6 +83,18 @@ func (c *JWTConfig) GenerateToken(userId int, isAdmin bool, moderatedTopic []int
 	}
 
 	return token, nil
+}
+
+func (c *JWTConfig) CustomKeyFunc(token *jwt.Token) (interface{}, error) {
+	if token.Method.Alg() != "HS256" {
+		return CustomToken{}, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+	}
+
+	if eqIss := token.Claims.(*JWTCustomClaims).VerifyIssuer("nomizo", false); !eqIss {
+		return CustomToken{}, fmt.Errorf("error parsing token: invalid issuer")
+	}
+
+	return []byte(c.Secret), nil
 }
 
 func ExtractUserClaims(c echo.Context) *JWTCustomClaims {

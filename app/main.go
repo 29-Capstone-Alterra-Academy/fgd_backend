@@ -143,7 +143,7 @@ func main() {
 	searchController := searchCtrl.InitSearchController(searchUsecase, threadUsecase, topicUsecase, userUsecase)
 	threadController := threadCtrl.InitThreadController(threadUsecase, storageHelper)
 	topicController := topicCtrl.InitTopicController(authUsecase, topicUsecase, userUsecase, storageHelper)
-	userController := userCtrl.InitUserController(authUsecase, userUsecase, verifyUsecase, conf, storageHelper)
+	userController := userCtrl.InitUserController(authUsecase, userUsecase, verifyUsecase, conf, jwtConf, storageHelper)
 	verifyController := verifyCtrl.InitVerifyController(userUsecase, verifyUsecase)
 
 	e := echo.New()
