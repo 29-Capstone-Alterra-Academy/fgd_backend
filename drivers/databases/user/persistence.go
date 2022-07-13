@@ -102,7 +102,7 @@ func (rp *persistenceUserRepository) CreateUser(data *user.Domain) (user.Domain,
 
 	tx := rp.Conn.Begin()
 
-	err := tx.Create(&newUser).Error
+	err := tx.Omit(clause.Associations).Create(&newUser).Error
 	if err != nil {
 		tx.Rollback()
 		return newUser.toDomain(), err
