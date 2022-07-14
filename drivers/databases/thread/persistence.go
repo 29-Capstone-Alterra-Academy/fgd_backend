@@ -34,7 +34,7 @@ func (rp *persistenceThreadRepository) CreateThread(data *thread.Domain, userId,
 		return thread.Domain{}, res.Error
 	}
 
-	return newThread.toDomain(), nil
+	return *newThread.toDomain(), nil
 }
 
 func (rp *persistenceThreadRepository) DeleteThread(userId int, threadId int) error {
@@ -47,7 +47,7 @@ func (rp *persistenceThreadRepository) GetThreadByID(threadId int) (thread.Domai
 
 	res := rp.Conn.Preload("Author").Preload("Topic").Take(&thread, threadId)
 
-	domain := thread.toDomain()
+	domain := *thread.toDomain()
 
 	var likeCount int64
 	var unlikeCount int64
@@ -84,7 +84,7 @@ func (rp *persistenceThreadRepository) GetThreadByAuthorID(userId, limit, offset
 		rp.Conn.Table("replies").Where("thread_id", threadDomain.ID).Count(&replyCount)
 		threadDomain.ReplyCount = int(replyCount)
 
-		threadDomains = append(threadDomains, threadDomain)
+		threadDomains = append(threadDomains, *threadDomain)
 	}
 
 	return threadDomains, nil
@@ -111,7 +111,7 @@ func (rp *persistenceThreadRepository) GetThreadByTopicID(topicId, limit, offset
 		rp.Conn.Table("replies").Where("thread_id", threadDomain.ID).Count(&replyCount)
 		threadDomain.ReplyCount = int(replyCount)
 
-		threadDomains = append(threadDomains, threadDomain)
+		threadDomains = append(threadDomains, *threadDomain)
 	}
 
 	return threadDomains, nil
@@ -138,7 +138,7 @@ func (rp *persistenceThreadRepository) GetThreadByKeyword(keyword string, limit,
 		rp.Conn.Table("replies").Where("thread_id", threadDomain.ID).Count(&replyCount)
 		threadDomain.ReplyCount = int(replyCount)
 
-		threadDomains = append(threadDomains, threadDomain)
+		threadDomains = append(threadDomains, *threadDomain)
 	}
 
 	return threadDomains, nil
@@ -195,7 +195,7 @@ func (rp *persistenceThreadRepository) UpdateThread(data *thread.Domain, threadI
 		return thread.Domain{}, res.Error
 	}
 
-	domain := existingThread.toDomain()
+	domain := *existingThread.toDomain()
 
 	var likeCount int64
 	var unlikeCount int64
