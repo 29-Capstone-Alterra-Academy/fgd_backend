@@ -30,6 +30,7 @@ func InitializeConfig() Config {
 		DB_PORT:       os.Getenv("DB_PORT"),
 		DB_HOST:       os.Getenv("DB_HOST"),
 		DB_NAME:       os.Getenv("DB_NAME"),
+		DOMAIN:        os.Getenv("DOMAIN"),
 		JWT_SECRET:    os.Getenv("JWT_SECRET"),
 		MAIL_AT:       os.Getenv("MAIL_AT"),
 		MAIL_RT:       os.Getenv("MAIL_RT"),
