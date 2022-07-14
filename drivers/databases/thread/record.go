@@ -28,8 +28,8 @@ type Thread struct {
 	ThreadReports []*user.User `gorm:"many2many:thread_reports"`
 }
 
-func (r *Thread) toDomain() *thread.Domain {
-	domain := &thread.Domain{
+func (r *Thread) toDomain() thread.Domain {
+	domain := thread.Domain{
 		ID: int(r.ID),
 		Author: thread.DomainAuthor{
 			ID:       int(r.Author.ID),
@@ -61,8 +61,8 @@ func (r *Thread) toDomain() *thread.Domain {
 	return domain
 }
 
-func fromDomain(threadDomain thread.Domain) *Thread {
-	return &Thread{
+func fromDomain(threadDomain thread.Domain) Thread {
+	return Thread{
 		Model: gorm.Model{
 			ID: uint(threadDomain.ID),
 		},
