@@ -29,6 +29,7 @@ type Thread struct {
 }
 
 func (r *Thread) toDomain() thread.Domain {
+	topicImage := &r.Topic.ProfileImage
 	domain := thread.Domain{
 		ID: int(r.ID),
 		Author: thread.DomainAuthor{
@@ -38,7 +39,7 @@ func (r *Thread) toDomain() thread.Domain {
 		Topic: thread.DomainTopic{
 			ID:           int(r.Topic.ID),
 			Name:         r.Topic.Name,
-			ProfileImage: r.Topic.ProfileImage,
+			ProfileImage: *topicImage,
 		},
 		Image1:      r.Image1,
 		Image2:      r.Image2,
