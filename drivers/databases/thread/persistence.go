@@ -34,7 +34,7 @@ func (rp *persistenceThreadRepository) CreateThread(data *thread.Domain, userId,
 		return thread.Domain{}, res.Error
 	}
 
-	return newThread.toDomain(), nil
+	return *newThread.toDomain(), nil
 }
 
 func (rp *persistenceThreadRepository) DeleteThread(userId int, threadId int) error {
@@ -60,7 +60,7 @@ func (rp *persistenceThreadRepository) GetThreadByID(threadId int) (thread.Domai
 	rp.Conn.Table("replies").Where("thread_id", domain.ID).Count(&replyCount)
 	domain.ReplyCount = int(replyCount)
 
-	return domain, res.Error
+	return *domain, res.Error
 }
 
 func (rp *persistenceThreadRepository) GetThreadByAuthorID(userId, limit, offset int) ([]thread.Domain, error) {
@@ -84,7 +84,7 @@ func (rp *persistenceThreadRepository) GetThreadByAuthorID(userId, limit, offset
 		rp.Conn.Table("replies").Where("thread_id", threadDomain.ID).Count(&replyCount)
 		threadDomain.ReplyCount = int(replyCount)
 
-		threadDomains = append(threadDomains, threadDomain)
+		threadDomains = append(threadDomains, *threadDomain)
 	}
 
 	return threadDomains, nil
@@ -111,7 +111,7 @@ func (rp *persistenceThreadRepository) GetThreadByTopicID(topicId, limit, offset
 		rp.Conn.Table("replies").Where("thread_id", threadDomain.ID).Count(&replyCount)
 		threadDomain.ReplyCount = int(replyCount)
 
-		threadDomains = append(threadDomains, threadDomain)
+		threadDomains = append(threadDomains, *threadDomain)
 	}
 
 	return threadDomains, nil
@@ -138,7 +138,7 @@ func (rp *persistenceThreadRepository) GetThreadByKeyword(keyword string, limit,
 		rp.Conn.Table("replies").Where("thread_id", threadDomain.ID).Count(&replyCount)
 		threadDomain.ReplyCount = int(replyCount)
 
-		threadDomains = append(threadDomains, threadDomain)
+		threadDomains = append(threadDomains, *threadDomain)
 	}
 
 	return threadDomains, nil
@@ -220,7 +220,7 @@ func (rp *persistenceThreadRepository) UpdateThread(data *thread.Domain, threadI
 	rp.Conn.Table("replies").Where("thread_id", domain.ID).Count(&replyCount)
 	domain.ReplyCount = int(replyCount)
 
-	return domain, nil
+	return *domain, nil
 }
 
 func InitPersistenceThreadRepository(c *gorm.DB) thread.Repository {
