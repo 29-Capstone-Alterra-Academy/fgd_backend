@@ -226,10 +226,18 @@ func (rp *persistenceUserRepository) UpdatePersonalProfile(data *user.Domain, us
 	if updatedUser.Username != "" {
 		existingUser.Username = updatedUser.Username
 	}
-	existingUser.Bio = updatedUser.Bio
-	existingUser.BirthDate = updatedUser.BirthDate
-	existingUser.Gender = updatedUser.Gender
-	existingUser.ProfileImage = updatedUser.ProfileImage
+	if updatedUser.Bio != nil && *updatedUser.Bio != "" {
+		existingUser.Bio = updatedUser.Bio
+	}
+	if updatedUser.BirthDate != nil {
+		existingUser.BirthDate = updatedUser.BirthDate
+	}
+	if updatedUser.Gender != nil && *updatedUser.Gender != "" {
+		existingUser.Gender = updatedUser.Gender
+	}
+	if updatedUser.ProfileImage != nil && *updatedUser.ProfileImage != "" {
+		existingUser.ProfileImage = updatedUser.ProfileImage
+	}
 
 	res := rp.Conn.Save(&existingUser)
 

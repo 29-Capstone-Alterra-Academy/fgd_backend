@@ -175,7 +175,9 @@ func (rp *persistenceReplyRepository) EditReply(data *reply.Domain, userId, repl
 	}
 
 	existingReply.Content = updatedReply.Content
-	existingReply.Image = &updatedReply.Content
+	if updatedReply.Image != nil {
+		existingReply.Image = updatedReply.Image
+	}
 
 	err := rp.Conn.Where("author_id = ?", userId).Save(&existingReply).Error
 	if err != nil {
