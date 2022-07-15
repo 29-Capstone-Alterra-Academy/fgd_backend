@@ -14,16 +14,15 @@ type persistenceUserRepository struct {
 
 func (rp *persistenceUserRepository) GetFollowers(userId int) ([]user.Domain, error) {
 	followers := []User{}
-	res := rp.Conn.Table("user_follow").Where("following_id = ?", userId).Select("ID", "Username", "ProfileImage").Find(&followers)
-	if res.Error != nil {
-		return []user.Domain{}, res.Error
+	err := rp.Conn.Table("user_follow").Where("following_id = ?", userId).Select("ID", "Username", "ProfileImage").Find(&followers).Error
+	if err != nil {
+		return []user.Domain{}, err
 	}
 
 	userDomains := []user.Domain{}
 
 	for _, follower := range followers {
-		domain := follower.toDomain()
-		userDomains = append(userDomains, domain)
+		userDomains = append(userDomains, follower.toDomain())
 	}
 
 	return userDomains, nil
@@ -31,16 +30,15 @@ func (rp *persistenceUserRepository) GetFollowers(userId int) ([]user.Domain, er
 
 func (rp *persistenceUserRepository) GetFollowing(userId int) ([]user.Domain, error) {
 	followings := []User{}
-	res := rp.Conn.Table("user_follow").Where("user_id", userId).Select("ID", "Username", "ProfileImage").Find(&followings)
-	if res.Error != nil {
-		return []user.Domain{}, res.Error
+	err := rp.Conn.Table("user_follow").Where("user_id", userId).Select("ID", "Username", "ProfileImage").Find(&followings).Error
+	if err != nil {
+		return []user.Domain{}, err
 	}
 
 	userDomains := []user.Domain{}
 
 	for _, follower := range followings {
-		domain := follower.toDomain()
-		userDomains = append(userDomains, domain)
+		userDomains = append(userDomains, follower.toDomain())
 	}
 
 	return userDomains, nil
@@ -48,21 +46,21 @@ func (rp *persistenceUserRepository) GetFollowing(userId int) ([]user.Domain, er
 
 func (rp *persistenceUserRepository) GetUserByEmail(email string) (user.Domain, error) {
 	user := User{}
-	res := rp.Conn.Omit("Following", "Notifications").Where("email = ?", email).Find(&user)
-	return user.toDomain(), res.Error
+	err := rp.Conn.Omit("Following", "Notifications").Where("email = ?", email).Find(&user).Error
+	return user.toDomain(), err
 }
 
 func (rp *persistenceUserRepository) GetUserByUsername(username string) (user.Domain, error) {
 	user := User{}
-	res := rp.Conn.Omit("Following", "Notifications").Where("username = ?", username).Find(&user)
-	return user.toDomain(), res.Error
+	err := rp.Conn.Omit("Following", "Notifications").Where("username = ?", username).Find(&user).Error
+	return user.toDomain(), err
 }
 
 func (rp *persistenceUserRepository) CheckIsAdmin(userId int) (bool, error) {
 	user := User{}
-	res := rp.Conn.Take("Role").Find(&user, userId)
+	err := rp.Conn.Take("Role").Find(&user, userId).Error
 
-	return user.Role == "admin", res.Error
+	return user.Role == "admin", err
 }
 
 func (rp *persistenceUserRepository) GetModeratedTopic(userId int) (user.Domain, error) {
@@ -105,19 +103,38 @@ func (rp *persistenceUserRepository) CreateUser(data *user.Domain) (user.Domain,
 	err := tx.Omit(clause.Associations).Create(&newUser).Error
 	if err != nil {
 		tx.Rollback()
-		return newUser.toDomain(), err
+		return user.Domain{}, err
 	}
 
-	return newUser.toDomain(), tx.Commit().Error
+	err = tx.Commit().Error
+	if err != nil {
+		return user.Domain{}, err
+	}
+
+	return newUser.toDomain(), nil
 }
 
 func (rp *persistenceUserRepository) FollowUser(userId int, targetId int) error {
 	user := User{Model: gorm.Model{ID: uint(userId)}}
 	targetUser := User{Model: gorm.Model{ID: uint(targetId)}}
-	return rp.Conn.
+
+	tx := rp.Conn.Begin()
+
+	err := tx.
 		Model(&user).
 		Association("Following").
 		Append(&targetUser)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (rp *persistenceUserRepository) GetPersonalProfile(userId int) (user.Domain, error) {
@@ -153,10 +170,9 @@ func (rp *persistenceUserRepository) GetProfileByID(userId int) (user.Domain, er
 func (rp *persistenceUserRepository) GetUsers(limit int, offset int) ([]user.Domain, error) {
 	users := []User{}
 
-	res := rp.Conn.Limit(limit).Offset(offset).Omit("Following", "Notifications").Find(&users)
-
-	if res.Error != nil {
-		return []user.Domain{}, res.Error
+	err := rp.Conn.Limit(limit).Offset(offset).Omit("Following", "Notifications").Find(&users).Error
+	if err != nil {
+		return []user.Domain{}, err
 	}
 
 	userDomains := []user.Domain{}
@@ -179,10 +195,9 @@ func (rp *persistenceUserRepository) GetUsers(limit int, offset int) ([]user.Dom
 func (rp *persistenceUserRepository) GetUsersByKeyword(keyword string, limit int, offset int) ([]user.Domain, error) {
 	users := []User{}
 
-	res := rp.Conn.Limit(limit).Offset(offset).Omit("Following", "Notifications").Where("username LIKE ?", keyword+"%").Find(&users)
-
-	if res.Error != nil {
-		return []user.Domain{}, res.Error
+	err := rp.Conn.Limit(limit).Offset(offset).Omit("Following", "Notifications").Where("username LIKE ?", keyword+"%").Find(&users).Error
+	if err != nil {
+		return []user.Domain{}, err
 	}
 
 	userDomains := []user.Domain{}
@@ -202,16 +217,28 @@ func (rp *persistenceUserRepository) GetUsersByKeyword(keyword string, limit int
 func (rp *persistenceUserRepository) UnfollowUser(userId int, targetId int) error {
 	user := User{Model: gorm.Model{ID: uint(userId)}}
 	targetUser := User{Model: gorm.Model{ID: uint(targetId)}}
-	return rp.Conn.
+
+	tx := rp.Conn.Begin()
+
+	err := tx.
 		Model(&user).
 		Association("Following").
 		Delete(&targetUser)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (rp *persistenceUserRepository) UpdatePassword(hashedPassword string, userId int) error {
-	res := rp.Conn.Model(&User{}).Where("id = ?", userId).Update("password", hashedPassword)
-
-	return res.Error
+	return rp.Conn.Model(&User{}).Where("id = ?", userId).Update("password", hashedPassword).Error
 }
 
 func (rp *persistenceUserRepository) UpdatePersonalProfile(data *user.Domain, userId int) (user.Domain, error) {
@@ -239,9 +266,20 @@ func (rp *persistenceUserRepository) UpdatePersonalProfile(data *user.Domain, us
 		existingUser.ProfileImage = updatedUser.ProfileImage
 	}
 
-	res := rp.Conn.Save(&existingUser)
+	tx := rp.Conn.Begin()
 
-	return existingUser.toDomain(), res.Error
+	err := tx.Save(&existingUser).Error
+	if err != nil {
+		tx.Rollback()
+		return user.Domain{}, err
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return user.Domain{}, err
+	}
+
+	return existingUser.toDomain(), nil
 }
 
 func InitPersistenceUserRepository(c *gorm.DB) user.Repository {
