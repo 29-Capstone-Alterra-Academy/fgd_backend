@@ -34,7 +34,7 @@ func (rp *persistenceThreadRepository) CreateThread(data *thread.Domain, userId,
 		return thread.Domain{}, res.Error
 	}
 
-	return *newThread.toDomain(), nil
+	return newThread.toDomain(), nil
 }
 
 func (rp *persistenceThreadRepository) DeleteThread(userId int, threadId int) error {
@@ -47,7 +47,7 @@ func (rp *persistenceThreadRepository) GetThreadByID(threadId int) (thread.Domai
 
 	res := rp.Conn.Preload("Author").Preload("Topic").Take(&thread, threadId)
 
-	domain := *thread.toDomain()
+	domain := thread.toDomain()
 
 	var likeCount int64
 	var unlikeCount int64
@@ -84,7 +84,7 @@ func (rp *persistenceThreadRepository) GetThreadByAuthorID(userId, limit, offset
 		rp.Conn.Table("replies").Where("thread_id", threadDomain.ID).Count(&replyCount)
 		threadDomain.ReplyCount = int(replyCount)
 
-		threadDomains = append(threadDomains, *threadDomain)
+		threadDomains = append(threadDomains, threadDomain)
 	}
 
 	return threadDomains, nil
@@ -111,7 +111,7 @@ func (rp *persistenceThreadRepository) GetThreadByTopicID(topicId, limit, offset
 		rp.Conn.Table("replies").Where("thread_id", threadDomain.ID).Count(&replyCount)
 		threadDomain.ReplyCount = int(replyCount)
 
-		threadDomains = append(threadDomains, *threadDomain)
+		threadDomains = append(threadDomains, threadDomain)
 	}
 
 	return threadDomains, nil
@@ -138,7 +138,7 @@ func (rp *persistenceThreadRepository) GetThreadByKeyword(keyword string, limit,
 		rp.Conn.Table("replies").Where("thread_id", threadDomain.ID).Count(&replyCount)
 		threadDomain.ReplyCount = int(replyCount)
 
-		threadDomains = append(threadDomains, *threadDomain)
+		threadDomains = append(threadDomains, threadDomain)
 	}
 
 	return threadDomains, nil
@@ -182,20 +182,32 @@ func (rp *persistenceThreadRepository) UpdateThread(data *thread.Domain, threadI
 	}
 	updatedThread := fromDomain(*data)
 
-	existingThread.Content = updatedThread.Content
+	if updatedThread.Content != nil {
+		existingThread.Content = updatedThread.Content
+	}
 	existingThread.Title = updatedThread.Title
-	existingThread.Image1 = updatedThread.Image1
-	existingThread.Image2 = updatedThread.Image2
-	existingThread.Image3 = updatedThread.Image3
-	existingThread.Image4 = updatedThread.Image4
-	existingThread.Image5 = updatedThread.Image5
+	if updatedThread.Image1 != nil {
+		existingThread.Image1 = updatedThread.Image1
+	}
+	if updatedThread.Image2 != nil {
+		existingThread.Image2 = updatedThread.Image2
+	}
+	if updatedThread.Image3 != nil {
+		existingThread.Image3 = updatedThread.Image3
+	}
+	if updatedThread.Image4 != nil {
+		existingThread.Image4 = updatedThread.Image4
+	}
+	if updatedThread.Image5 != nil {
+		existingThread.Image5 = updatedThread.Image5
+	}
 
 	res := rp.Conn.Save(&existingThread)
 	if res.Error != nil {
 		return thread.Domain{}, res.Error
 	}
 
-	domain := *existingThread.toDomain()
+	domain := existingThread.toDomain()
 
 	var likeCount int64
 	var unlikeCount int64

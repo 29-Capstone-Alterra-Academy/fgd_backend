@@ -214,10 +214,7 @@ func (cr *UserController) UpdateProfile(c echo.Context) error {
 		}
 	}
 
-	profileImage, err := c.FormFile("profile_image")
-	if err != nil {
-		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
-	}
+	profileImage, _ := c.FormFile("profile_image")
 	var profileImageFilename string
 	if profileImage != nil {
 		profileImageFilename, err = cr.storageHelper.StoreFile(profileImage)
