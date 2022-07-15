@@ -103,19 +103,38 @@ func (rp *persistenceUserRepository) CreateUser(data *user.Domain) (user.Domain,
 	err := tx.Omit(clause.Associations).Create(&newUser).Error
 	if err != nil {
 		tx.Rollback()
-		return newUser.toDomain(), err
+		return user.Domain{}, err
 	}
 
-	return newUser.toDomain(), tx.Commit().Error
+	err = tx.Commit().Error
+	if err != nil {
+		return user.Domain{}, err
+	}
+
+	return newUser.toDomain(), nil
 }
 
 func (rp *persistenceUserRepository) FollowUser(userId int, targetId int) error {
 	user := User{Model: gorm.Model{ID: uint(userId)}}
 	targetUser := User{Model: gorm.Model{ID: uint(targetId)}}
-	return rp.Conn.
+
+	tx := rp.Conn.Begin()
+
+	err := tx.
 		Model(&user).
 		Association("Following").
 		Append(&targetUser)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (rp *persistenceUserRepository) GetPersonalProfile(userId int) (user.Domain, error) {
@@ -198,10 +217,24 @@ func (rp *persistenceUserRepository) GetUsersByKeyword(keyword string, limit int
 func (rp *persistenceUserRepository) UnfollowUser(userId int, targetId int) error {
 	user := User{Model: gorm.Model{ID: uint(userId)}}
 	targetUser := User{Model: gorm.Model{ID: uint(targetId)}}
-	return rp.Conn.
+
+	tx := rp.Conn.Begin()
+
+	err := tx.
 		Model(&user).
 		Association("Following").
 		Delete(&targetUser)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (rp *persistenceUserRepository) UpdatePassword(hashedPassword string, userId int) error {
@@ -233,9 +266,20 @@ func (rp *persistenceUserRepository) UpdatePersonalProfile(data *user.Domain, us
 		existingUser.ProfileImage = updatedUser.ProfileImage
 	}
 
-	err := rp.Conn.Save(&existingUser).Error
+	tx := rp.Conn.Begin()
 
-	return existingUser.toDomain(), err
+	err := tx.Save(&existingUser).Error
+	if err != nil {
+		tx.Rollback()
+		return user.Domain{}, err
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return user.Domain{}, err
+	}
+
+	return existingUser.toDomain(), nil
 }
 
 func InitPersistenceUserRepository(c *gorm.DB) user.Repository {
