@@ -45,8 +45,8 @@ func (c *Controllers) Register(e *echo.Echo) {
 	e.PUT("/profile", c.UserController.UpdateProfile, jwtMiddleware)
 	e.GET("/user/:userId", c.UserController.GetPublicProfile)
 	e.POST("/user/:userId/report", c.ReportController.ReportUser, jwtMiddleware)
-	e.GET("/user/:userId/follow", c.UserController.Follow, jwtMiddleware)
-	e.GET("/user/:userId/unfollow", c.UserController.Unfollow, jwtMiddleware)
+	e.POST("/user/:userId/follow", c.UserController.Follow, jwtMiddleware)
+	e.POST("/user/:userId/unfollow", c.UserController.Unfollow, jwtMiddleware)
 
 	e.GET("/topic", c.TopicController.GetTopics)
 	e.POST("/topic", c.TopicController.CreateTopic, jwtMiddleware)
@@ -58,8 +58,8 @@ func (c *Controllers) Register(e *echo.Echo) {
 	e.POST("/topic/:topicId/modrequest", c.ModeratorController.RequestPromotion, jwtMiddleware)
 	e.GET("/topic/:topicId/report", c.ReportController.GetTopicScopeReports, jwtMiddleware)
 	e.POST("/topic/:topicId/report", c.ReportController.ReportTopic, jwtMiddleware)
-	e.GET("/topic/:topicId/subscribe", c.TopicController.Subscribe, jwtMiddleware)
-	e.GET("/topic/:topicId/subscribe", c.TopicController.Unsubscribe, jwtMiddleware)
+	e.POST("/topic/:topicId/subscribe", c.TopicController.Subscribe, jwtMiddleware)
+	e.POST("/topic/:topicId/subscribe", c.TopicController.Unsubscribe, jwtMiddleware)
 	e.POST("/topic/:topicId/thread", c.ThreadController.CreateThread, jwtMiddleware)
 
 	e.GET("/thread", c.ThreadController.GetThreads)
@@ -97,6 +97,6 @@ func (c *Controllers) Register(e *echo.Echo) {
 	e.PUT("/modrequest", c.ModeratorController.ActionPromotion, jwtMiddleware, middleware.AdminValidation)
 
 	e.GET("/search", c.SearchController.Search)
-	e.GET("/search/history", c.SearchController.GetSearchHistory)
+	e.GET("/search/history", c.SearchController.GetSearchHistory, jwtMiddleware)
 	e.POST("/search/history", c.SearchController.StoreSearchHistory, jwtMiddleware)
 }
