@@ -22,9 +22,9 @@ func (rp *persistenceTopicRepository) CheckTopicAvailibility(topicName string) b
 
 func (rp *persistenceTopicRepository) CreateTopic(data *topic.Domain) (topic.Domain, error) {
 	newTopic := fromDomain(*data)
-	res := rp.Conn.Create(&newTopic)
+	err := rp.Conn.Create(&newTopic).Error
 
-	return newTopic.toDomain(), res.Error
+	return newTopic.toDomain(), err
 }
 
 func (rp *persistenceTopicRepository) GetModerators(topicId int) {
@@ -33,12 +33,13 @@ func (rp *persistenceTopicRepository) GetModerators(topicId int) {
 
 func (rp *persistenceTopicRepository) GetTopicDetails(topicId int) (topic.Domain, error) {
 	existingTopic := Topic{}
-	res := rp.Conn.Take(&existingTopic, topicId)
-	if res.Error != nil {
-		return topic.Domain{}, res.Error
+	err := rp.Conn.Take(&existingTopic, topicId).Error
+	if err != nil {
+		return topic.Domain{}, err
 	}
 
 	topicDomain := existingTopic.toDomain()
+
 	var threadCount int64
 	var replyCount int64
 	var contributorCount int64
@@ -59,10 +60,9 @@ func (rp *persistenceTopicRepository) GetTopics(limit, offset int, sort_by strin
 	topics := []Topic{}
 
 	// TODO Handle sort_by
-	res := rp.Conn.Limit(limit).Offset(offset).Omit("ModeratedBy", "SubscribedBy", "Rules").Find(&topics)
-
-	if res.Error != nil {
-		return []topic.Domain{}, res.Error
+	err := rp.Conn.Limit(limit).Offset(offset).Omit("ModeratedBy", "SubscribedBy", "Rules").Find(&topics).Error
+	if err != nil {
+		return []topic.Domain{}, err
 	}
 
 	topicDomains := []topic.Domain{}
@@ -91,10 +91,9 @@ func (rp *persistenceTopicRepository) GetTopics(limit, offset int, sort_by strin
 func (rp *persistenceTopicRepository) GetTopicsByKeyword(keyword string, limit, offset int) ([]topic.Domain, error) {
 	topics := []Topic{}
 
-	res := rp.Conn.Limit(limit).Offset(offset).Select("ID", "Name", "ProfileImage").Where("UPPER(name) LIKE UPPER(?)", "%"+keyword+"%").Find(&topics)
-
-	if res.Error != nil {
-		return []topic.Domain{}, res.Error
+	err := rp.Conn.Limit(limit).Offset(offset).Select("ID", "Name", "ProfileImage").Where("UPPER(name) LIKE UPPER(?)", "%"+keyword+"%").Find(&topics).Error
+	if err != nil {
+		return []topic.Domain{}, err
 	}
 
 	topicDomains := []topic.Domain{}
@@ -137,9 +136,9 @@ func (rp *persistenceTopicRepository) Unsubscribe(userId int, topicId int) error
 
 func (rp *persistenceTopicRepository) UpdateTopic(data *topic.Domain, topicId int) (topic.Domain, error) {
 	existingTopic := Topic{}
-	fetchResult := rp.Conn.Take(&existingTopic, topicId)
-	if fetchResult.Error != nil {
-		return topic.Domain{}, fetchResult.Error
+	fetchResultErr := rp.Conn.Take(&existingTopic, topicId).Error
+	if fetchResultErr != nil {
+		return topic.Domain{}, fetchResultErr
 	}
 
 	updatedTopic := fromDomain(*data)
@@ -147,8 +146,8 @@ func (rp *persistenceTopicRepository) UpdateTopic(data *topic.Domain, topicId in
 	existingTopic.Description = updatedTopic.Description
 	existingTopic.Rules = updatedTopic.Rules
 
-	res := rp.Conn.Save(&existingTopic)
-	return existingTopic.toDomain(), res.Error
+	err := rp.Conn.Save(&existingTopic).Error
+	return existingTopic.toDomain(), err
 }
 
 func InitPersistenceTopicRepository(c *gorm.DB) topic.Repository {
