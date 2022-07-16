@@ -195,7 +195,7 @@ func (rp *persistenceUserRepository) GetUsers(limit int, offset int) ([]user.Dom
 func (rp *persistenceUserRepository) GetUsersByKeyword(keyword string, limit int, offset int) ([]user.Domain, error) {
 	users := []User{}
 
-	err := rp.Conn.Limit(limit).Offset(offset).Omit("Following", "Notifications").Where("username LIKE ?", keyword+"%").Find(&users).Error
+	err := rp.Conn.Limit(limit).Offset(offset).Omit("Following", "Notifications").Where("UPPER(username) LIKE UPPER(?)", "%"+keyword+"%").Find(&users).Error
 	if err != nil {
 		return []user.Domain{}, err
 	}
