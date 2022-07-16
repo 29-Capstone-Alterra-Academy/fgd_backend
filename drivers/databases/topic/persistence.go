@@ -22,9 +22,21 @@ func (rp *persistenceTopicRepository) CheckTopicAvailibility(topicName string) b
 
 func (rp *persistenceTopicRepository) CreateTopic(data *topic.Domain) (topic.Domain, error) {
 	newTopic := fromDomain(*data)
-	err := rp.Conn.Create(&newTopic).Error
 
-	return newTopic.toDomain(), err
+	tx := rp.Conn.Begin()
+
+	err := tx.Create(&newTopic).Error
+	if err != nil {
+		tx.Rollback()
+		return topic.Domain{}, err
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return topic.Domain{}, err
+	}
+
+	return newTopic.toDomain(), nil
 }
 
 func (rp *persistenceTopicRepository) GetModerators(topicId int) {
@@ -112,33 +124,50 @@ func (rp *persistenceTopicRepository) GetTopicsByKeyword(keyword string, limit, 
 
 func (rp *persistenceTopicRepository) Subscribe(userId int, topicId int) error {
 	topic := Topic{Model: gorm.Model{ID: uint(topicId)}}
-	err := rp.Conn.
+
+	tx := rp.Conn.Begin()
+
+	err := tx.
 		Model(&topic).
 		Association("SubscribedBy").
 		Append(&user.User{
 			Model: gorm.Model{ID: uint(userId)},
 		})
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
 
-	return err
+	return nil
 }
 
 func (rp *persistenceTopicRepository) Unsubscribe(userId int, topicId int) error {
 	topic := Topic{Model: gorm.Model{ID: uint(topicId)}}
-	err := rp.Conn.
+
+	tx := rp.Conn.Begin()
+
+	err := tx.
 		Model(&topic).
 		Association("SubscribedBy").
 		Delete(&user.User{
 			Model: gorm.Model{ID: uint(userId)},
 		})
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
 
-	return err
+	return nil
 }
 
 func (rp *persistenceTopicRepository) UpdateTopic(data *topic.Domain, topicId int) (topic.Domain, error) {
 	existingTopic := Topic{}
-	fetchResultErr := rp.Conn.Take(&existingTopic, topicId).Error
-	if fetchResultErr != nil {
-		return topic.Domain{}, fetchResultErr
+
+	tx := rp.Conn.Begin()
+
+	err := tx.Take(&existingTopic, topicId).Error
+	if err != nil {
+		return topic.Domain{}, err
 	}
 
 	updatedTopic := fromDomain(*data)
@@ -146,8 +175,18 @@ func (rp *persistenceTopicRepository) UpdateTopic(data *topic.Domain, topicId in
 	existingTopic.Description = updatedTopic.Description
 	existingTopic.Rules = updatedTopic.Rules
 
-	err := rp.Conn.Save(&existingTopic).Error
-	return existingTopic.toDomain(), err
+	err = tx.Save(&existingTopic).Error
+	if err != nil {
+		tx.Rollback()
+		return topic.Domain{}, err
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return topic.Domain{}, err
+	}
+
+	return existingTopic.toDomain(), nil
 }
 
 func InitPersistenceTopicRepository(c *gorm.DB) topic.Repository {
