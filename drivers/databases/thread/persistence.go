@@ -71,10 +71,12 @@ func (rp *persistenceThreadRepository) GetThreadByID(threadId int) (thread.Domai
 }
 
 func (rp *persistenceThreadRepository) GetThreadByAuthorID(userId, limit, offset int) ([]thread.Domain, error) {
+	tx := rp.Conn.Session(&gorm.Session{SkipDefaultTransaction: true})
+
 	threads := []Thread{}
-	fetchResult := rp.Conn.Preload("Author").Preload("Topic").Limit(limit).Offset(offset).Where("author_id = ?", userId).Find(&threads)
-	if fetchResult.Error != nil {
-		return []thread.Domain{}, fetchResult.Error
+	fetchResultErr := tx.Preload("Author").Preload("Topic").Limit(limit).Offset(offset).Where("author_id = ?", userId).Find(&threads).Error
+	if fetchResultErr != nil {
+		return []thread.Domain{}, fetchResultErr
 	}
 
 	threadDomains := []thread.Domain{}
@@ -84,11 +86,11 @@ func (rp *persistenceThreadRepository) GetThreadByAuthorID(userId, limit, offset
 		var unlikeCount int64
 		var replyCount int64
 
-		rp.Conn.Table("liked_thread").Where("thread_id", threadDomain.ID).Count(&likeCount)
+		tx.Table("liked_thread").Where("thread_id", threadDomain.ID).Count(&likeCount)
 		threadDomain.LikeCount = int(likeCount)
-		rp.Conn.Table("unliked_thread").Where("thread_id", threadDomain.ID).Count(&unlikeCount)
+		tx.Table("unliked_thread").Where("thread_id", threadDomain.ID).Count(&unlikeCount)
 		threadDomain.UnlikeCount = int(unlikeCount)
-		rp.Conn.Table("replies").Where("thread_id", threadDomain.ID).Count(&replyCount)
+		tx.Table("replies").Where("thread_id", threadDomain.ID).Count(&replyCount)
 		threadDomain.ReplyCount = int(replyCount)
 
 		threadDomains = append(threadDomains, *threadDomain)
@@ -98,10 +100,12 @@ func (rp *persistenceThreadRepository) GetThreadByAuthorID(userId, limit, offset
 }
 
 func (rp *persistenceThreadRepository) GetThreadByTopicID(topicId, limit, offset int) ([]thread.Domain, error) {
+	tx := rp.Conn.Session(&gorm.Session{SkipDefaultTransaction: true})
+
 	threads := []Thread{}
-	fetchResult := rp.Conn.Unscoped().Preload("Author").Preload("Topic").Limit(limit).Offset(offset).Where("topic_id = ?", topicId).Find(&threads)
-	if fetchResult.Error != nil {
-		return []thread.Domain{}, fetchResult.Error
+	fetchResultErr := tx.Unscoped().Preload("Author").Preload("Topic").Limit(limit).Offset(offset).Where("topic_id = ?", topicId).Find(&threads).Error
+	if fetchResultErr != nil {
+		return []thread.Domain{}, fetchResultErr
 	}
 
 	threadDomains := []thread.Domain{}
@@ -111,11 +115,11 @@ func (rp *persistenceThreadRepository) GetThreadByTopicID(topicId, limit, offset
 		var unlikeCount int64
 		var replyCount int64
 
-		rp.Conn.Table("liked_thread").Where("thread_id", threadDomain.ID).Count(&likeCount)
+		tx.Table("liked_thread").Where("thread_id", threadDomain.ID).Count(&likeCount)
 		threadDomain.LikeCount = int(likeCount)
-		rp.Conn.Table("unliked_thread").Where("thread_id", threadDomain.ID).Count(&unlikeCount)
+		tx.Table("unliked_thread").Where("thread_id", threadDomain.ID).Count(&unlikeCount)
 		threadDomain.UnlikeCount = int(unlikeCount)
-		rp.Conn.Table("replies").Where("thread_id", threadDomain.ID).Count(&replyCount)
+		tx.Table("replies").Where("thread_id", threadDomain.ID).Count(&replyCount)
 		threadDomain.ReplyCount = int(replyCount)
 
 		threadDomains = append(threadDomains, *threadDomain)
@@ -125,10 +129,12 @@ func (rp *persistenceThreadRepository) GetThreadByTopicID(topicId, limit, offset
 }
 
 func (rp *persistenceThreadRepository) GetThreadByKeyword(keyword string, limit, offset int) ([]thread.Domain, error) {
+	tx := rp.Conn.Session(&gorm.Session{SkipDefaultTransaction: true})
+
 	threads := []Thread{}
-	fetchResult := rp.Conn.Unscoped().Preload("Author").Preload("Topic").Limit(limit).Offset(offset).Where("UPPER(title) LIKE UPPER(?)", "%"+keyword+"%").Find(&threads)
-	if fetchResult.Error != nil {
-		return []thread.Domain{}, fetchResult.Error
+	fetchResultErr := tx.Unscoped().Preload("Author").Preload("Topic").Limit(limit).Offset(offset).Where("UPPER(title) LIKE UPPER(?)", "%"+keyword+"%").Find(&threads).Error
+	if fetchResultErr != nil {
+		return []thread.Domain{}, fetchResultErr
 	}
 
 	threadDomains := []thread.Domain{}
@@ -138,11 +144,11 @@ func (rp *persistenceThreadRepository) GetThreadByKeyword(keyword string, limit,
 		var unlikeCount int64
 		var replyCount int64
 
-		rp.Conn.Table("liked_thread").Where("thread_id", threadDomain.ID).Count(&likeCount)
+		tx.Table("liked_thread").Where("thread_id", threadDomain.ID).Count(&likeCount)
 		threadDomain.LikeCount = int(likeCount)
-		rp.Conn.Table("unliked_thread").Where("thread_id", threadDomain.ID).Count(&unlikeCount)
+		tx.Table("unliked_thread").Where("thread_id", threadDomain.ID).Count(&unlikeCount)
 		threadDomain.UnlikeCount = int(unlikeCount)
-		rp.Conn.Table("replies").Where("thread_id", threadDomain.ID).Count(&replyCount)
+		tx.Table("replies").Where("thread_id", threadDomain.ID).Count(&replyCount)
 		threadDomain.ReplyCount = int(replyCount)
 
 		threadDomains = append(threadDomains, *threadDomain)
