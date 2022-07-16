@@ -77,7 +77,7 @@ func (rp *persistenceTopicRepository) GetTopics(limit, offset int, sort_by strin
 func (rp *persistenceTopicRepository) GetTopicsByKeyword(keyword string, limit, offset int) ([]topic.Domain, error) {
 	topics := []Topic{}
 
-	res := rp.Conn.Limit(limit).Offset(offset).Select("ID", "Name", "ProfileImage").Where("name LIKE ?", keyword+"%").Find(&topics)
+	res := rp.Conn.Limit(limit).Offset(offset).Select("ID", "Name", "ProfileImage").Where("UPPER(name) LIKE UPPER(?)", "%"+keyword+"%").Find(&topics)
 
 	if res.Error != nil {
 		return []topic.Domain{}, res.Error

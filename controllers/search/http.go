@@ -26,7 +26,7 @@ func InitSearchController(sc search.Usecase, tc thread.Usecase, pc topic.Usecase
 	return &SearchController{
 		searchUsecase: sc,
 		threadUsecase: tc,
-		topicUsecase:  nil,
+		topicUsecase:  pc,
 		userUsecase:   uc,
 	}
 }

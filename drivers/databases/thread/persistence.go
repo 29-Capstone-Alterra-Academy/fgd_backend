@@ -119,7 +119,7 @@ func (rp *persistenceThreadRepository) GetThreadByTopicID(topicId, limit, offset
 
 func (rp *persistenceThreadRepository) GetThreadByKeyword(keyword string, limit, offset int) ([]thread.Domain, error) {
 	threads := []Thread{}
-	fetchResult := rp.Conn.Unscoped().Preload("Author").Preload("Topic").Limit(limit).Offset(offset).Where("title LIKE ?", keyword+"%").Find(&threads)
+	fetchResult := rp.Conn.Unscoped().Preload("Author").Preload("Topic").Limit(limit).Offset(offset).Where("UPPER(title) LIKE UPPER(?)", "%"+keyword+"%").Find(&threads)
 	if fetchResult.Error != nil {
 		return []thread.Domain{}, fetchResult.Error
 	}

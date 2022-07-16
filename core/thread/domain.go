@@ -37,7 +37,7 @@ type Usecase interface {
 	GetThreadByID(threadId int) (Domain, error)
 	GetThreadByAuthorID(userId, limit, offset int) ([]Domain, error)
 	GetThreadByTopicID(topicId, limit, offset int) ([]Domain, error)
-	GetThreadByKeyword(keyword string, limit, offset int) ([]Domain, error)
+	GetThreadByKeyword(keyword string, limit, offet int) ([]Domain, error)
 	CreateThread(data *Domain, userId, topicId int) (Domain, error)
 	UpdateThread(data *Domain, userId, threadId int) (Domain, error)
 	DeleteThread(userId, threadId int) error
