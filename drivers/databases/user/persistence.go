@@ -115,8 +115,6 @@ func (rp *persistenceUserRepository) CreateUser(data *user.Domain) (user.Domain,
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			if !strings.EqualFold(pgErr.Code, pgerrcode.UniqueViolation) {
-				fmt.Println(pgErr.Code)
-				fmt.Println(pgerrcode.UniqueViolation)
 				tx.Rollback()
 				return user.Domain{}, err
 			}
@@ -128,8 +126,6 @@ func (rp *persistenceUserRepository) CreateUser(data *user.Domain) (user.Domain,
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			if !strings.EqualFold(pgErr.Code, pgerrcode.UniqueViolation) {
-				fmt.Println(pgErr.Code)
-				fmt.Println(pgerrcode.UniqueViolation)
 				tx.Rollback()
 				return user.Domain{}, err
 			}
