@@ -405,18 +405,8 @@ func (rp *persistenceReportRepository) DeleteReason(reasonId uint) error {
 func (rp *persistenceReportRepository) ForwardReplyReport(reporterId, replyId uint) error {
 	tx := rp.Conn.Begin()
 
-	report := ReplyReport{}
-
-	fetchResErr := tx.Where("user_id = ? AND reply_id = ?", reporterId, replyId).Take(&report).Error
-	if fetchResErr != nil {
-		return fetchResErr
-	}
-
-	report.Reviewed = true
-
-	err := tx.Save(&report).Error
+	err := tx.Where("user_id = ? AND reply_id = ?", reporterId, replyId).Update("reviewed", "true").Error
 	if err != nil {
-		tx.Rollback()
 		return err
 	}
 
@@ -426,16 +416,7 @@ func (rp *persistenceReportRepository) ForwardReplyReport(reporterId, replyId ui
 func (rp *persistenceReportRepository) ForwardThreadReport(reporterId, threadId uint) error {
 	tx := rp.Conn.Begin()
 
-	report := ThreadReport{}
-
-	fetchResErr := tx.Where("user_id = ? AND thread_id = ?", reporterId, threadId).Take(&report).Error
-	if fetchResErr != nil {
-		return fetchResErr
-	}
-
-	report.Reviewed = true
-
-	err := tx.Save(&report).Error
+	err := tx.Where("user_id = ? AND thread_id = ?", reporterId, threadId).Update("reviewed", "true").Error
 	if err != nil {
 		tx.Rollback()
 		return err
