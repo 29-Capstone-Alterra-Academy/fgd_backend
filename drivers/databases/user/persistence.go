@@ -79,7 +79,6 @@ func (rp *persistenceUserRepository) GetModeratedTopic(userId int) (user.Domain,
 
 func (rp *persistenceUserRepository) CheckUserAvailibility(username string) bool {
 	user := User{}
-
 	err := rp.Conn.Where("username = ?", username).Take(&user).Error
 
 	return !errors.Is(err, gorm.ErrRecordNotFound)
@@ -87,7 +86,6 @@ func (rp *persistenceUserRepository) CheckUserAvailibility(username string) bool
 
 func (rp *persistenceUserRepository) CheckEmailAvailibility(email string) bool {
 	user := User{}
-
 	err := rp.Conn.Where("email = ?", email).Take(&user).Error
 
 	return !errors.Is(err, gorm.ErrRecordNotFound)
@@ -143,8 +141,10 @@ func (rp *persistenceUserRepository) GetPersonalProfile(userId int) (user.Domain
 }
 
 func (rp *persistenceUserRepository) GetProfileByID(userId int) (user.Domain, error) {
+	tx := rp.Conn.Session(&gorm.Session{SkipDefaultTransaction: true})
+
 	user := User{}
-	err := rp.Conn.Preload(clause.Associations).Take(&user, userId).Error
+	err := tx.Preload(clause.Associations).Take(&user, userId).Error
 	if err != nil {
 		return user.toDomain(), err
 	}
@@ -155,20 +155,22 @@ func (rp *persistenceUserRepository) GetProfileByID(userId int) (user.Domain, er
 	var followerCount int64
 	var followingCount int64
 
-	_ = rp.Conn.Table("threads").Where("author_id = ?", userDomain.ID).Count(&threadCount)
+	tx.Table("threads").Where("author_id = ?", userDomain.ID).Count(&threadCount)
 	userDomain.ThreadCount = int(threadCount)
-	_ = rp.Conn.Table("user_follow").Where("following_id = ?", userDomain.ID).Count(&followerCount)
+	tx.Table("user_follow").Where("following_id = ?", userDomain.ID).Count(&followerCount)
 	userDomain.FollowersCount = int(followerCount)
-	_ = rp.Conn.Table("user_follow").Where("user_id = ?", userDomain.ID).Count(&followingCount)
+	tx.Table("user_follow").Where("user_id = ?", userDomain.ID).Count(&followingCount)
 	userDomain.FollowingCount = int(followingCount)
 
 	return userDomain, nil
 }
 
 func (rp *persistenceUserRepository) GetUsers(limit int, offset int) ([]user.Domain, error) {
+	tx := rp.Conn.Session(&gorm.Session{SkipDefaultTransaction: true})
+
 	users := []User{}
 
-	err := rp.Conn.Limit(limit).Offset(offset).Omit("Following", "Notifications").Find(&users).Error
+	err := tx.Limit(limit).Offset(offset).Omit("Following", "Notifications").Find(&users).Error
 	if err != nil {
 		return []user.Domain{}, err
 	}
@@ -179,9 +181,9 @@ func (rp *persistenceUserRepository) GetUsers(limit int, offset int) ([]user.Dom
 		var threadCount int64
 		var followerCount int64
 
-		rp.Conn.Table("threads").Where("author_id = ?", userDomain.ID).Count(&threadCount)
+		tx.Table("threads").Where("author_id = ?", userDomain.ID).Count(&threadCount)
 		userDomain.ThreadCount = int(threadCount)
-		rp.Conn.Table("user_follow").Where("following_id = ?", userDomain.ID).Count(&followerCount)
+		tx.Table("user_follow").Where("following_id = ?", userDomain.ID).Count(&followerCount)
 		userDomain.FollowersCount = int(followerCount)
 
 		userDomains = append(userDomains, userDomain)
@@ -191,9 +193,11 @@ func (rp *persistenceUserRepository) GetUsers(limit int, offset int) ([]user.Dom
 }
 
 func (rp *persistenceUserRepository) GetUsersByKeyword(keyword string, limit int, offset int) ([]user.Domain, error) {
+	tx := rp.Conn.Session(&gorm.Session{SkipDefaultTransaction: true})
+
 	users := []User{}
 
-	err := rp.Conn.Limit(limit).Offset(offset).Omit("Following", "Notifications").Where("UPPER(username) LIKE UPPER(?)", "%"+keyword+"%").Find(&users).Error
+	err := tx.Limit(limit).Offset(offset).Omit("Following", "Notifications").Where("UPPER(username) LIKE UPPER(?)", "%"+keyword+"%").Find(&users).Error
 	if err != nil {
 		return []user.Domain{}, err
 	}
@@ -203,7 +207,7 @@ func (rp *persistenceUserRepository) GetUsersByKeyword(keyword string, limit int
 		userDomain := user.toDomain()
 		var followerCount int64
 
-		rp.Conn.Table("user_follow").Where("following_id = ?", userDomain.ID).Count(&followerCount)
+		tx.Table("user_follow").Where("following_id = ?", userDomain.ID).Count(&followerCount)
 		userDomain.FollowersCount = int(followerCount)
 
 		userDomains = append(userDomains, userDomain)
@@ -236,7 +240,14 @@ func (rp *persistenceUserRepository) UnfollowUser(userId int, targetId int) erro
 }
 
 func (rp *persistenceUserRepository) UpdatePassword(hashedPassword string, userId int) error {
-	return rp.Conn.Model(&User{}).Where("id = ?", userId).Update("password", hashedPassword).Error
+	tx := rp.Conn.Begin()
+	err := tx.Model(&User{}).Where("id = ?", userId).Update("password", hashedPassword).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
 }
 
 func (rp *persistenceUserRepository) UpdatePersonalProfile(data *user.Domain, userId int) (user.Domain, error) {
