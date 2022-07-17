@@ -113,6 +113,7 @@ func (rp *persistenceUserRepository) CreateUser(data *user.Domain) (user.Domain,
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
+			fmt.Println(pgErr.Code)
 			if pgErr.Code != pgerrcode.UniqueViolation {
 				tx.Rollback()
 				return user.Domain{}, err
