@@ -14,32 +14,39 @@ type persistenceThreadRepository struct {
 }
 
 func (rp *persistenceThreadRepository) CreateThread(data *thread.Domain, userId, topicId int) (thread.Domain, error) {
+	tx := rp.Conn.Begin()
+
 	topic := topic.Topic{}
-	fetchTopic := rp.Conn.Unscoped().Take(&topic, topicId)
-	if fetchTopic.Error != nil {
-		return thread.Domain{}, fetchTopic.Error
+	fetchTopicErr := tx.Take(&topic, topicId).Error
+	if fetchTopicErr != nil {
+		return thread.Domain{}, fetchTopicErr
 	}
 
 	author := user.User{}
-	fetchAuthor := rp.Conn.Take(&author, userId)
-	if fetchAuthor.Error != nil {
-		return thread.Domain{}, fetchAuthor.Error
+	fetchAuthorErr := tx.Take(&author, userId).Error
+	if fetchAuthorErr != nil {
+		return thread.Domain{}, fetchAuthorErr
 	}
 	newThread := fromDomain(*data)
 	newThread.Topic = topic
 	newThread.Author = author
 
-	res := rp.Conn.Create(&newThread)
-	if res.Error != nil {
-		return thread.Domain{}, res.Error
+	err := tx.Create(&newThread).Error
+	if err != nil {
+		tx.Rollback()
+		return thread.Domain{}, err
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return thread.Domain{}, err
 	}
 
 	return *newThread.toDomain(), nil
 }
 
 func (rp *persistenceThreadRepository) DeleteThread(userId int, threadId int) error {
-	res := rp.Conn.Where("author_id = ?", userId).Delete(&Thread{}, threadId)
-	return res.Error
+	return rp.Conn.Where("author_id = ?", userId).Delete(&Thread{}, threadId).Error
 }
 
 func (rp *persistenceThreadRepository) GetThreadByID(threadId int) (thread.Domain, error) {
@@ -64,10 +71,12 @@ func (rp *persistenceThreadRepository) GetThreadByID(threadId int) (thread.Domai
 }
 
 func (rp *persistenceThreadRepository) GetThreadByAuthorID(userId, limit, offset int) ([]thread.Domain, error) {
+	tx := rp.Conn.Session(&gorm.Session{SkipDefaultTransaction: true})
+
 	threads := []Thread{}
-	fetchResult := rp.Conn.Preload("Author").Preload("Topic").Limit(limit).Offset(offset).Where("author_id = ?", userId).Find(&threads)
-	if fetchResult.Error != nil {
-		return []thread.Domain{}, fetchResult.Error
+	fetchResultErr := tx.Preload("Author").Preload("Topic").Limit(limit).Offset(offset).Where("author_id = ?", userId).Find(&threads).Error
+	if fetchResultErr != nil {
+		return []thread.Domain{}, fetchResultErr
 	}
 
 	threadDomains := []thread.Domain{}
@@ -77,11 +86,11 @@ func (rp *persistenceThreadRepository) GetThreadByAuthorID(userId, limit, offset
 		var unlikeCount int64
 		var replyCount int64
 
-		rp.Conn.Table("liked_thread").Where("thread_id", threadDomain.ID).Count(&likeCount)
+		tx.Table("liked_thread").Where("thread_id", threadDomain.ID).Count(&likeCount)
 		threadDomain.LikeCount = int(likeCount)
-		rp.Conn.Table("unliked_thread").Where("thread_id", threadDomain.ID).Count(&unlikeCount)
+		tx.Table("unliked_thread").Where("thread_id", threadDomain.ID).Count(&unlikeCount)
 		threadDomain.UnlikeCount = int(unlikeCount)
-		rp.Conn.Table("replies").Where("thread_id", threadDomain.ID).Count(&replyCount)
+		tx.Table("replies").Where("thread_id", threadDomain.ID).Count(&replyCount)
 		threadDomain.ReplyCount = int(replyCount)
 
 		threadDomains = append(threadDomains, *threadDomain)
@@ -91,10 +100,12 @@ func (rp *persistenceThreadRepository) GetThreadByAuthorID(userId, limit, offset
 }
 
 func (rp *persistenceThreadRepository) GetThreadByTopicID(topicId, limit, offset int) ([]thread.Domain, error) {
+	tx := rp.Conn.Session(&gorm.Session{SkipDefaultTransaction: true})
+
 	threads := []Thread{}
-	fetchResult := rp.Conn.Unscoped().Preload("Author").Preload("Topic").Limit(limit).Offset(offset).Where("topic_id = ?", topicId).Find(&threads)
-	if fetchResult.Error != nil {
-		return []thread.Domain{}, fetchResult.Error
+	fetchResultErr := tx.Unscoped().Preload("Author").Preload("Topic").Limit(limit).Offset(offset).Where("topic_id = ?", topicId).Find(&threads).Error
+	if fetchResultErr != nil {
+		return []thread.Domain{}, fetchResultErr
 	}
 
 	threadDomains := []thread.Domain{}
@@ -104,11 +115,11 @@ func (rp *persistenceThreadRepository) GetThreadByTopicID(topicId, limit, offset
 		var unlikeCount int64
 		var replyCount int64
 
-		rp.Conn.Table("liked_thread").Where("thread_id", threadDomain.ID).Count(&likeCount)
+		tx.Table("liked_thread").Where("thread_id", threadDomain.ID).Count(&likeCount)
 		threadDomain.LikeCount = int(likeCount)
-		rp.Conn.Table("unliked_thread").Where("thread_id", threadDomain.ID).Count(&unlikeCount)
+		tx.Table("unliked_thread").Where("thread_id", threadDomain.ID).Count(&unlikeCount)
 		threadDomain.UnlikeCount = int(unlikeCount)
-		rp.Conn.Table("replies").Where("thread_id", threadDomain.ID).Count(&replyCount)
+		tx.Table("replies").Where("thread_id", threadDomain.ID).Count(&replyCount)
 		threadDomain.ReplyCount = int(replyCount)
 
 		threadDomains = append(threadDomains, *threadDomain)
@@ -118,10 +129,12 @@ func (rp *persistenceThreadRepository) GetThreadByTopicID(topicId, limit, offset
 }
 
 func (rp *persistenceThreadRepository) GetThreadByKeyword(keyword string, limit, offset int) ([]thread.Domain, error) {
+	tx := rp.Conn.Session(&gorm.Session{SkipDefaultTransaction: true})
+
 	threads := []Thread{}
-	fetchResult := rp.Conn.Unscoped().Preload("Author").Preload("Topic").Limit(limit).Offset(offset).Where("UPPER(title) LIKE UPPER(?)", "%"+keyword+"%").Find(&threads)
-	if fetchResult.Error != nil {
-		return []thread.Domain{}, fetchResult.Error
+	fetchResultErr := tx.Unscoped().Preload("Author").Preload("Topic").Limit(limit).Offset(offset).Where("UPPER(title) LIKE UPPER(?)", "%"+keyword+"%").Find(&threads).Error
+	if fetchResultErr != nil {
+		return []thread.Domain{}, fetchResultErr
 	}
 
 	threadDomains := []thread.Domain{}
@@ -131,11 +144,11 @@ func (rp *persistenceThreadRepository) GetThreadByKeyword(keyword string, limit,
 		var unlikeCount int64
 		var replyCount int64
 
-		rp.Conn.Table("liked_thread").Where("thread_id", threadDomain.ID).Count(&likeCount)
+		tx.Table("liked_thread").Where("thread_id", threadDomain.ID).Count(&likeCount)
 		threadDomain.LikeCount = int(likeCount)
-		rp.Conn.Table("unliked_thread").Where("thread_id", threadDomain.ID).Count(&unlikeCount)
+		tx.Table("unliked_thread").Where("thread_id", threadDomain.ID).Count(&unlikeCount)
 		threadDomain.UnlikeCount = int(unlikeCount)
-		rp.Conn.Table("replies").Where("thread_id", threadDomain.ID).Count(&replyCount)
+		tx.Table("replies").Where("thread_id", threadDomain.ID).Count(&replyCount)
 		threadDomain.ReplyCount = int(replyCount)
 
 		threadDomains = append(threadDomains, *threadDomain)
@@ -151,17 +164,44 @@ func (rp *persistenceThreadRepository) Like(userId int, threadId int) error {
 	}
 
 	thread := Thread{Model: gorm.Model{ID: uint(threadId)}}
-	return rp.Conn.Model(&thread).Association("LikedBy").Append(&user.User{Model: gorm.Model{ID: uint(userId)}})
+
+	tx := rp.Conn.Begin()
+
+	err := tx.Model(&thread).Association("LikedBy").Append(&user.User{Model: gorm.Model{ID: uint(userId)}})
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
 }
 
 func (rp *persistenceThreadRepository) UndoLike(userId int, threadId int) error {
 	thread := Thread{Model: gorm.Model{ID: uint(threadId)}}
-	return rp.Conn.Model(&thread).Association("LikedBy").Delete(&user.User{Model: gorm.Model{ID: uint(userId)}})
+
+	tx := rp.Conn.Begin()
+
+	err := tx.Model(&thread).Association("LikedBy").Delete(&user.User{Model: gorm.Model{ID: uint(userId)}})
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
 }
 
 func (rp *persistenceThreadRepository) UndoUnlike(userId, threadId int) error {
 	thread := Thread{Model: gorm.Model{ID: uint(threadId)}}
-	return rp.Conn.Model(&thread).Association("UnlikedBy").Delete(&user.User{Model: gorm.Model{ID: uint(userId)}})
+
+	tx := rp.Conn.Begin()
+
+	err := tx.Model(&thread).Association("UnlikedBy").Delete(&user.User{Model: gorm.Model{ID: uint(userId)}})
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
 }
 
 func (rp *persistenceThreadRepository) Unlike(userId int, threadId int) error {
@@ -171,14 +211,25 @@ func (rp *persistenceThreadRepository) Unlike(userId int, threadId int) error {
 	}
 
 	thread := Thread{Model: gorm.Model{ID: uint(threadId)}}
-	return rp.Conn.Model(&thread).Association("UnlikedBy").Append(&user.User{Model: gorm.Model{ID: uint(userId)}})
+
+	tx := rp.Conn.Begin()
+
+	err := tx.Model(&thread).Association("UnlikedBy").Append(&user.User{Model: gorm.Model{ID: uint(userId)}})
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
 }
 
 func (rp *persistenceThreadRepository) UpdateThread(data *thread.Domain, threadId, userId int) (thread.Domain, error) {
+	tx := rp.Conn.Begin()
+
 	existingThread := Thread{}
-	fetchResult := rp.Conn.Preload("Author").Preload("Topic").Where("author_id = ?", userId).Take(&existingThread, threadId)
-	if fetchResult.Error != nil {
-		return thread.Domain{}, fetchResult.Error
+	fetchResultErr := tx.Preload("Author").Preload("Topic").Where("author_id = ?", userId).Take(&existingThread, threadId).Error
+	if fetchResultErr != nil {
+		return thread.Domain{}, fetchResultErr
 	}
 	updatedThread := fromDomain(*data)
 
@@ -202,9 +253,14 @@ func (rp *persistenceThreadRepository) UpdateThread(data *thread.Domain, threadI
 		existingThread.Image5 = updatedThread.Image5
 	}
 
-	res := rp.Conn.Save(&existingThread)
-	if res.Error != nil {
-		return thread.Domain{}, res.Error
+	err := tx.Save(&existingThread).Error
+	if err != nil {
+		return thread.Domain{}, err
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return thread.Domain{}, err
 	}
 
 	domain := existingThread.toDomain()

@@ -80,6 +80,8 @@ func (uc *userUsecase) CreateUser(data *Domain) (Domain, error) {
 
 	data.Email = strings.ToLower(data.Email)
 
+	data.Role = "user"
+
 	newUser, err := uc.userRepository.CreateUser(data)
 	return newUser, err
 }

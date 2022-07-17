@@ -16,24 +16,26 @@ type persistenceReportRepository struct {
 }
 
 func (rp *persistenceReportRepository) GetTopicReplyReports(topicId int, limit int, offset int) ([]report.Domain, error) {
+	tx := rp.Conn.Session(&gorm.Session{SkipDefaultTransaction: true})
+
 	completeReports := []ReplyReportComplete{}
 	reports := []ReplyReport{}
 	domains := []report.Domain{}
 
-	fetchRes := rp.Conn.Preload("Reason").Limit(limit).Offset(offset).Where("topic_id = ? AND reviewed = ?", topicId, false).Find(&reports)
-	if fetchRes.Error != nil {
-		return domains, fetchRes.Error
+	fetchResErr := tx.Preload("Reason").Limit(limit).Offset(offset).Where("topic_id = ? AND reviewed = ?", topicId, false).Find(&reports).Error
+	if fetchResErr != nil {
+		return domains, fetchResErr
 	}
 
 	for _, report := range reports {
 		completeReport := ReplyReportComplete{}
 
-		_ = rp.Conn.Preload("Thread").Find(&completeReport.Reply, report.ReplyID)
-		_ = rp.Conn.Preload("Topic").Find(&completeReport.Reply.Thread)
+		tx.Preload("Thread").Find(&completeReport.Reply, report.ReplyID)
+		tx.Preload("Topic").Find(&completeReport.Reply.Thread)
 		if completeReport.Reply.Thread.Topic.ID != uint(topicId) {
 			continue
 		}
-		_ = rp.Conn.Find(&completeReport.Reporter, report.UserID)
+		tx.Find(&completeReport.Reporter, report.UserID)
 
 		completeReport.Topic = completeReport.Reply.Thread.Topic
 		completeReport.Reason = report.Reason
@@ -50,20 +52,22 @@ func (rp *persistenceReportRepository) GetTopicReplyReports(topicId int, limit i
 }
 
 func (rp *persistenceReportRepository) GetTopicThreadReports(topicId int, limit int, offset int) ([]report.Domain, error) {
+	tx := rp.Conn.Session(&gorm.Session{SkipDefaultTransaction: true})
+
 	completeReports := []ThreadReportComplete{}
 	reports := []ThreadReport{}
 	domains := []report.Domain{}
 
-	fetchRes := rp.Conn.Preload("Reason").Limit(limit).Offset(offset).Where("topic_id = ? AND reviewed = ?", topicId, false).Find(&reports)
-	if fetchRes.Error != nil {
-		return domains, fetchRes.Error
+	fetchResErr := tx.Preload("Reason").Limit(limit).Offset(offset).Where("topic_id = ? AND reviewed = ?", topicId, false).Find(&reports).Error
+	if fetchResErr != nil {
+		return domains, fetchResErr
 	}
 
 	for _, report := range reports {
 		completeReport := ThreadReportComplete{}
 
-		_ = rp.Conn.Preload("Topic").Find(&completeReport.Thread, report.ThreadID)
-		_ = rp.Conn.Find(&completeReport.Reporter, report.UserID)
+		tx.Preload("Topic").Find(&completeReport.Thread, report.ThreadID)
+		tx.Find(&completeReport.Reporter, report.UserID)
 
 		completeReport.Topic = completeReport.Thread.Topic
 		completeReport.Reason = report.Reason
@@ -80,11 +84,13 @@ func (rp *persistenceReportRepository) GetTopicThreadReports(topicId int, limit 
 }
 
 func (rp *persistenceReportRepository) GetReplyReports(limit, offset int) ([]report.Domain, error) {
+	tx := rp.Conn.Session(&gorm.Session{SkipDefaultTransaction: true})
+
 	completeReports := []ReplyReportComplete{}
 	reports := []ReplyReport{}
 	domains := []report.Domain{}
 
-	fetchRes := rp.Conn.Preload("Reason").Limit(limit).Offset(offset).Where("reviewed = ?", true).Find(&reports)
+	fetchRes := tx.Preload("Reason").Limit(limit).Offset(offset).Where("reviewed = ?", true).Find(&reports)
 	if fetchRes.Error != nil {
 		return domains, fetchRes.Error
 	}
@@ -92,9 +98,9 @@ func (rp *persistenceReportRepository) GetReplyReports(limit, offset int) ([]rep
 	for _, report := range reports {
 		completeReport := ReplyReportComplete{}
 
-		_ = rp.Conn.Preload("Thread").Find(&completeReport.Reply, report.ReplyID)
-		_ = rp.Conn.Preload("Topic").Find(&completeReport.Reply.Thread)
-		_ = rp.Conn.Find(&completeReport.Reporter, report.UserID)
+		tx.Preload("Thread").Find(&completeReport.Reply, report.ReplyID)
+		tx.Preload("Topic").Find(&completeReport.Reply.Thread)
+		tx.Find(&completeReport.Reporter, report.UserID)
 
 		completeReport.Topic = completeReport.Reply.Thread.Topic
 		completeReport.Reason = report.Reason
@@ -111,11 +117,13 @@ func (rp *persistenceReportRepository) GetReplyReports(limit, offset int) ([]rep
 }
 
 func (rp *persistenceReportRepository) GetThreadReports(limit, offset int) ([]report.Domain, error) {
+	tx := rp.Conn.Session(&gorm.Session{SkipDefaultTransaction: true})
+
 	completeReports := []ThreadReportComplete{}
 	reports := []ThreadReport{}
 	domains := []report.Domain{}
 
-	fetchRes := rp.Conn.Preload("Reason").Limit(limit).Offset(offset).Where("reviewed = ?", true).Find(&reports)
+	fetchRes := tx.Preload("Reason").Limit(limit).Offset(offset).Where("reviewed = ?", true).Find(&reports)
 	if fetchRes.Error != nil {
 		return domains, fetchRes.Error
 	}
@@ -123,8 +131,8 @@ func (rp *persistenceReportRepository) GetThreadReports(limit, offset int) ([]re
 	for _, report := range reports {
 		completeReport := ThreadReportComplete{}
 
-		_ = rp.Conn.Preload("Topic").Find(&completeReport.Thread, report.ThreadID)
-		_ = rp.Conn.Find(&completeReport.Reporter, report.UserID)
+		tx.Preload("Topic").Find(&completeReport.Thread, report.ThreadID)
+		tx.Find(&completeReport.Reporter, report.UserID)
 
 		completeReport.Topic = completeReport.Thread.Topic
 		completeReport.Reason = report.Reason
@@ -141,11 +149,13 @@ func (rp *persistenceReportRepository) GetThreadReports(limit, offset int) ([]re
 }
 
 func (rp *persistenceReportRepository) GetTopicReports(limit, offset int) ([]report.Domain, error) {
+	tx := rp.Conn.Session(&gorm.Session{SkipDefaultTransaction: true})
+
 	completeReports := []TopicReportComplete{}
 	reports := []TopicReport{}
 	domains := []report.Domain{}
 
-	fetchRes := rp.Conn.Preload("Reason").Limit(limit).Offset(offset).Find(&reports)
+	fetchRes := tx.Preload("Reason").Limit(limit).Offset(offset).Find(&reports)
 	if fetchRes.Error != nil {
 		return []report.Domain{}, fetchRes.Error
 	}
@@ -153,8 +163,8 @@ func (rp *persistenceReportRepository) GetTopicReports(limit, offset int) ([]rep
 	for _, report := range reports {
 		completeReport := TopicReportComplete{}
 
-		_ = rp.Conn.Find(&completeReport.Topic, report.TopicID)
-		_ = rp.Conn.Find(&completeReport.Reporter, report.UserID)
+		tx.Find(&completeReport.Topic, report.TopicID)
+		tx.Find(&completeReport.Reporter, report.UserID)
 
 		completeReport.Reason = report.Reason
 		completeReport.CreatedAt = report.CreatedAt
@@ -169,11 +179,13 @@ func (rp *persistenceReportRepository) GetTopicReports(limit, offset int) ([]rep
 }
 
 func (rp *persistenceReportRepository) GetUserReports(limit, offset int) ([]report.Domain, error) {
+	tx := rp.Conn.Session(&gorm.Session{SkipDefaultTransaction: true})
+
 	completeReports := []UserReportComplete{}
 	reports := []UserReport{}
 	domains := []report.Domain{}
 
-	fetchRes := rp.Conn.Preload("Reason").Limit(limit).Offset(offset).Find(&reports)
+	fetchRes := tx.Preload("Reason").Limit(limit).Offset(offset).Find(&reports)
 	if fetchRes.Error != nil {
 		return []report.Domain{}, fetchRes.Error
 	}
@@ -181,8 +193,8 @@ func (rp *persistenceReportRepository) GetUserReports(limit, offset int) ([]repo
 	for _, report := range reports {
 		completeReport := UserReportComplete{}
 
-		_ = rp.Conn.Find(&completeReport.Suspect, report.SuspectID)
-		_ = rp.Conn.Find(&completeReport.Reporter, report.UserID)
+		tx.Find(&completeReport.Suspect, report.SuspectID)
+		tx.Find(&completeReport.Reporter, report.UserID)
 
 		completeReport.Reason = report.Reason
 		completeReport.CreatedAt = report.CreatedAt
@@ -197,177 +209,239 @@ func (rp *persistenceReportRepository) GetUserReports(limit, offset int) ([]repo
 }
 
 func (rp *persistenceReportRepository) AddReason(data *report.Domain) error {
+	tx := rp.Conn.Begin()
+
 	reason := ReportReason{}
 
 	newReason := reasonFromDomain(data)
 
 	reason.Detail = newReason.Detail
 
-	return rp.Conn.Create(&reason).Error
+	err := tx.Create(&reason).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
 }
 
 func (rp *persistenceReportRepository) ApproveReplyReport(reporterId, replyId uint) error {
+	tx := rp.Conn.Begin()
+
 	report := ReplyReport{}
-	fetchRes := rp.Conn.Where("user_id = ? AND reply_id = ?", reporterId, replyId).Take(&report)
-	if fetchRes.Error != nil {
-		return fetchRes.Error
+	fetchResErr := tx.Where("user_id = ? AND reply_id = ?", reporterId, replyId).Take(&report).Error
+	if fetchResErr != nil {
+		return fetchResErr
 	}
 
 	reporter := user.User{}
-	fetchUserErr := rp.Conn.Take(&reporter, report.UserID).Error
+	fetchUserErr := tx.Take(&reporter, report.UserID).Error
 	if fetchUserErr != nil {
 		return fetchUserErr
 	}
 
-	assocErr := rp.Conn.Model(&reply.Reply{Model: gorm.Model{ID: report.ReplyID}}).Association("ReplyReports").Delete(&reporter)
+	tx.SavePoint("checkpoint")
+
+	assocErr := tx.Model(&reply.Reply{Model: gorm.Model{ID: report.ReplyID}}).Association("ReplyReports").Delete(&reporter)
 	if assocErr != nil {
+		tx.RollbackTo("checkpoint")
 		return assocErr
 	}
 
-	delErr := rp.Conn.Delete(&reply.Reply{}, report.ReplyID).Error
+	delErr := tx.Delete(&reply.Reply{}, report.ReplyID).Error
 	if delErr != nil {
+		tx.RollbackTo("checkpoint")
 		return delErr
 	}
 
-	cleanupErr := rp.Conn.Delete(&report).Error
+	cleanupErr := tx.Delete(&report).Error
 	if cleanupErr != nil {
+		tx.RollbackTo("checkpoint")
 		return cleanupErr
 	}
 
-	return nil
+	return tx.Commit().Error
 }
 
 func (rp *persistenceReportRepository) ApproveThreadReport(reporterId, threadId uint) error {
+	tx := rp.Conn.Begin()
+
 	report := ThreadReport{}
-	fetchRes := rp.Conn.Where("user_id = ? AND thread_id = ?", reporterId, threadId).Take(&report)
-	if fetchRes.Error != nil {
-		return fetchRes.Error
+	fetchResErr := tx.Where("user_id = ? AND thread_id = ?", reporterId, threadId).Take(&report).Error
+	if fetchResErr != nil {
+		return fetchResErr
 	}
 
+	tx.SavePoint("checkpoint")
+
 	reporter := user.User{}
-	fetchUserErr := rp.Conn.Take(&reporter, report.UserID).Error
+	fetchUserErr := tx.Take(&reporter, report.UserID).Error
 	if fetchUserErr != nil {
+		tx.RollbackTo("checkpoint")
 		return fetchUserErr
 	}
 
-	assocErr := rp.Conn.Model(&thread.Thread{Model: gorm.Model{ID: report.ThreadID}}).Association("ThreadReports").Delete(&reporter)
+	assocErr := tx.Model(&thread.Thread{Model: gorm.Model{ID: report.ThreadID}}).Association("ThreadReports").Delete(&reporter)
 	if assocErr != nil {
+		tx.RollbackTo("checkpoint")
 		return assocErr
 	}
 
-	delErr := rp.Conn.Delete(&thread.Thread{}, report.ThreadID).Error
+	delErr := tx.Delete(&thread.Thread{}, report.ThreadID).Error
 	if delErr != nil {
+		tx.RollbackTo("checkpoint")
 		return delErr
 	}
 
-	cleanupErr := rp.Conn.Delete(&report).Error
+	cleanupErr := tx.Delete(&report).Error
 	if cleanupErr != nil {
+		tx.RollbackTo("checkpoint")
 		return cleanupErr
 	}
 
-	return nil
+	return tx.Commit().Error
 }
 
 func (rp *persistenceReportRepository) ApproveTopicReport(reporterId, topicId uint) error {
+	tx := rp.Conn.Begin()
+
 	report := TopicReport{}
-	fetchRes := rp.Conn.Where("user_id = ? AND topic_id = ?", reporterId, topicId).Take(&report)
-	if fetchRes.Error != nil {
-		return fetchRes.Error
+	fetchResErr := tx.Where("user_id = ? AND topic_id = ?", reporterId, topicId).Take(&report).Error
+	if fetchResErr != nil {
+		return fetchResErr
 	}
 
 	reporter := user.User{}
-	fetchUserErr := rp.Conn.Take(&reporter, report.UserID).Error
+	fetchUserErr := tx.Take(&reporter, report.UserID).Error
 	if fetchUserErr != nil {
 		return fetchUserErr
 	}
 
-	assocErr := rp.Conn.Model(&topic.Topic{Model: gorm.Model{ID: report.TopicID}}).Association("TopicReports").Delete(&reporter)
+	tx.SavePoint("checkpoint")
+
+	assocErr := tx.Model(&topic.Topic{Model: gorm.Model{ID: report.TopicID}}).Association("TopicReports").Delete(&reporter)
 	if assocErr != nil {
+		tx.RollbackTo("checkpoint")
 		return assocErr
 	}
 
-	cleanupErr := rp.Conn.Delete(&report).Error
+	cleanupErr := tx.Delete(&report).Error
 	if cleanupErr != nil {
+		tx.RollbackTo("checkpoint")
 		return cleanupErr
 	}
 
-	delReplyErr := rp.Conn.Where("topic_id = ?", report.TopicID).Delete(&reply.Reply{}).Error
+	delReplyErr := tx.Where("topic_id = ?", report.TopicID).Delete(&reply.Reply{}).Error
 	if delReplyErr != nil {
+		tx.RollbackTo("checkpoint")
 		return delReplyErr
 	}
 
-	delThreadErr := rp.Conn.Where("topic_id = ?", report.TopicID).Delete(&thread.Thread{}).Error
+	delThreadErr := tx.Where("topic_id = ?", report.TopicID).Delete(&thread.Thread{}).Error
 	if delThreadErr != nil {
+		tx.RollbackTo("checkpoint")
 		return delThreadErr
 	}
 
-	delTopicErr := rp.Conn.Delete(&topic.Topic{}, report.TopicID).Error
+	delTopicErr := tx.Delete(&topic.Topic{}, report.TopicID).Error
 	if delTopicErr != nil {
+		tx.RollbackTo("checkpoint")
 		return delTopicErr
 	}
 
-	return nil
+	return tx.Commit().Error
 }
 
 func (rp *persistenceReportRepository) ApproveUserReport(reporterId, suspectId uint) error {
+	tx := rp.Conn.Begin()
+
 	report := UserReport{}
-	fetchRes := rp.Conn.Where("user_id = ? AND suspect_id = ?", reporterId, suspectId).Take(&report)
-	if fetchRes.Error != nil {
-		return fetchRes.Error
+	fetchResErr := tx.Where("user_id = ? AND suspect_id = ?", reporterId, suspectId).Take(&report).Error
+	if fetchResErr != nil {
+		return fetchResErr
 	}
 
 	reporter := user.User{}
-	fetchUserErr := rp.Conn.Take(&reporter, report.UserID).Error
+	fetchUserErr := tx.Take(&reporter, report.UserID).Error
 	if fetchUserErr != nil {
 		return fetchUserErr
 	}
 
-	assocErr := rp.Conn.Model(&user.User{Model: gorm.Model{ID: report.SuspectID}}).Association("UserReports").Delete(&reporter)
+	tx.SavePoint("checkpoint")
+
+	assocErr := tx.Model(&user.User{Model: gorm.Model{ID: report.SuspectID}}).Association("UserReports").Delete(&reporter)
 	if assocErr != nil {
+		tx.RollbackTo("checkpoint")
 		return assocErr
 	}
 
-	delErr := rp.Conn.Delete(&user.User{}, report.SuspectID).Error
+	delErr := tx.Delete(&user.User{}, report.SuspectID).Error
 	if delErr != nil {
+		tx.RollbackTo("checkpoint")
 		return delErr
 	}
 
-	cleanupErr := rp.Conn.Delete(&report).Error
+	cleanupErr := tx.Delete(&report).Error
 	if cleanupErr != nil {
+		tx.RollbackTo("checkpoint")
 		return cleanupErr
 	}
 
-	return nil
+	return tx.Commit().Error
 }
 
 func (rp *persistenceReportRepository) DeleteReason(reasonId uint) error {
-	return rp.Conn.Delete(&ReportReason{}, reasonId).Error
+	tx := rp.Conn.Begin()
+	err := tx.Delete(&ReportReason{}, reasonId).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
 }
 
 func (rp *persistenceReportRepository) ForwardReplyReport(reporterId, replyId uint) error {
+	tx := rp.Conn.Begin()
+
 	report := ReplyReport{}
 
-	fetchRes := rp.Conn.Where("user_id = ? AND reply_id = ?", reporterId, replyId).Take(&report)
-	if fetchRes.Error != nil {
-		return fetchRes.Error
+	fetchResErr := tx.Where("user_id = ? AND reply_id = ?", reporterId, replyId).Take(&report).Error
+	if fetchResErr != nil {
+		return fetchResErr
 	}
 
 	report.Reviewed = true
 
-	return rp.Conn.Save(&report).Error
+	err := tx.Save(&report).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
 }
 
 func (rp *persistenceReportRepository) ForwardThreadReport(reporterId, threadId uint) error {
+	tx := rp.Conn.Begin()
+
 	report := ThreadReport{}
 
-	fetchRes := rp.Conn.Where("user_id = ? AND thread_id = ?", reporterId, threadId).Take(&report)
-	if fetchRes.Error != nil {
-		return fetchRes.Error
+	fetchResErr := tx.Where("user_id = ? AND thread_id = ?", reporterId, threadId).Take(&report).Error
+	if fetchResErr != nil {
+		return fetchResErr
 	}
 
 	report.Reviewed = true
 
-	return rp.Conn.Save(&report).Error
+	err := tx.Save(&report).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
 }
 
 func (rp *persistenceReportRepository) GetReasons() ([]report.Domain, error) {
@@ -388,105 +462,136 @@ func (rp *persistenceReportRepository) GetReasons() ([]report.Domain, error) {
 }
 
 func (rp *persistenceReportRepository) RemoveReplyReport(reporterId, replyId uint) error {
+	tx := rp.Conn.Begin()
+
 	report := ReplyReport{}
-	fetchErr := rp.Conn.Where("user_id = ? AND reply_id = ?", reporterId, replyId).Take(&report).Error
+	fetchErr := tx.Where("user_id = ? AND reply_id = ?", reporterId, replyId).Take(&report).Error
 	if fetchErr != nil {
 		return fetchErr
 	}
 
-	assocErr := rp.Conn.Model(&reply.Reply{}).Association("ReplyReports").Delete(&report)
+	tx.SavePoint("checkpoint")
+
+	assocErr := tx.Model(&reply.Reply{}).Association("ReplyReports").Delete(&report)
 	if assocErr != nil {
+		tx.RollbackTo("checkpoint")
 		return assocErr
 	}
 
-	cleanupErr := rp.Conn.Delete(&report).Error
+	cleanupErr := tx.Delete(&report).Error
 	if cleanupErr != nil {
+		tx.RollbackTo("checkpoint")
 		return cleanupErr
 	}
 
-	return nil
+	return tx.Commit().Error
 }
 
 func (rp *persistenceReportRepository) RemoveThreadReport(reporterId, threadId uint) error {
+	tx := rp.Conn.Begin()
+
 	report := ThreadReport{}
-	fetchErr := rp.Conn.Where("user_id = ? AND thread_id = ?", reporterId, threadId).Take(&report).Error
+	fetchErr := tx.Where("user_id = ? AND thread_id = ?", reporterId, threadId).Take(&report).Error
 	if fetchErr != nil {
 		return fetchErr
 	}
 
-	assocErr := rp.Conn.Model(&thread.Thread{}).Association("ThreadReports").Delete(&report)
+	tx.SavePoint("checkpoint")
+
+	assocErr := tx.Model(&thread.Thread{}).Association("ThreadReports").Delete(&report)
 	if assocErr != nil {
+		tx.RollbackTo("checkpoint")
 		return assocErr
 	}
 
-	cleanupErr := rp.Conn.Delete(&report).Error
+	cleanupErr := tx.Delete(&report).Error
 	if cleanupErr != nil {
+		tx.RollbackTo("checkpoint")
 		return cleanupErr
 	}
 
-	return nil
+	return tx.Commit().Error
 }
 
 func (rp *persistenceReportRepository) RemoveTopicReport(reporterId, topicId uint) error {
+	tx := rp.Conn.Begin()
+
 	report := TopicReport{}
-	fetchErr := rp.Conn.Where("user_id = ? AND topic_id = ?", reporterId, topicId).Take(&report).Error
+	fetchErr := tx.Where("user_id = ? AND topic_id = ?", reporterId, topicId).Take(&report).Error
 	if fetchErr != nil {
 		return fetchErr
 	}
 
-	assocErr := rp.Conn.Model(&topic.Topic{}).Association("TopicReports").Delete(&report)
+	tx.SavePoint("checkpoint")
+
+	assocErr := tx.Model(&topic.Topic{}).Association("TopicReports").Delete(&report)
 	if assocErr != nil {
+		tx.RollbackTo("checkpoint")
 		return assocErr
 	}
 
-	cleanupErr := rp.Conn.Delete(&report).Error
+	cleanupErr := tx.Delete(&report).Error
 	if cleanupErr != nil {
+		tx.RollbackTo("checkpoint")
 		return cleanupErr
 	}
 
-	return nil
+	return tx.Commit().Error
 }
 
 func (rp *persistenceReportRepository) RemoveUserReport(reporterId, suspectId uint) error {
+	tx := rp.Conn.Begin()
+
 	report := UserReport{}
-	fetchErr := rp.Conn.Where("user_id = ? AND suspect_id = ?", reporterId, suspectId).Take(&report).Error
+	fetchErr := tx.Where("user_id = ? AND suspect_id = ?", reporterId, suspectId).Take(&report).Error
 	if fetchErr != nil {
 		return fetchErr
 	}
 
-	assocErr := rp.Conn.Model(&user.User{}).Association("UserReports").Delete(&report)
+	tx.SavePoint("checkpoint")
+
+	assocErr := tx.Model(&user.User{}).Association("UserReports").Delete(&report)
 	if assocErr != nil {
+		tx.RollbackTo("checkpoint")
 		return assocErr
 	}
 
-	cleanupErr := rp.Conn.Delete(&report).Error
+	cleanupErr := tx.Delete(&report).Error
 	if cleanupErr != nil {
+		tx.RollbackTo("checkpoint")
 		return cleanupErr
 	}
 
-	return nil
+	return tx.Commit().Error
 }
 
 func (rp *persistenceReportRepository) ReportReply(reporterId, replyId, reasonId uint) (report.Domain, error) {
+	tx := rp.Conn.Begin()
+
 	completeReport := ReplyReportComplete{}
 	reply := reply.Reply{Model: gorm.Model{ID: replyId}}
 	reporter := user.User{Model: gorm.Model{ID: reporterId}}
 	reason := ReportReason{ID: reasonId}
 
-	appendErr := rp.Conn.Model(&reply).Association("ReplyReports").Append(&reporter)
+	tx.SavePoint("checkpoint")
+
+	appendErr := tx.Model(&reply).Association("ReplyReports").Append(&reporter)
 	if appendErr != nil {
+		tx.RollbackTo("checkpoint")
 		return report.Domain{}, appendErr
 	}
 
-	fetchReplyRes := rp.Conn.Preload("Thread").Take(&reply)
+	fetchReplyRes := tx.Preload("Thread").Take(&reply)
 	if fetchReplyRes.Error != nil {
+		tx.RollbackTo("checkpoint")
 		return report.Domain{}, fetchReplyRes.Error
 	}
 
 	thread := reply.Thread
-	fetchThreadRes := rp.Conn.Preload("Topic").Take(&thread)
-	if fetchThreadRes.Error != nil {
-		return report.Domain{}, fetchThreadRes.Error
+	fetchThreadErr := tx.Preload("Topic").Take(&thread).Error
+	if fetchThreadErr != nil {
+		tx.RollbackTo("checkpoint")
+		return report.Domain{}, fetchThreadErr
 	}
 
 	report := ReplyReport{
@@ -497,18 +602,21 @@ func (rp *persistenceReportRepository) ReportReply(reporterId, replyId, reasonId
 		CreatedAt: time.Now(),
 	}
 
-	err := rp.Conn.Save(&report).Error
+	err := tx.Save(&report).Error
 	if err != nil {
+		tx.RollbackTo("checkpoint")
 		return completeReport.toDomain(), err
 	}
 
-	fetchReplyErr := rp.Conn.Take(&reply).Error
+	fetchReplyErr := tx.Take(&reply).Error
 	if fetchReplyErr != nil {
+		tx.RollbackTo("checkpoint")
 		return completeReport.toDomain(), fetchReplyErr
 	}
 
-	fetchUserErr := rp.Conn.Take(&reporter).Error
+	fetchUserErr := tx.Take(&reporter).Error
 	if fetchReplyErr != nil {
+		tx.RollbackTo("checkpoint")
 		return completeReport.toDomain(), fetchUserErr
 	}
 
@@ -519,23 +627,29 @@ func (rp *persistenceReportRepository) ReportReply(reporterId, replyId, reasonId
 	completeReport.Reviewed = report.Reviewed
 	completeReport.CreatedAt = report.CreatedAt
 
-	return completeReport.toDomain(), nil
+	return completeReport.toDomain(), tx.Commit().Error
 }
 
 func (rp *persistenceReportRepository) ReportThread(reporterId, threadId, reasonId uint) (report.Domain, error) {
+	tx := rp.Conn.Begin()
+
 	completeReport := ThreadReportComplete{}
 	thread := thread.Thread{Model: gorm.Model{ID: threadId}}
 	reporter := user.User{Model: gorm.Model{ID: reporterId}}
 	reason := ReportReason{ID: reasonId}
 
-	appendErr := rp.Conn.Model(&thread).Association("ThreadReports").Append(&reporter)
+	tx.SavePoint("checkpoint")
+
+	appendErr := tx.Model(&thread).Association("ThreadReports").Append(&reporter)
 	if appendErr != nil {
+		tx.RollbackTo("checkpoint")
 		return report.Domain{}, appendErr
 	}
 
-	fetchRes := rp.Conn.Preload("Topic").Take(&thread)
-	if fetchRes.Error != nil {
-		return report.Domain{}, fetchRes.Error
+	fetchErr := tx.Preload("Topic").Take(&thread).Error
+	if fetchErr != nil {
+		tx.RollbackTo("checkpoint")
+		return report.Domain{}, fetchErr
 	}
 
 	report := ThreadReport{
@@ -546,18 +660,21 @@ func (rp *persistenceReportRepository) ReportThread(reporterId, threadId, reason
 		CreatedAt: time.Now(),
 	}
 
-	err := rp.Conn.Save(&report).Error
+	err := tx.Save(&report).Error
 	if err != nil {
+		tx.RollbackTo("checkpoint")
 		return completeReport.toDomain(), err
 	}
 
-	fetchThreadErr := rp.Conn.Take(&thread).Error
+	fetchThreadErr := tx.Take(&thread).Error
 	if fetchThreadErr != nil {
+		tx.RollbackTo("checkpoint")
 		return completeReport.toDomain(), fetchThreadErr
 	}
 
-	fetchUserErr := rp.Conn.Take(&reporter).Error
+	fetchUserErr := tx.Take(&reporter).Error
 	if fetchThreadErr != nil {
+		tx.RollbackTo("checkpoint")
 		return completeReport.toDomain(), fetchUserErr
 	}
 
@@ -568,21 +685,28 @@ func (rp *persistenceReportRepository) ReportThread(reporterId, threadId, reason
 	completeReport.Reviewed = report.Reviewed
 	completeReport.CreatedAt = report.CreatedAt
 
-	return completeReport.toDomain(), nil
+	return completeReport.toDomain(), tx.Commit().Error
 }
 
 func (rp *persistenceReportRepository) ReportTopic(reporterId, topicId, reasonId uint) (report.Domain, error) {
+	tx := rp.Conn.Begin()
+
 	completeReport := TopicReportComplete{}
 	topic := topic.Topic{Model: gorm.Model{ID: topicId}}
 	reporter := user.User{Model: gorm.Model{ID: reporterId}}
 	reason := ReportReason{ID: reasonId}
 
-	if reasonErr := rp.Conn.Take(&reason).Error; reasonErr != nil {
+	tx.SavePoint("checkpoint")
+
+	reasonErr := tx.Take(&reason).Error
+	if reasonErr != nil {
+		tx.RollbackTo("checkpoint")
 		return report.Domain{}, reasonErr
 	}
 
-	appendErr := rp.Conn.Model(&topic).Association("TopicReports").Append(&reporter)
+	appendErr := tx.Model(&topic).Association("TopicReports").Append(&reporter)
 	if appendErr != nil {
+		tx.RollbackTo("checkpoint")
 		return report.Domain{}, appendErr
 	}
 
@@ -593,18 +717,21 @@ func (rp *persistenceReportRepository) ReportTopic(reporterId, topicId, reasonId
 		CreatedAt: time.Now(),
 	}
 
-	err := rp.Conn.Save(&report).Error
+	err := tx.Save(&report).Error
 	if err != nil {
+		tx.RollbackTo("checkpoint")
 		return completeReport.toDomain(), err
 	}
 
-	fetchTopicErr := rp.Conn.Take(&topic).Error
+	fetchTopicErr := tx.Take(&topic).Error
 	if fetchTopicErr != nil {
+		tx.RollbackTo("checkpoint")
 		return completeReport.toDomain(), fetchTopicErr
 	}
 
-	fetchUserErr := rp.Conn.Take(&reporter).Error
+	fetchUserErr := tx.Take(&reporter).Error
 	if fetchTopicErr != nil {
+		tx.RollbackTo("checkpoint")
 		return completeReport.toDomain(), fetchUserErr
 	}
 
@@ -613,21 +740,28 @@ func (rp *persistenceReportRepository) ReportTopic(reporterId, topicId, reasonId
 	completeReport.Reason = reason
 	completeReport.CreatedAt = report.CreatedAt
 
-	return completeReport.toDomain(), nil
+	return completeReport.toDomain(), tx.Commit().Error
 }
 
 func (rp *persistenceReportRepository) ReportUser(reporterId, suspectId, reasonId uint) (report.Domain, error) {
+	tx := rp.Conn.Begin()
+
 	completeReport := UserReportComplete{}
 	suspect := user.User{Model: gorm.Model{ID: suspectId}}
 	reporter := user.User{Model: gorm.Model{ID: reporterId}}
 	reason := ReportReason{ID: reasonId}
 
-	if reasonErr := rp.Conn.Take(&reason).Error; reasonErr != nil {
+	tx.SavePoint("checkpoint")
+
+	reasonErr := rp.Conn.Take(&reason).Error
+	if reasonErr != nil {
+		tx.RollbackTo("checkpoint")
 		return report.Domain{}, reasonErr
 	}
 
 	appendErr := rp.Conn.Model(&suspect).Association("UserReports").Append(&reporter)
 	if appendErr != nil {
+		tx.RollbackTo("checkpoint")
 		return report.Domain{}, appendErr
 	}
 
@@ -640,16 +774,19 @@ func (rp *persistenceReportRepository) ReportUser(reporterId, suspectId, reasonI
 
 	err := rp.Conn.Save(&report).Error
 	if err != nil {
+		tx.RollbackTo("checkpoint")
 		return completeReport.toDomain(), err
 	}
 
 	fetchSuspectErr := rp.Conn.Take(&suspect).Error
 	if fetchSuspectErr != nil {
+		tx.RollbackTo("checkpoint")
 		return completeReport.toDomain(), fetchSuspectErr
 	}
 
 	fetchUserErr := rp.Conn.Take(&reporter).Error
 	if fetchUserErr != nil {
+		tx.RollbackTo("checkpoint")
 		return completeReport.toDomain(), fetchUserErr
 	}
 
@@ -658,7 +795,7 @@ func (rp *persistenceReportRepository) ReportUser(reporterId, suspectId, reasonI
 	completeReport.Reason = reason
 	completeReport.CreatedAt = report.CreatedAt
 
-	return completeReport.toDomain(), nil
+	return completeReport.toDomain(), tx.Commit().Error
 }
 
 func InitPersistenceReportRepository(c *gorm.DB) report.Repository {
