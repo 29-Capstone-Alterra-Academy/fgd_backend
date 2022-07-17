@@ -111,6 +111,12 @@ func (rp *persistenceUserRepository) CreateUser(data *user.Domain) (user.Domain,
 
 	err := tx.Omit(clause.Associations).Create(&newUser).Error
 	if err != nil {
+		tx.Rollback()
+		return user.Domain{}, err
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			fmt.Println(pgErr.Code)
@@ -119,11 +125,6 @@ func (rp *persistenceUserRepository) CreateUser(data *user.Domain) (user.Domain,
 				return user.Domain{}, err
 			}
 		}
-	}
-
-	err = tx.Commit().Error
-	if err != nil {
-		return user.Domain{}, err
 	}
 
 	return newUser.toDomain(), nil
