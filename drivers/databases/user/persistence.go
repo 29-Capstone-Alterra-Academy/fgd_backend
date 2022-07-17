@@ -3,7 +3,10 @@ package user
 import (
 	"errors"
 	"fgd/core/user"
+	"fmt"
 
+	"github.com/jackc/pgconn"
+	"github.com/jackc/pgerrcode"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -95,11 +98,26 @@ func (rp *persistenceUserRepository) CreateUser(data *user.Domain) (user.Domain,
 	tx := rp.Conn.Begin()
 
 	newUser := fromDomain(*data)
+	checkUsername := User{}
+	checkEmail := User{}
+	fetchUsernameErr := tx.Select("username").Where("UPPER(username) = UPPER(?)", newUser.Username).Take(&checkUsername).Error
+	if fetchUsernameErr != nil && !errors.Is(fetchUsernameErr, gorm.ErrRecordNotFound) {
+		return user.Domain{}, fmt.Errorf("error: username already in use")
+	}
+	fetchEmailErr := tx.Select("email").Where("email = ?", newUser.Username).Take(&checkEmail).Error
+	if fetchEmailErr != nil && !errors.Is(fetchEmailErr, gorm.ErrRecordNotFound) {
+		return user.Domain{}, fmt.Errorf("error: email already in use")
+	}
 
 	err := tx.Omit(clause.Associations).Create(&newUser).Error
 	if err != nil {
-		tx.Rollback()
-		return user.Domain{}, err
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			if pgErr.Code != pgerrcode.UniqueViolation {
+				tx.Rollback()
+				return user.Domain{}, err
+			}
+		}
 	}
 
 	err = tx.Commit().Error

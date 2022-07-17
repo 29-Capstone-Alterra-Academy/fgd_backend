@@ -7,6 +7,8 @@ require gorm.io/gorm v1.23.8
 
 require github.com/google/uuid v1.3.0
 
+require github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa // indirect
+
 require (
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.12.1 // indirect
