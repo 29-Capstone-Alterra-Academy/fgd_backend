@@ -109,6 +109,9 @@ func (rp *persistenceUserRepository) CreateUser(data *user.Domain) (user.Domain,
 	if fetchEmailErr != nil && !errors.Is(fetchEmailErr, gorm.ErrRecordNotFound) {
 		return user.Domain{}, fmt.Errorf("error: email already in use")
 	}
+	if newUser.Username == checkUsername.Username || newUser.Email == checkEmail.Email {
+		return user.Domain{}, fmt.Errorf("error: username/email already in use")
+	}
 
 	err := tx.Omit(clause.Associations).Create(&newUser).Error
 	if err != nil {
