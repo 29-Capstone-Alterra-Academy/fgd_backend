@@ -70,12 +70,9 @@ func (cr *UserController) Register(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
 	}
 
-	if user.Username != "" && len(user.Username) < 6 {
-		return controllers.FailureResponse(c, http.StatusBadRequest, "error: username should be at least 6 character")
-	}
-
-	if len(user.Password) < 8 {
-		return controllers.FailureResponse(c, http.StatusBadRequest, "error: password should be at least 8 character")
+	err = c.Validate(&user)
+	if err != nil {
+		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
 	}
 
 	userDomain, err := cr.userUsecase.CreateUser(user.ToDomain())
@@ -94,6 +91,11 @@ func (cr *UserController) Register(c echo.Context) error {
 func (cr *UserController) RefreshToken(c echo.Context) error {
 	tokenReq := request.TokenRequest{}
 	c.Bind(&tokenReq)
+
+	err := c.Validate(&tokenReq)
+	if err != nil {
+		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
+	}
 
 	customClaims := middleware.JWTCustomClaims{}
 	token, err := jwt.ParseWithClaims(tokenReq.RefreshToken, &customClaims, cr.jwtConfig.CustomKeyFunc)

@@ -2,6 +2,7 @@ package routes
 
 import (
 	"fgd/app/middleware"
+	"fgd/controllers"
 	"fgd/controllers/moderator"
 	"fgd/controllers/reply"
 	"fgd/controllers/report"
@@ -11,6 +12,7 @@ import (
 	"fgd/controllers/user"
 	"fgd/controllers/verify"
 
+	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
 )
@@ -28,6 +30,7 @@ type Controllers struct {
 }
 
 func (c *Controllers) Register(e *echo.Echo) {
+	e.Validator = &controllers.CustomValidator{Validator: validator.New()}
 	e.Use(echoMiddleware.Logger(), echoMiddleware.Recover(), echoMiddleware.CORS(), echoMiddleware.Static("/"))
 	jwtMiddleware := echoMiddleware.JWTWithConfig(c.JWTMiddleware)
 
