@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fgd/core/user"
 	"fmt"
+	"strings"
 
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgerrcode"
@@ -111,20 +112,20 @@ func (rp *persistenceUserRepository) CreateUser(data *user.Domain) (user.Domain,
 
 	err := tx.Omit(clause.Associations).Create(&newUser).Error
 	if err != nil {
-		tx.Rollback()
-		return user.Domain{}, err
-	}
-
-	err = tx.Commit().Error
-	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
-			fmt.Println(pgErr.Code)
-			if pgErr.Code != pgerrcode.UniqueViolation {
+			if !strings.EqualFold(pgErr.Code, pgerrcode.UniqueViolation) {
+				fmt.Println(pgErr.Code)
+				fmt.Println(pgerrcode.UniqueViolation)
 				tx.Rollback()
 				return user.Domain{}, err
 			}
 		}
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return user.Domain{}, err
 	}
 
 	return newUser.toDomain(), nil
