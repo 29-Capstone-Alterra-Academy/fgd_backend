@@ -62,7 +62,7 @@ func (c *Controllers) Register(e *echo.Echo) {
 	e.GET("/topic/:topicId/report", c.ReportController.GetTopicScopeReports, jwtMiddleware)
 	e.POST("/topic/:topicId/report", c.ReportController.ReportTopic, jwtMiddleware)
 	e.POST("/topic/:topicId/subscribe", c.TopicController.Subscribe, jwtMiddleware)
-	e.POST("/topic/:topicId/subscribe", c.TopicController.Unsubscribe, jwtMiddleware)
+	e.POST("/topic/:topicId/unsubscribe", c.TopicController.Unsubscribe, jwtMiddleware)
 	e.POST("/topic/:topicId/thread", c.ThreadController.CreateThread, jwtMiddleware)
 
 	e.GET("/thread", c.ThreadController.GetThreads)
