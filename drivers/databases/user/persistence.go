@@ -105,7 +105,7 @@ func (rp *persistenceUserRepository) CreateUser(data *user.Domain) (user.Domain,
 	if fetchUsernameErr != nil && !errors.Is(fetchUsernameErr, gorm.ErrRecordNotFound) {
 		return user.Domain{}, fmt.Errorf("error: username already in use")
 	}
-	fetchEmailErr := tx.Select("email").Where("email = ?", newUser.Username).Take(&checkEmail).Error
+	fetchEmailErr := tx.Select("email").Where("email = ?", newUser.Email).Take(&checkEmail).Error
 	if fetchEmailErr != nil && !errors.Is(fetchEmailErr, gorm.ErrRecordNotFound) {
 		return user.Domain{}, fmt.Errorf("error: email already in use")
 	}
@@ -125,7 +125,15 @@ func (rp *persistenceUserRepository) CreateUser(data *user.Domain) (user.Domain,
 
 	err = tx.Commit().Error
 	if err != nil {
-		return user.Domain{}, err
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			if !strings.EqualFold(pgErr.Code, pgerrcode.UniqueViolation) {
+				fmt.Println(pgErr.Code)
+				fmt.Println(pgerrcode.UniqueViolation)
+				tx.Rollback()
+				return user.Domain{}, err
+			}
+		}
 	}
 
 	return newUser.toDomain(), nil
