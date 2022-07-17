@@ -14,9 +14,10 @@ type persistenceReplyRepository struct {
 }
 
 func (rp *persistenceReplyRepository) GetReplyByThreadID(threadId, limit, offset int) ([]reply.Domain, error) {
-	replies := []Reply{}
+	tx := rp.Conn.Session(&gorm.Session{SkipDefaultTransaction: true})
 
-	fetchErr := rp.Conn.Unscoped().Preload("Author").Where("thread_id = ?", threadId).Limit(limit).Offset(offset).Find(&replies).Error
+	replies := []Reply{}
+	fetchErr := tx.Unscoped().Preload("Author").Where("thread_id = ?", threadId).Limit(limit).Offset(offset).Find(&replies).Error
 	if fetchErr != nil {
 		return []reply.Domain{}, fetchErr
 	}
@@ -29,11 +30,11 @@ func (rp *persistenceReplyRepository) GetReplyByThreadID(threadId, limit, offset
 		var unlikeCount int64
 		var replyCount int64
 
-		rp.Conn.Table("liked_reply").Where("reply_id", replyDomain.ID).Count(&likeCount)
+		tx.Table("liked_reply").Where("reply_id", replyDomain.ID).Count(&likeCount)
 		replyDomain.LikeCount = int(likeCount)
-		rp.Conn.Table("unliked_reply").Where("reply_id", replyDomain.ID).Count(&unlikeCount)
+		tx.Table("unliked_reply").Where("reply_id", replyDomain.ID).Count(&unlikeCount)
 		replyDomain.UnlikeCount = int(unlikeCount)
-		rp.Conn.Model(&Reply{}).Where("parent_id", replyDomain.ID).Count(&replyCount)
+		tx.Model(&Reply{}).Where("parent_id", replyDomain.ID).Count(&replyCount)
 		replyDomain.ReplyCount = int(replyCount)
 
 		domains = append(domains, replyDomain)
@@ -43,8 +44,10 @@ func (rp *persistenceReplyRepository) GetReplyByThreadID(threadId, limit, offset
 }
 
 func (rp *persistenceReplyRepository) GetReplyByID(replyId int, limit int) (reply.Domain, error) {
+	tx := rp.Conn.Session(&gorm.Session{SkipDefaultTransaction: true})
+
 	parentReply := Reply{Model: gorm.Model{ID: uint(replyId)}}
-	fetchErr := rp.Conn.Unscoped().Preload("Author").Take(&parentReply).Error
+	fetchErr := tx.Unscoped().Preload("Author").Take(&parentReply).Error
 	if fetchErr != nil {
 		return parentReply.toDomain(), fetchErr
 	}
@@ -52,7 +55,7 @@ func (rp *persistenceReplyRepository) GetReplyByID(replyId int, limit int) (repl
 	parentDomain := parentReply.toDomain()
 	childs := []Reply{}
 	childsDomains := []reply.Domain{}
-	fetchChildErr := rp.Conn.Preload("Author").Preload("Parent").Limit(limit).Where("parent_id = ?", parentReply.ID).Find(&childs).Error
+	fetchChildErr := tx.Preload("Author").Preload("Parent").Limit(limit).Where("parent_id = ?", parentReply.ID).Find(&childs).Error
 	if fetchChildErr != nil {
 		return parentDomain, fetchChildErr
 	}
@@ -65,13 +68,13 @@ func (rp *persistenceReplyRepository) GetReplyByID(replyId int, limit int) (repl
 		var replyCount int64
 		var childCount int64
 
-		rp.Conn.Table("liked_reply").Where("reply_id", replyDomain.ID).Count(&likeCount)
+		tx.Table("liked_reply").Where("reply_id", replyDomain.ID).Count(&likeCount)
 		replyDomain.LikeCount = int(likeCount)
-		rp.Conn.Table("unliked_reply").Where("reply_id", replyDomain.ID).Count(&unlikeCount)
+		tx.Table("unliked_reply").Where("reply_id", replyDomain.ID).Count(&unlikeCount)
 		replyDomain.UnlikeCount = int(unlikeCount)
-		rp.Conn.Model(&Reply{}).Where("parent_id", replyDomain.ID).Count(&replyCount)
+		tx.Model(&Reply{}).Where("parent_id", replyDomain.ID).Count(&replyCount)
 		replyDomain.ReplyCount = int(replyCount)
-		rp.Conn.Where("parent_id = ?", parentReply.ID).Count(&childCount)
+		tx.Where("parent_id = ?", parentReply.ID).Count(&childCount)
 		replyDomain.ChildCount = int(childCount)
 
 		childsDomains = append(childsDomains, childReply.toDomain())
@@ -83,9 +86,11 @@ func (rp *persistenceReplyRepository) GetReplyByID(replyId int, limit int) (repl
 }
 
 func (rp *persistenceReplyRepository) GetReplyChilds(replyId, limit, offset int) ([]reply.Domain, error) {
+	tx := rp.Conn.Session(&gorm.Session{SkipDefaultTransaction: true})
+
 	childs := []Reply{}
 	domains := []reply.Domain{}
-	fetchChildErr := rp.Conn.Preload("Author").Limit(limit).Offset(offset).Where("parent_id = ?", replyId).Find(&childs).Error
+	fetchChildErr := tx.Preload("Author").Limit(limit).Offset(offset).Where("parent_id = ?", replyId).Find(&childs).Error
 	if fetchChildErr != nil {
 		return domains, fetchChildErr
 	}
@@ -98,13 +103,13 @@ func (rp *persistenceReplyRepository) GetReplyChilds(replyId, limit, offset int)
 		var replyCount int64
 		var childCount int64
 
-		rp.Conn.Table("liked_reply").Where("reply_id", replyDomain.ID).Count(&likeCount)
+		tx.Table("liked_reply").Where("reply_id", replyDomain.ID).Count(&likeCount)
 		replyDomain.LikeCount = int(likeCount)
-		rp.Conn.Table("unliked_reply").Where("reply_id", replyDomain.ID).Count(&unlikeCount)
+		tx.Table("unliked_reply").Where("reply_id", replyDomain.ID).Count(&unlikeCount)
 		replyDomain.UnlikeCount = int(unlikeCount)
-		rp.Conn.Model(&Reply{}).Where("parent_id", replyDomain.ID).Count(&replyCount)
+		tx.Model(&Reply{}).Where("parent_id", replyDomain.ID).Count(&replyCount)
 		replyDomain.ReplyCount = int(replyCount)
-		rp.Conn.Where("parent_id = ?", reply.ID).Count(&childCount)
+		tx.Where("parent_id = ?", reply.ID).Count(&childCount)
 		replyDomain.ChildCount = int(childCount)
 
 		domains = append(domains, replyDomain)
@@ -114,50 +119,74 @@ func (rp *persistenceReplyRepository) GetReplyChilds(replyId, limit, offset int)
 }
 
 func (rp *persistenceReplyRepository) CreateReplyReply(data *reply.Domain, userId, replyId int) (reply.Domain, error) {
+	tx := rp.Conn.Begin()
+
 	parentReply := Reply{Model: gorm.Model{ID: uint(replyId)}}
 	author := user.User{Model: gorm.Model{ID: uint(userId)}}
-	fetchParentResult := rp.Conn.Preload("Topic").Preload("Thread").Take(&parentReply)
-	if fetchParentResult.Error != nil {
-		return reply.Domain{}, fetchParentResult.Error
+	fetchParentErr := tx.Preload("Topic").Preload("Thread").Take(&parentReply).Error
+	if fetchParentErr != nil {
+		return reply.Domain{}, fetchParentErr
 	}
 
-	reply := fromDomain(data)
+	newReply := fromDomain(data)
 
-	authorErr := rp.Conn.Take(&author).Error
+	authorErr := tx.Take(&author).Error
 	if authorErr != nil {
-		return reply.toDomain(), authorErr
+		return newReply.toDomain(), authorErr
 	}
 
-	reply.Author = author
-	reply.Topic = parentReply.Topic
-	reply.Parent = &parentReply
-	reply.Thread = parentReply.Thread
+	newReply.Author = author
+	newReply.Topic = parentReply.Topic
+	newReply.Parent = &parentReply
+	newReply.Thread = parentReply.Thread
 
-	res := rp.Conn.Preload("Author").Create(&reply)
-	return reply.toDomain(), res.Error
+	err := tx.Preload("Author").Create(&newReply).Error
+	if err != nil {
+		tx.Rollback()
+		return reply.Domain{}, err
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return reply.Domain{}, err
+	}
+
+	return newReply.toDomain(), nil
 }
 
 func (rp *persistenceReplyRepository) CreateReplyThread(data *reply.Domain, userId, threadId int) (reply.Domain, error) {
+	tx := rp.Conn.Begin()
+
 	thread := thread.Thread{Model: gorm.Model{ID: uint(threadId)}}
 	author := user.User{Model: gorm.Model{ID: uint(userId)}}
-	reply := fromDomain(data)
+	newReply := fromDomain(data)
 
-	fetchErr := rp.Conn.Preload("Topic").Take(&thread).Error
+	fetchErr := tx.Preload("Topic").Take(&thread).Error
 	if fetchErr != nil {
-		return reply.toDomain(), fetchErr
+		return reply.Domain{}, fetchErr
 	}
 
-	authorErr := rp.Conn.Take(&author).Error
+	authorErr := tx.Take(&author).Error
 	if authorErr != nil {
-		return reply.toDomain(), authorErr
+		return reply.Domain{}, authorErr
 	}
 
-	reply.Author = author
-	reply.Topic = thread.Topic
-	reply.Thread = thread
+	newReply.Author = author
+	newReply.Topic = thread.Topic
+	newReply.Thread = thread
 
-	res := rp.Conn.Create(&reply)
-	return reply.toDomain(), res.Error
+	err := tx.Create(&newReply).Error
+	if err != nil {
+		tx.Rollback()
+		return reply.Domain{}, err
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return reply.Domain{}, err
+	}
+
+	return newReply.toDomain(), nil
 }
 
 func (rp *persistenceReplyRepository) DeleteReply(userId, replyId int) error {
@@ -166,12 +195,14 @@ func (rp *persistenceReplyRepository) DeleteReply(userId, replyId int) error {
 }
 
 func (rp *persistenceReplyRepository) EditReply(data *reply.Domain, userId, replyId int) (reply.Domain, error) {
+	tx := rp.Conn.Begin()
+
 	updatedReply := fromDomain(data)
 
 	existingReply := Reply{}
-	fetchResult := rp.Conn.Where("author_id = ?", userId).Take(&existingReply, replyId)
-	if fetchResult.Error != nil {
-		return reply.Domain{}, fetchResult.Error
+	fetchResultErr := tx.Where("author_id = ?", userId).Take(&existingReply, replyId).Error
+	if fetchResultErr != nil {
+		return reply.Domain{}, fetchResultErr
 	}
 
 	existingReply.Content = updatedReply.Content
@@ -179,57 +210,96 @@ func (rp *persistenceReplyRepository) EditReply(data *reply.Domain, userId, repl
 		existingReply.Image = updatedReply.Image
 	}
 
-	err := rp.Conn.Where("author_id = ?", userId).Save(&existingReply).Error
+	err := tx.Where("author_id = ?", userId).Save(&existingReply).Error
 	if err != nil {
-		return existingReply.toDomain(), err
+		tx.Rollback()
+		return reply.Domain{}, err
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return reply.Domain{}, err
 	}
 
 	replyDomain := existingReply.toDomain()
+
 	var likeCount int64
 	var unlikeCount int64
 	var replyCount int64
 	var childCount int64
 
-	rp.Conn.Table("liked_reply").Where("reply_id", replyDomain.ID).Count(&likeCount)
+	tx.Table("liked_reply").Where("reply_id", replyDomain.ID).Count(&likeCount)
 	replyDomain.LikeCount = int(likeCount)
-	rp.Conn.Table("unliked_reply").Where("reply_id", replyDomain.ID).Count(&unlikeCount)
+	tx.Table("unliked_reply").Where("reply_id", replyDomain.ID).Count(&unlikeCount)
 	replyDomain.UnlikeCount = int(unlikeCount)
-	rp.Conn.Model(&Reply{}).Where("parent_id", replyDomain.ID).Count(&replyCount)
+	tx.Model(&Reply{}).Where("parent_id", replyDomain.ID).Count(&replyCount)
 	replyDomain.ReplyCount = int(replyCount)
-	rp.Conn.Where("parent_id = ?", existingReply.ID).Count(&childCount)
+	tx.Where("parent_id = ?", existingReply.ID).Count(&childCount)
 	replyDomain.ChildCount = int(childCount)
 
-	return existingReply.toDomain(), err
+	return existingReply.toDomain(), nil
 }
 
 func (rp *persistenceReplyRepository) Like(userId, replyId int) error {
+	tx := rp.Conn.Begin()
+
 	undoErr := rp.UndoUnlike(userId, replyId)
 	if undoErr != nil && !errors.Is(undoErr, gorm.ErrRecordNotFound) {
 		return undoErr
 	}
 
 	reply := Reply{Model: gorm.Model{ID: uint(replyId)}}
-	return rp.Conn.Model(&reply).Association("LikedBy").Append(&user.User{Model: gorm.Model{ID: uint(userId)}})
+	err := tx.Model(&reply).Association("LikedBy").Append(&user.User{Model: gorm.Model{ID: uint(userId)}})
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return nil
 }
 
 func (rp *persistenceReplyRepository) UndoLike(userId, replyId int) error {
+	tx := rp.Conn.Begin()
+
 	reply := Reply{Model: gorm.Model{ID: uint(replyId)}}
-	return rp.Conn.Model(&reply).Association("LikedBy").Delete(&user.User{Model: gorm.Model{ID: uint(userId)}})
+	err := tx.Model(&reply).Association("LikedBy").Delete(&user.User{Model: gorm.Model{ID: uint(userId)}})
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return nil
 }
 
 func (rp *persistenceReplyRepository) UndoUnlike(userId, replyId int) error {
+	tx := rp.Conn.Begin()
+
 	reply := Reply{Model: gorm.Model{ID: uint(replyId)}}
-	return rp.Conn.Model(&reply).Association("UnlikedBy").Delete(&user.User{Model: gorm.Model{ID: uint(userId)}})
+	err := tx.Model(&reply).Association("UnlikedBy").Delete(&user.User{Model: gorm.Model{ID: uint(userId)}})
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return nil
 }
 
 func (rp *persistenceReplyRepository) Unlike(userId, replyId int) error {
+	tx := rp.Conn.Begin()
+
 	undoErr := rp.UndoLike(userId, replyId)
 	if undoErr != nil && !errors.Is(undoErr, gorm.ErrRecordNotFound) {
 		return undoErr
 	}
 
 	reply := Reply{Model: gorm.Model{ID: uint(replyId)}}
-	return rp.Conn.Model(&reply).Association("UnlikedBy").Append(&user.User{Model: gorm.Model{ID: uint(userId)}})
+	err := tx.Model(&reply).Association("UnlikedBy").Append(&user.User{Model: gorm.Model{ID: uint(userId)}})
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return nil
 }
 
 func InitPersistenceReplyRepository(c *gorm.DB) reply.Repository {
