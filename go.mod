@@ -7,11 +7,19 @@ require gorm.io/gorm v1.23.8
 
 require github.com/google/uuid v1.3.0
 
-require github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa // indirect
+require gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
+
+require (
+	github.com/go-playground/locales v0.14.0 // indirect
+	github.com/go-playground/universal-translator v0.18.0 // indirect
+	github.com/go-playground/validator v9.31.0+incompatible
+	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
+	github.com/leodido/go-urn v1.2.1 // indirect
+)
 
 require (
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
-	github.com/jackc/pgconn v1.12.1 // indirect
+	github.com/jackc/pgconn v1.12.1
 	github.com/jackc/pgio v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgproto3/v2 v2.3.0 // indirect

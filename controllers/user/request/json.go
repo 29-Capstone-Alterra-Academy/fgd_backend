@@ -6,9 +6,9 @@ import (
 )
 
 type UserAuth struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Username string `json:"username" validate:"omitempty,alphanumeric,min=6"`
+	Email    string `json:"email" validate:"omitempty,email"`
+	Password string `json:"password" validate:"required,min=8"`
 }
 
 type UserProfile struct {
@@ -21,7 +21,7 @@ type UserProfile struct {
 }
 
 type TokenRequest struct {
-	RefreshToken string `json:"refresh_token"`
+	RefreshToken string `json:"refresh_token" validate:"required,jwt"`
 }
 
 func (r *UserAuth) ToDomain() *user.Domain {
