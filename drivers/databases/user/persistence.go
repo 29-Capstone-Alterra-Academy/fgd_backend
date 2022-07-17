@@ -94,11 +94,9 @@ func (rp *persistenceUserRepository) CheckEmailAvailibility(email string) bool {
 }
 
 func (rp *persistenceUserRepository) CreateUser(data *user.Domain) (user.Domain, error) {
-	newUser := fromDomain(*data)
-
-	newUser.Role = "user"
-
 	tx := rp.Conn.Begin()
+
+	newUser := fromDomain(*data)
 
 	err := tx.Omit(clause.Associations).Create(&newUser).Error
 	if err != nil {
