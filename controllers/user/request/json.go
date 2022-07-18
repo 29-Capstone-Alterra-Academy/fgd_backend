@@ -6,7 +6,7 @@ import (
 )
 
 type UserAuth struct {
-	Username string `json:"username" validate:"omitempty,alphanumeric,min=6"`
+	Username string `json:"username" validate:"omitempty,alphanum,min=6"`
 	Email    string `json:"email" validate:"omitempty,email"`
 	Password string `json:"password" validate:"required,min=8"`
 }
