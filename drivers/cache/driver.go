@@ -19,7 +19,7 @@ func (c *CacheConfig) InitCacheDB() *redis.Client {
 	client := redis.NewClient(&redis.Options{
 		Username: c.Username,
 		Password: c.Password,
-		Addr:     fmt.Sprintf("%s:%s", c.Host, c.Password),
+		Addr:     fmt.Sprintf("%s:%s", c.Host, c.Port),
 		DB:       0,
 	})
 
