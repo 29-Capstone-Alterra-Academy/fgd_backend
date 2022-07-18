@@ -11,6 +11,7 @@ type authUsecase struct {
 
 func (uc *authUsecase) CheckAuth(userId int, uuid string) error {
 	cacheId, err := uc.authRepository.FetchAuth(uuid)
+	fmt.Println(cacheId)
 	if err != nil || cacheId == 0 {
 		return err
 	}
