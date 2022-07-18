@@ -38,6 +38,7 @@ func (c *Controllers) Register(e *echo.Echo) {
 	e.Static("/", "files")
 
 	e.POST("/login", c.UserController.Login)
+	e.POST("/logout", c.UserController.Logout, jwtMiddleware)
 	e.POST("/register", c.UserController.Register)
 	e.POST("/reset", c.VerifyController.RequestForgetPassword)
 	e.GET("/user/check", c.UserController.CheckAvailibility)
