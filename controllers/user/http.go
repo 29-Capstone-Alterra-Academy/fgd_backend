@@ -39,7 +39,7 @@ func InitUserController(ac auth.Usecase, uc user.Usecase, vc verify.Usecase, con
 }
 
 func (cr *UserController) Login(c echo.Context) error {
-	user := request.UserAuth{}
+	user := request.UserLogin{}
 	if err := c.Bind(&user); err != nil {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -64,7 +64,7 @@ func (cr *UserController) Logout(c echo.Context) error {
 }
 
 func (cr *UserController) Register(c echo.Context) error {
-	user := request.UserAuth{}
+	user := request.UserRegister{}
 	err := c.Bind(&user)
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
