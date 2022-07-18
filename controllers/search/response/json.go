@@ -40,6 +40,7 @@ type ThreadResult struct {
 	LikedCount   int          `json:"liked_count"`
 	UnlikedCount int          `json:"unliked_count"`
 	ReplyCount   int          `json:"reply_count"`
+	CreatedAt    time.Time    `json:"created_at"`
 	UpdatedAt    time.Time    `json:"updated_at"`
 }
 
@@ -121,6 +122,7 @@ func FromThreadDomains(data *[]thread.Domain) []ThreadResult {
 			LikedCount:   domain.LikeCount,
 			UnlikedCount: domain.UnlikeCount,
 			ReplyCount:   domain.ReplyCount,
+			CreatedAt:    domain.CreatedAt,
 			UpdatedAt:    domain.UpdatedAt,
 		})
 	}
