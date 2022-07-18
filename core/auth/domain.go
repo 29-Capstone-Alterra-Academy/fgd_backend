@@ -8,13 +8,13 @@ type Domain struct {
 }
 
 type Usecase interface {
-	CheckAuth(userId int, uuid string) error
+	CheckAuth(uuid string) error
 	DeleteAuth(uuid string) error
 	StoreAuth(userId int, accessUuid, refreshUuid string, accessExpiry, refreshExpiry time.Duration) error
 }
 
 type Repository interface {
-	FetchAuth(uuid string) (int, error)
+	FetchAuth(uuid string) error
 	DeleteAuth(uuid string) error
 	StoreAuth(userId int, accessUuid, refreshUuid string, accessExpiry, refreshExpiry time.Duration) error
 }
