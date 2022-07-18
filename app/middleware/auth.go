@@ -98,7 +98,7 @@ func (c *JWTConfig) CustomKeyFunc(token *jwt.Token) (interface{}, error) {
 		return CustomToken{}, fmt.Errorf("error parsing token: invalid issuer")
 	}
 
-	cacheErr := c.AuthUsecase.CheckAuth(claims.UUID)
+	cacheErr := c.AuthUsecase.CheckAuth(claims.UserID, claims.UUID)
 	if cacheErr != nil {
 		return CustomToken{}, fmt.Errorf("error parsing token: token already expired")
 	}

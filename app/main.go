@@ -31,7 +31,6 @@ import (
 
 	factory "fgd/drivers"
 	cache_driver "fgd/drivers/cache"
-	_authRepo "fgd/drivers/databases/auth"
 	_moderatorRepo "fgd/drivers/databases/moderator"
 	_replyRepo "fgd/drivers/databases/reply"
 	_reportRepo "fgd/drivers/databases/report"
@@ -48,7 +47,6 @@ import (
 
 func migrate(c *gorm.DB) error {
 	c.AutoMigrate(
-		&_authRepo.Auth{},
 		&_moderatorRepo.ModeratorRequest{},
 		&_reportRepo.ReportReason{},
 		&_replyRepo.Reply{},
