@@ -30,6 +30,7 @@ import (
 	verifyCore "fgd/core/verify"
 
 	factory "fgd/drivers"
+	cache_driver "fgd/drivers/cache"
 	_authRepo "fgd/drivers/databases/auth"
 	_moderatorRepo "fgd/drivers/databases/moderator"
 	_replyRepo "fgd/drivers/databases/reply"
@@ -84,18 +85,20 @@ func migrate(c *gorm.DB) error {
 
 func main() {
 	conf := config.InitializeConfig()
+
+	cacheConf := cache_driver.CacheConfig{
+		Username: conf.CACHE_USERNAME,
+		Password: conf.CACHE_PASSWORD,
+		Host:     conf.CACHE_HOST,
+		Port:     conf.CACHE_PORT,
+	}
+
 	dbConf := persistence_driver.PersistenceConfig{
 		Username: conf.DB_USERNAME,
 		Password: conf.DB_PASSWORD,
 		Host:     conf.DB_HOST,
 		Port:     conf.DB_PORT,
 		Database: conf.DB_NAME,
-	}
-
-	jwtConf := middleware.JWTConfig{
-		Secret:        conf.JWT_SECRET,
-		AccessExpiry:  time.Hour * 8,
-		RefreshExpiry: time.Hour * 24 * 7,
 	}
 
 	storageHelper := storage.NewStorageHelper(conf)
@@ -111,13 +114,23 @@ func main() {
 		log.Fatal(err)
 	}
 
+	cacheConn := cacheConf.InitCacheDB()
 	dbConn := dbConf.InitPersistenceDB()
 	migrateErr := migrate(dbConn)
 	if migrateErr != nil {
 		log.Fatal(migrateErr)
 	}
 
-	authRepo := factory.NewAuthRepository(dbConn)
+	authRepo := factory.NewAuthRepository(cacheConn)
+	authUsecase := authCore.InitAuthUsecase(authRepo)
+
+	jwtConf := middleware.JWTConfig{
+		AuthUsecase:   authUsecase,
+		Secret:        conf.JWT_SECRET,
+		AccessExpiry:  time.Hour * 8,
+		RefreshExpiry: time.Hour * 24 * 7,
+	}
+
 	userRepo := factory.NewUserRepository(dbConn)
 	topicRepo := factory.NewTopicRepository(dbConn)
 	threadRepo := factory.NewThreadRepository(dbConn)
@@ -127,7 +140,6 @@ func main() {
 	searchRepo := factory.NewSearchRepository(dbConn)
 	verifyRepo := factory.NewVerifyRepository(dbConn)
 
-	authUsecase := authCore.InitAuthUsecase(authRepo)
 	userUsecase := userCore.InitUserUsecase(authUsecase, userRepo, conf, &jwtConf)
 	topicUsecase := topicCore.InitTopicUsecase(topicRepo, userUsecase, conf)
 	threadUsecase := threadCore.InitThreadUsecase(threadRepo, topicUsecase, userUsecase, conf)

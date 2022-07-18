@@ -1,21 +1,21 @@
 package auth
 
-import "fgd/app/middleware"
+import "time"
 
 type authUsecase struct {
 	authRepository Repository
 }
 
-func (uc *authUsecase) DeleteAuth(userId int) error {
-	return uc.authRepository.DeleteAuth(userId)
+func (uc *authUsecase) CheckAuth(uuid string) error {
+	return uc.authRepository.FetchAuth(uuid)
 }
 
-func (uc *authUsecase) FetchAuth(userId int) (Domain, error) {
-	return uc.authRepository.FetchAuth(userId)
+func (uc *authUsecase) DeleteAuth(uuid string) error {
+	return uc.authRepository.DeleteAuth(uuid)
 }
 
-func (uc *authUsecase) StoreAuth(userId int, auth middleware.CustomToken) error {
-	return uc.authRepository.StoreAuth(userId, auth)
+func (uc *authUsecase) StoreAuth(userId int, accessUuid string, refreshUuid string, accessExpiry time.Duration, refreshExpiry time.Duration) error {
+	return uc.authRepository.StoreAuth(userId, accessUuid, refreshUuid, accessExpiry, refreshExpiry)
 }
 
 func InitAuthUsecase(r Repository) Usecase {

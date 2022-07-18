@@ -20,11 +20,12 @@ import (
 	"fgd/drivers/databases/user"
 	"fgd/drivers/databases/verify"
 
+	"github.com/go-redis/redis/v9"
 	"gorm.io/gorm"
 )
 
-func NewAuthRepository(c *gorm.DB) authDomain.Repository {
-	return auth.InitPersistenceAuthRepository(c)
+func NewAuthRepository(c *redis.Client) authDomain.Repository {
+	return auth.InitCacheAuthRepository(c)
 }
 
 func NewModeratorRepository(c *gorm.DB) moderatorDomain.Repository {

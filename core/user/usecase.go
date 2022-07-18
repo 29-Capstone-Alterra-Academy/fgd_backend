@@ -53,7 +53,7 @@ func (uc *userUsecase) CreateToken(username string, email string, password strin
 		return middleware.CustomToken{}, fmt.Errorf("error creating token: %v", err)
 	}
 
-	err = uc.authUsecase.StoreAuth(userDomain.ID, token)
+	err = uc.authUsecase.StoreAuth(userDomain.ID, token.AccessUUID, token.RefreshUUID, token.AccessExpiry, token.RefreshExpiry)
 
 	return token, err
 }
