@@ -33,8 +33,8 @@ func (rp *persistenceAuthRepository) StoreAuth(userId int, auth middleware.Custo
 	return res.Error
 }
 
-func InitPersistenceAuthRepository(c *gorm.DB) auth.Repository {
-	return &persistenceAuthRepository{
-		Conn: c,
-	}
-}
+// func InitPersistenceAuthRepository(c *gorm.DB) auth.Repository {
+// 	return &persistenceAuthRepository{
+// 		Conn: c,
+// 	}
+// }

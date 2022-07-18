@@ -55,7 +55,7 @@ func (cr *UserController) Login(c echo.Context) error {
 func (cr *UserController) Logout(c echo.Context) error {
 	claims := middleware.ExtractUserClaims(c)
 
-	err := cr.authUsecase.DeleteAuth(claims.UserID)
+	err := cr.authUsecase.DeleteAuth(claims.UUID)
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusUnprocessableEntity, err.Error())
 	}

@@ -1,6 +1,6 @@
 package auth
 
-import "fgd/app/middleware"
+import "time"
 
 type Domain struct {
 	AuthUUID    string
@@ -8,13 +8,13 @@ type Domain struct {
 }
 
 type Usecase interface {
-	FetchAuth(userId int) (Domain, error)
-	DeleteAuth(userId int) error
-	StoreAuth(userId int, auth middleware.CustomToken) error
+	CheckAuth(uuid string) error
+	DeleteAuth(uuid string) error
+	StoreAuth(userId int, accessUuid, refreshUuid string, accessExpiry, refreshExpiry time.Duration) error
 }
 
 type Repository interface {
-	FetchAuth(userId int) (Domain, error)
-	DeleteAuth(userId int) error
-	StoreAuth(userId int, auth middleware.CustomToken) error
+	FetchAuth(uuid string) error
+	DeleteAuth(uuid string) error
+	StoreAuth(userId int, accessUuid, refreshUuid string, accessExpiry, refreshExpiry time.Duration) error
 }

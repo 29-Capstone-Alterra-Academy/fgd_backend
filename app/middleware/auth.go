@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fgd/core/auth"
 	"fmt"
 	"time"
 
@@ -19,6 +20,7 @@ type JWTCustomClaims struct {
 }
 
 type JWTConfig struct {
+	AuthUsecase   auth.Usecase
 	Secret        string
 	AccessExpiry  time.Duration
 	RefreshExpiry time.Duration
@@ -90,8 +92,15 @@ func (c *JWTConfig) CustomKeyFunc(token *jwt.Token) (interface{}, error) {
 		return CustomToken{}, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 	}
 
-	if eqIss := token.Claims.(*JWTCustomClaims).VerifyIssuer("nomizo", false); !eqIss {
+	claims := token.Claims.(*JWTCustomClaims)
+
+	if eqIss := claims.VerifyIssuer("nomizo", false); !eqIss {
 		return CustomToken{}, fmt.Errorf("error parsing token: invalid issuer")
+	}
+
+	cacheErr := c.AuthUsecase.CheckAuth(claims.UUID)
+	if cacheErr != nil {
+		return CustomToken{}, fmt.Errorf("error parsing token: token already expired")
 	}
 
 	return []byte(c.Secret), nil
