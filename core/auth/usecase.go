@@ -1,13 +1,25 @@
 package auth
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type authUsecase struct {
 	authRepository Repository
 }
 
-func (uc *authUsecase) CheckAuth(uuid string) error {
-	return uc.authRepository.FetchAuth(uuid)
+func (uc *authUsecase) CheckAuth(userId int, uuid string) error {
+	cacheId, err := uc.authRepository.FetchAuth(uuid)
+	if err != nil || cacheId == 0 {
+		return err
+	}
+
+	if userId != cacheId {
+		return fmt.Errorf("error: token data mismatch")
+	}
+
+	return nil
 }
 
 func (uc *authUsecase) DeleteAuth(uuid string) error {
