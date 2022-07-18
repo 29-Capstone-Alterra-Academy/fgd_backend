@@ -60,7 +60,9 @@ func (cr *UserController) Logout(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusUnprocessableEntity, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusOK, nil)
+	return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+		"message": "Succesfully logged out",
+	})
 }
 
 func (cr *UserController) Register(c echo.Context) error {
@@ -85,7 +87,9 @@ func (cr *UserController) Register(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	return controllers.SuccessResponse(c, http.StatusCreated, nil)
+	return controllers.SuccessResponse(c, http.StatusCreated, map[string]interface{}{
+		"message": "Success registering user",
+	})
 }
 
 func (cr *UserController) RefreshToken(c echo.Context) error {
@@ -135,7 +139,9 @@ func (cr *UserController) CheckAvailibility(c echo.Context) error {
 	}
 
 	if !exist {
-		return controllers.SuccessResponse(c, http.StatusOK, nil)
+		return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+			"message": "username/email is available to use",
+		})
 	} else {
 		return controllers.FailureResponse(c, http.StatusBadRequest, "error: username/email already used")
 	}
@@ -154,7 +160,9 @@ func (cr *UserController) Follow(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusBadRequest, "error following user")
 	}
 
-	return c.NoContent(http.StatusOK)
+	return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+		"message": "Success following user",
+	})
 }
 
 func (cr *UserController) Unfollow(c echo.Context) error {
@@ -170,7 +178,9 @@ func (cr *UserController) Unfollow(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusBadRequest, "error unfollowing user")
 	}
 
-	return c.NoContent(http.StatusOK)
+	return controllers.SuccessResponse(c, http.StatusOK, map[string]interface{}{
+		"message": "Success unfollowing user",
+	})
 }
 
 func (cr *UserController) GetProfile(c echo.Context) error {
