@@ -13,8 +13,13 @@ type cacheAuthRepository struct {
 	Client *redis.Client
 }
 
-func (rp *cacheAuthRepository) FetchAuth(uuid string) error {
-	return rp.Client.Get(context.Background(), uuid).Err()
+func (rp *cacheAuthRepository) FetchAuth(uuid string) (int, error) {
+	idStr, err := rp.Client.Get(context.Background(), uuid).Result()
+	if err != nil {
+		return 0, err
+	}
+
+	return strconv.Atoi(idStr)
 }
 
 func (rp *cacheAuthRepository) StoreAuth(userId int, accessUuid, refreshUuid string, accessExpiry, refreshExpiry time.Duration) error {
