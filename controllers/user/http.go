@@ -110,6 +110,7 @@ func (cr *UserController) RefreshToken(c echo.Context) error {
 	var newToken middleware.CustomToken
 	claims, ok := token.Claims.(*middleware.JWTCustomClaims)
 	if ok && token.Valid {
+		cr.authUsecase.DeleteAuth(claims.UUID)
 		user, err := cr.userUsecase.GetPersonalProfile(claims.UserID)
 		if err != nil {
 			return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
