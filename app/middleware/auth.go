@@ -38,6 +38,7 @@ type CustomToken struct {
 func (c *JWTConfig) Init() middleware.JWTConfig {
 	return middleware.JWTConfig{
 		Claims:     &JWTCustomClaims{},
+		KeyFunc:    c.CustomKeyFunc,
 		SigningKey: []byte(c.Secret),
 	}
 }
