@@ -68,6 +68,22 @@ func (rp *persistenceTopicRepository) GetTopicDetails(topicId int) (topic.Domain
 	return topicDomain, nil
 }
 
+func (rp *persistenceTopicRepository) GetSubscribedTopics(userId int) ([]topic.Domain, error) {
+	topics := []Topic{}
+	topicDomains := []topic.Domain{}
+
+	err := rp.Conn.Select("topics.id", "topics.name", "topics.profile_image").Joins("left join subscribed_topic on subscribed_topic.topic_id = topics.id").Where("subscribed_topic.user_id = ?", userId).Find(&topics).Error
+	if err != nil {
+		return topicDomains, err
+	}
+
+	for _, topic := range topics {
+		topicDomains = append(topicDomains, topic.toDomain())
+	}
+
+	return topicDomains, nil
+}
+
 func (rp *persistenceTopicRepository) GetTopics(limit, offset int, sort_by string) ([]topic.Domain, error) {
 	topics := []Topic{}
 

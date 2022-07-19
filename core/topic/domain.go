@@ -19,6 +19,7 @@ type Domain struct {
 type Usecase interface {
 	CreateTopic(data *Domain, userId int) (Domain, error)
 	CheckTopicAvailibility(topicName string) bool
+	GetSubscribedTopics(userId int) ([]Domain, error)
 	GetTopics(limit, offset int, sort_by string) ([]Domain, error)
 	GetTopicsByKeyword(keyword string, limit, offset int) ([]Domain, error)
 	GetTopicDetails(topicId int) (Domain, error)
@@ -31,6 +32,7 @@ type Usecase interface {
 type Repository interface {
 	CreateTopic(data *Domain) (Domain, error)
 	CheckTopicAvailibility(topicName string) bool
+	GetSubscribedTopics(userId int) ([]Domain, error)
 	GetTopics(limit, offset int, sort_by string) ([]Domain, error)
 	GetTopicsByKeyword(keyword string, limit, offset int) ([]Domain, error)
 	GetTopicDetails(topicId int) (Domain, error)

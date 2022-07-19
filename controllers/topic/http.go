@@ -125,6 +125,16 @@ func (cr *TopicController) CheckAvailibility(c echo.Context) error {
 // func (cr *TopicController) GetModerators(c echo.Context) error {}
 
 func (cr *TopicController) GetTopics(c echo.Context) error {
+	userId, err := strconv.Atoi(c.QueryParam("userId"))
+	if err == nil {
+		topicDomains, err := cr.topicUsecase.GetSubscribedTopics(userId)
+		if err != nil {
+			return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+		}
+
+		return controllers.SuccessResponse(c, http.StatusOK, response.FromDomains(&topicDomains))
+	}
+
 	limit, err := strconv.Atoi(c.QueryParam("limit"))
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())

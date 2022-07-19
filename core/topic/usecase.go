@@ -44,6 +44,19 @@ func (uc *topicUsecase) GetModerators(topicId int) ([]Domain, error) {
 	panic("unimplemented")
 }
 
+func (uc *topicUsecase) GetSubscribedTopics(userId int) ([]Domain, error) {
+	topics, err := uc.topicRepository.GetSubscribedTopics(userId)
+	if err != nil {
+		return []Domain{}, nil
+	}
+
+	for _, topic := range topics {
+		format.FormatImageLink(uc.config, topic.ProfileImage)
+	}
+
+	return topics, nil
+}
+
 func (uc *topicUsecase) GetTopics(limit, offset int, sort_by string) ([]Domain, error) {
 	topics, err := uc.topicRepository.GetTopics(limit, offset, sort_by)
 	if err != nil {
