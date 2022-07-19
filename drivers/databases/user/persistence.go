@@ -16,6 +16,22 @@ type persistenceUserRepository struct {
 	Conn *gorm.DB
 }
 
+func (rp *persistenceUserRepository) GetModerators(topicId int) ([]user.Domain, error) {
+	moderators := []User{}
+	err := rp.Conn.Model(&User{}).Select("users.id", "users.username", "users.profile_image").Joins("left join topic_moderator on topic_moderator.user_id = users.id").Where("topic_moderator.topic_id = ?", topicId).Find(&moderators).Error
+	if err != nil {
+		return []user.Domain{}, err
+	}
+
+	userDomains := []user.Domain{}
+
+	for _, follower := range moderators {
+		userDomains = append(userDomains, follower.toDomain())
+	}
+
+	return userDomains, nil
+}
+
 func (rp *persistenceUserRepository) GetFollowers(userId int) ([]user.Domain, error) {
 	followers := []User{}
 	err := rp.Conn.Table("user_follow").Where("following_id = ?", userId).Select("ID", "Username", "ProfileImage").Find(&followers).Error

@@ -68,6 +68,22 @@ func (rp *persistenceTopicRepository) GetTopicDetails(topicId int) (topic.Domain
 	return topicDomain, nil
 }
 
+func (rp *persistenceTopicRepository) GetSubscribedTopics(userId int) ([]topic.Domain, error) {
+	topics := []Topic{}
+	topicDomains := []topic.Domain{}
+
+	err := rp.Conn.Select("topics.id", "topics.name", "topics.profile_image").Joins("left join subscribed_topic on subscribed_topic.topic_id = topics.id").Where("subscribed_topic.user_id = ?", userId).Find(&topics).Error
+	if err != nil {
+		return topicDomains, err
+	}
+
+	for _, topic := range topics {
+		topicDomains = append(topicDomains, topic.toDomain())
+	}
+
+	return topicDomains, nil
+}
+
 func (rp *persistenceTopicRepository) GetTopics(limit, offset int, sort_by string) ([]topic.Domain, error) {
 	topics := []Topic{}
 
@@ -123,6 +139,7 @@ func (rp *persistenceTopicRepository) GetTopicsByKeyword(keyword string, limit, 
 }
 
 func (rp *persistenceTopicRepository) Subscribe(userId int, topicId int) error {
+	user := user.User{Model: gorm.Model{ID: uint(userId)}}
 	topic := Topic{Model: gorm.Model{ID: uint(topicId)}}
 
 	tx := rp.Conn.Begin()
@@ -130,18 +147,17 @@ func (rp *persistenceTopicRepository) Subscribe(userId int, topicId int) error {
 	err := tx.
 		Model(&topic).
 		Association("SubscribedBy").
-		Append(&user.User{
-			Model: gorm.Model{ID: uint(userId)},
-		})
+		Append(&user)
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	return nil
+	return tx.Commit().Error
 }
 
 func (rp *persistenceTopicRepository) Unsubscribe(userId int, topicId int) error {
+	user := user.User{Model: gorm.Model{ID: uint(userId)}}
 	topic := Topic{Model: gorm.Model{ID: uint(topicId)}}
 
 	tx := rp.Conn.Begin()
@@ -149,15 +165,13 @@ func (rp *persistenceTopicRepository) Unsubscribe(userId int, topicId int) error
 	err := tx.
 		Model(&topic).
 		Association("SubscribedBy").
-		Delete(&user.User{
-			Model: gorm.Model{ID: uint(userId)},
-		})
+		Delete(&user)
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	return nil
+	return tx.Commit().Error
 }
 
 func (rp *persistenceTopicRepository) UpdateTopic(data *topic.Domain, topicId int) (topic.Domain, error) {

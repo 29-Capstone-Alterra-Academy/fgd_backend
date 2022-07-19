@@ -2,6 +2,7 @@ package response
 
 import (
 	"fgd/core/topic"
+	"fgd/core/user"
 	"time"
 )
 
@@ -19,6 +20,12 @@ type Topic struct {
 	DeletedAt        *time.Time `json:"deleted_at"`
 }
 
+type TopicModerator struct {
+	ID           int     `json:"id"`
+	Username     string  `json:"username"`
+	ProfileImage *string `json:"profile_image"`
+}
+
 func FromDomain(domain topic.Domain) Topic {
 	return Topic{
 		ID:               domain.ID,
@@ -33,4 +40,40 @@ func FromDomain(domain topic.Domain) Topic {
 		UpdatedAt:        domain.UpdatedAt,
 		DeletedAt:        domain.DeletedAt,
 	}
+}
+
+func FromDomains(domains *[]topic.Domain) []Topic {
+	topics := []Topic{}
+
+	for _, domain := range *domains {
+		topics = append(topics, Topic{
+			ID:               domain.ID,
+			Name:             domain.Name,
+			ProfileImage:     domain.ProfileImage,
+			Description:      domain.Description,
+			Rules:            domain.Rules,
+			ActivityCount:    domain.ActivityCount,
+			ContributorCount: domain.ContributorCount,
+			ModeratorCount:   domain.ModeratorCount,
+			CreatedAt:        domain.CreatedAt,
+			UpdatedAt:        domain.UpdatedAt,
+			DeletedAt:        domain.DeletedAt,
+		})
+	}
+
+	return topics
+}
+
+func FromUserDomains(domains *[]user.Domain) []TopicModerator {
+	users := []TopicModerator{}
+
+	for _, domain := range *domains {
+		users = append(users, TopicModerator{
+			ID:           domain.ID,
+			Username:     domain.Username,
+			ProfileImage: domain.ProfileImage,
+		})
+	}
+
+	return users
 }

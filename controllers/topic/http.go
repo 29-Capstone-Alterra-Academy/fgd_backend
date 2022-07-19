@@ -122,9 +122,31 @@ func (cr *TopicController) CheckAvailibility(c echo.Context) error {
 	}
 }
 
-// func (cr *TopicController) GetModerators(c echo.Context) error {}
+func (cr *TopicController) GetModerators(c echo.Context) error {
+	topicId, err := strconv.Atoi(c.Param("topicId"))
+	if err != nil {
+		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+	}
+
+	userDomains, err := cr.userUsecase.GetModerators(topicId)
+	if err != nil {
+		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+	}
+
+	return controllers.SuccessResponse(c, http.StatusOK, response.FromUserDomains(&userDomains))
+}
 
 func (cr *TopicController) GetTopics(c echo.Context) error {
+	userId, err := strconv.Atoi(c.QueryParam("userId"))
+	if err == nil {
+		topicDomains, err := cr.topicUsecase.GetSubscribedTopics(userId)
+		if err != nil {
+			return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
+		}
+
+		return controllers.SuccessResponse(c, http.StatusOK, response.FromDomains(&topicDomains))
+	}
+
 	limit, err := strconv.Atoi(c.QueryParam("limit"))
 	if err != nil {
 		return controllers.FailureResponse(c, http.StatusBadRequest, err.Error())
@@ -140,12 +162,7 @@ func (cr *TopicController) GetTopics(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	topics := []response.Topic{}
-	for _, topicDomain := range topicDomains {
-		topics = append(topics, response.FromDomain(topicDomain))
-	}
-
-	return controllers.SuccessResponse(c, http.StatusOK, topics)
+	return controllers.SuccessResponse(c, http.StatusOK, response.FromDomains(&topicDomains))
 }
 
 func (cr *TopicController) GetTopicDetails(c echo.Context) error {

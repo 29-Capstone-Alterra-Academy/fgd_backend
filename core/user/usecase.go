@@ -18,6 +18,19 @@ type userUsecase struct {
 	jwtAuth        *middleware.JWTConfig
 }
 
+func (uc *userUsecase) GetModerators(topicId int) ([]Domain, error) {
+	moderators, err := uc.userRepository.GetModerators(topicId)
+	if err != nil {
+		return []Domain{}, err
+	}
+
+	for _, mod := range moderators {
+		format.FormatImageLink(uc.config, mod.ProfileImage)
+	}
+
+	return moderators, nil
+}
+
 func (uc *userUsecase) GetFollowers(userId int) ([]Domain, error) {
 	return uc.userRepository.GetFollowers(userId)
 }
