@@ -140,12 +140,7 @@ func (cr *TopicController) GetTopics(c echo.Context) error {
 		return controllers.FailureResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	topics := []response.Topic{}
-	for _, topicDomain := range topicDomains {
-		topics = append(topics, response.FromDomain(topicDomain))
-	}
-
-	return controllers.SuccessResponse(c, http.StatusOK, topics)
+	return controllers.SuccessResponse(c, http.StatusOK, response.FromDomains(&topicDomains))
 }
 
 func (cr *TopicController) GetTopicDetails(c echo.Context) error {

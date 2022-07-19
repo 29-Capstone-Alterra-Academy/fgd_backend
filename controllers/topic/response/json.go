@@ -34,3 +34,25 @@ func FromDomain(domain topic.Domain) Topic {
 		DeletedAt:        domain.DeletedAt,
 	}
 }
+
+func FromDomains(domains *[]topic.Domain) []Topic {
+	topics := []Topic{}
+
+	for _, domain := range *domains {
+		topics = append(topics, Topic{
+			ID:               domain.ID,
+			Name:             domain.Name,
+			ProfileImage:     domain.ProfileImage,
+			Description:      domain.Description,
+			Rules:            domain.Rules,
+			ActivityCount:    domain.ActivityCount,
+			ContributorCount: domain.ContributorCount,
+			ModeratorCount:   domain.ModeratorCount,
+			CreatedAt:        domain.CreatedAt,
+			UpdatedAt:        domain.UpdatedAt,
+			DeletedAt:        domain.DeletedAt,
+		})
+	}
+
+	return topics
+}
