@@ -23,7 +23,6 @@ type Usecase interface {
 	GetTopics(limit, offset int, sort_by string) ([]Domain, error)
 	GetTopicsByKeyword(keyword string, limit, offset int) ([]Domain, error)
 	GetTopicDetails(topicId int) (Domain, error)
-	GetModerators(topicId int) ([]Domain, error) // TODO
 	UpdateTopic(data *Domain, topicId int) (Domain, error)
 	Subscribe(userId, topicId int) error
 	Unsubscribe(userId, topicId int) error
@@ -36,7 +35,6 @@ type Repository interface {
 	GetTopics(limit, offset int, sort_by string) ([]Domain, error)
 	GetTopicsByKeyword(keyword string, limit, offset int) ([]Domain, error)
 	GetTopicDetails(topicId int) (Domain, error)
-	GetModerators(topicId int)
 	UpdateTopic(data *Domain, topicId int) (Domain, error)
 	Subscribe(userId, topicId int) error
 	Unsubscribe(userId, topicId int) error

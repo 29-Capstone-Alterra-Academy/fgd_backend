@@ -40,10 +40,6 @@ func (uc *topicUsecase) CreateTopic(data *Domain, userId int) (Domain, error) {
 	return newTopic, err
 }
 
-func (uc *topicUsecase) GetModerators(topicId int) ([]Domain, error) {
-	panic("unimplemented")
-}
-
 func (uc *topicUsecase) GetSubscribedTopics(userId int) ([]Domain, error) {
 	topics, err := uc.topicRepository.GetSubscribedTopics(userId)
 	if err != nil {

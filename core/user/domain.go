@@ -36,6 +36,7 @@ type Usecase interface {
 	GetUsersByKeyword(keyword string, limit, offset int) ([]Domain, error)
 	GetFollowers(userId int) ([]Domain, error)
 	GetFollowing(userId int) ([]Domain, error)
+	GetModerators(topicId int) ([]Domain, error)
 	UpdatePersonalProfile(data *Domain, userId int) (Domain, error)
 	UpdatePassword(newPassword string, userId int) error
 	FollowUser(userId, targetId int) error
@@ -54,6 +55,7 @@ type Repository interface {
 	GetUserByUsername(username string) (Domain, error)
 	GetFollowers(userId int) ([]Domain, error)
 	GetFollowing(userId int) ([]Domain, error)
+	GetModerators(topicId int) ([]Domain, error)
 	GetModeratedTopic(userId int) (Domain, error)
 	UpdatePersonalProfile(data *Domain, userId int) (Domain, error)
 	UpdatePassword(hashedPassword string, userId int) error
