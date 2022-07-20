@@ -3,7 +3,7 @@ WORKDIR /app
 COPY go.sum go.mod ./
 RUN go mod download
 
-COPY * ./
+COPY . ./
 RUN go build -o /server ./app
 
 COPY ca.pem /
