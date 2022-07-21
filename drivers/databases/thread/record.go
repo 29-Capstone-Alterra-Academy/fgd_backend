@@ -25,7 +25,7 @@ type Thread struct {
 	LikedBy   []*user.User `gorm:"many2many:liked_thread"`
 	UnlikedBy []*user.User `gorm:"many2many:unliked_thread"`
 
-	ThreadReports []*user.User `gorm:"many2many:thread_reports"`
+	ThreadReports []*user.User `gorm:"many2many:thread_reports;constraint:OnDelete:CASCADE;"`
 }
 
 func (r *Thread) toDomain() *thread.Domain {
