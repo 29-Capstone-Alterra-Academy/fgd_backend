@@ -22,7 +22,7 @@ type User struct {
 
 	Following []*User `gorm:"many2many:user_follow"`
 
-	UserReports []*User `gorm:"many2many:user_reports;foreignKey:ID;joinForeignKey:SuspectID;references:ID"`
+	UserReports []*User `gorm:"many2many:user_reports;foreignKey:ID;joinForeignKey:SuspectID;references:ID;constraint:OnDelete:CASCADE"`
 
 	// Notifications []notification.Notification
 }

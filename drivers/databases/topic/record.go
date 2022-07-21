@@ -17,7 +17,7 @@ type Topic struct {
 	ModeratedBy  []*user.User `gorm:"many2many:topic_moderator"`
 	SubscribedBy []*user.User `gorm:"many2many:subscribed_topic"`
 
-	TopicReports []*user.User `gorm:"many2many:topic_reports"`
+	TopicReports []*user.User `gorm:"many2many:topic_reports;constraint:OnDelete:CASCADE;"`
 }
 
 func (r *Topic) toDomain() topic.Domain {

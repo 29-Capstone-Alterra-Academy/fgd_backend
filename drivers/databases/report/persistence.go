@@ -453,7 +453,7 @@ func (rp *persistenceReportRepository) RemoveReplyReport(reporterId, replyId uin
 
 	tx.SavePoint("checkpoint")
 
-	assocErr := tx.Model(&reply.Reply{}).Association("ReplyReports").Delete(&report)
+	assocErr := tx.Model(&reply.Reply{Model: gorm.Model{ID: replyId}}).Association("ReplyReports").Delete(&report)
 	if assocErr != nil {
 		tx.RollbackTo("checkpoint")
 		return assocErr
@@ -479,7 +479,7 @@ func (rp *persistenceReportRepository) RemoveThreadReport(reporterId, threadId u
 
 	tx.SavePoint("checkpoint")
 
-	assocErr := tx.Model(&thread.Thread{}).Association("ThreadReports").Delete(&report)
+	assocErr := tx.Model(&thread.Thread{Model: gorm.Model{ID: threadId}}).Association("ThreadReports").Delete(&report)
 	if assocErr != nil {
 		tx.RollbackTo("checkpoint")
 		return assocErr
@@ -505,7 +505,7 @@ func (rp *persistenceReportRepository) RemoveTopicReport(reporterId, topicId uin
 
 	tx.SavePoint("checkpoint")
 
-	assocErr := tx.Model(&topic.Topic{}).Association("TopicReports").Delete(&report)
+	assocErr := tx.Model(&topic.Topic{Model: gorm.Model{ID: topicId}}).Association("TopicReports").Delete(&report)
 	if assocErr != nil {
 		tx.RollbackTo("checkpoint")
 		return assocErr
@@ -531,7 +531,7 @@ func (rp *persistenceReportRepository) RemoveUserReport(reporterId, suspectId ui
 
 	tx.SavePoint("checkpoint")
 
-	assocErr := tx.Model(&user.User{}).Association("UserReports").Delete(&report)
+	assocErr := tx.Model(&user.User{Model: gorm.Model{ID: suspectId}}).Association("UserReports").Delete(&report)
 	if assocErr != nil {
 		tx.RollbackTo("checkpoint")
 		return assocErr
